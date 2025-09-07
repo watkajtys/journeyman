@@ -76,7 +76,12 @@ document.addEventListener('DOMContentLoaded', () => {
             setChoicesEnabled(false);
 
             try {
-                const imageData = await getGeneratedImage(node.image_prompt, signal);
+                const { imageData, textResponse } = await getGeneratedImage(node.image_prompt, signal);
+
+                if (textResponse) {
+                    storyTextElement.innerText = textResponse;
+                }
+
                 const imageSrc = `data:image/png;base64,${imageData}`;
                 imageCache[nodeId] = imageSrc;
                 imageElement.src = imageSrc;
@@ -176,6 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         // The API can return multiple parts, find the one with the image data.
+        const textPart = data.candidates[0]?.content?.parts.find(part => part.text);
+        const textResponse = textPart?.text;
         const imagePart = data.candidates[0]?.content?.parts.find(part => part.inlineData);
         const imageData = imagePart?.inlineData?.data;
 
@@ -187,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             throw new Error("Could not find image data in API response. The response might have changed or an error occurred.");
         }
-        return imageData;
+        return { imageData, textResponse };
     }
 
     init();
