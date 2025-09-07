@@ -35,55 +35,92 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderGraph() {
         graphContainer.innerHTML = ''; // Clear previous render
         if (!storyData.nodes) return;
+        nodePositions = {}; // Reset positions
 
-        // Create a simple column layout
-        const columns = {};
-        Object.keys(storyData.nodes).forEach(nodeId => {
-            const level = getNodeIdLevel(nodeId);
-            if (!columns[level]) {
-                columns[level] = [];
+        // 1. Group nodes by arch and location
+        const groupedNodes = {};
+        Object.values(storyData.nodes).forEach(node => {
+            const arch = node.id.split('_')[0] || 'general';
+            const location = node.location || 'no-location';
+
+            if (!groupedNodes[arch]) {
+                groupedNodes[arch] = {};
             }
-            columns[level].push(nodeId);
+            if (!groupedNodes[arch][location]) {
+                groupedNodes[arch][location] = [];
+            }
+            groupedNodes[arch][location].push(node);
         });
 
-        const sortedLevels = Object.keys(columns).sort((a, b) => a - b);
-        let nodeIndex = 0;
+        // 2. Render groups and nodes
+        const archKeys = Object.keys(groupedNodes).sort();
 
-        sortedLevels.forEach((level, colIndex) => {
-            // Sort nodes within the column alphabetically for consistent layout
-            columns[level].sort();
-            columns[level].forEach((nodeId, rowIndex) => {
-                const nodeElement = document.createElement('div');
-                nodeElement.className = 'graph-node';
-                nodeElement.textContent = nodeId;
-                nodeElement.dataset.id = nodeId;
+        for (const arch of archKeys) {
+            const archContainer = document.createElement('div');
+            archContainer.className = 'arch-container';
 
-                const x = colIndex * 200 + 50;
-                const y = rowIndex * 100 + 50;
-                nodeElement.style.left = `${x}px`;
-                nodeElement.style.top = `${y}px`;
-                nodePositions[nodeId] = { x, y };
+            const archTitle = document.createElement('h2');
+            archTitle.className = 'arch-title';
+            archTitle.textContent = arch;
+            archContainer.appendChild(archTitle);
 
-                nodeElement.addEventListener('click', () => selectNode(nodeId));
-                graphContainer.appendChild(nodeElement);
-                nodeIndex++;
+            const locationKeys = Object.keys(groupedNodes[arch]).sort();
+
+            for (const location of locationKeys) {
+                const locationContainer = document.createElement('div');
+                locationContainer.className = 'location-container';
+
+                const locationTitle = document.createElement('h3');
+                locationTitle.className = 'location-title';
+                locationTitle.textContent = location;
+                locationContainer.appendChild(locationTitle);
+
+                const nodes = groupedNodes[arch][location];
+                nodes.sort((a, b) => a.id.localeCompare(b.id));
+
+                let nodeY = 60; // Initial Y position for the first node in a location
+                for (const node of nodes) {
+                    const nodeElement = document.createElement('div');
+                    nodeElement.className = 'graph-node';
+                    nodeElement.textContent = node.id;
+                    nodeElement.dataset.id = node.id;
+
+                    // Position nodes statically within the flex item
+                    nodeElement.style.position = 'relative';
+                    nodeElement.style.marginBottom = '10px';
+
+                    nodeElement.addEventListener('click', () => selectNode(node.id));
+                    locationContainer.appendChild(nodeElement);
+                }
+                archContainer.appendChild(locationContainer);
+            }
+            graphContainer.appendChild(archContainer);
+        }
+
+        // Use requestAnimationFrame to ensure the DOM is updated before calculating positions
+        requestAnimationFrame(() => {
+            // One frame to render, another to ensure layout is stable
+            requestAnimationFrame(() => {
+                calculateAbsolutePositions();
+                drawConnections();
             });
         });
-
-        drawConnections();
     }
 
-    function getNodeIdLevel(nodeId, visited = new Set()) {
-        if (visited.has(nodeId)) return 0; // Prevent infinite loops
-        visited.add(nodeId);
+    function calculateAbsolutePositions() {
+        nodePositions = {};
+        const allNodeElements = graphContainer.querySelectorAll('.graph-node');
+        const containerRect = graphContainer.getBoundingClientRect();
+        const scrollLeft = graphContainer.scrollLeft;
+        const scrollTop = graphContainer.scrollTop;
 
-        for (const sourceNodeId in storyData.nodes) {
-            const node = storyData.nodes[sourceNodeId];
-            if (node.choices && node.choices.some(c => c.target_id === nodeId)) {
-                return getNodeIdLevel(sourceNodeId, visited) + 1;
-            }
-        }
-        return 0; // Root node
+        allNodeElements.forEach(nodeEl => {
+            const rect = nodeEl.getBoundingClientRect();
+            nodePositions[nodeEl.dataset.id] = {
+                x: rect.left - containerRect.left + scrollLeft + (rect.width / 2),
+                y: rect.top - containerRect.top + scrollTop + (rect.height / 2)
+            };
+        });
     }
 
     function drawConnections() {
@@ -107,11 +144,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const endPos = nodePositions[choice.target_id];
                     if (startPos && endPos) {
                         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                        // Offset by half node size to center the line
-                        line.setAttribute('x1', startPos.x + 75);
-                        line.setAttribute('y1', startPos.y + 20);
-                        line.setAttribute('x2', endPos.x + 75);
-                        line.setAttribute('y2', endPos.y + 20);
+                        line.setAttribute('x1', startPos.x);
+                        line.setAttribute('y1', startPos.y);
+                        line.setAttribute('x2', endPos.x);
+                        line.setAttribute('y2', endPos.y);
 
                         if (choice.transition_prompt) {
                             line.setAttribute('stroke', '#8e44ad');
