@@ -12,7 +12,9 @@
 <body>
     <div id="game-container">
         <div id="image-container">
-            <img id="scene-image" src="" alt="Current game scene">
+            <!-- We need two image elements for smooth cross-fading -->
+            <img id="scene-image-1" class="scene-image" src="" alt="Current game scene">
+            <img id="scene-image-2" class="scene-image" src="" alt="Next game scene">
             <div id="loading-spinner" class="hidden"></div>
         </div>
         <div id="narrative-container">
