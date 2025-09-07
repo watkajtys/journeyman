@@ -133,12 +133,30 @@ body {
     transition: all 0.2s ease-in-out;
     opacity: 0;
     animation: fadeInChoice 0.5s ease-out forwards;
+    position: relative;
+    overflow: hidden; /* To contain the shimmer pseudo-element */
 }
 
 .choice-button:hover {
     background-color: #34495e;
-    border-color: #8e44ad;
-    transform: translateY(-2px);
+    border-color: #8e44ad; /* Keep the purple border highlight */
+}
+
+/* Shimmer Effect */
+.choice-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    /* The shimmer uses the accent color */
+    background: linear-gradient(120deg, transparent, rgba(142, 68, 173, 0.4), transparent);
+    transition: left 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.choice-button:hover::before {
+    left: 100%;
 }
 
 /* Staggered fade-in animation for choices */
