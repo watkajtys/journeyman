@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         visitedServerRoom: false,
         visitedMedBay: false,
     };
+    let flashbackStateStack = []; // Stack to hold pre-flashback states
 
     // --- Initialization ---
     async function init() {
@@ -77,14 +78,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             isDisplayingText = false;
 
-            // Handle auto-transition right after text is displayed
-            if (node.auto_transition && node.choices && node.choices.length > 0) {
+            // --- Handle Automatic Post-Text Actions ---
+            // A node can either trigger a flashback or auto-transition, but not both.
+            // Flashback takes precedence.
+            if (node.auto_flashback) {
                 setChoicesEnabled(false);
-                // The setTimeout will trigger the next node, so we don't resolve the promise here.
-                // This stops the current `showNode` execution path.
+                // After a short delay, trigger the flashback
+                setTimeout(() => enterFlashback(node.auto_flashback), 800);
+            } else if (node.auto_transition && node.choices && node.choices.length > 0) {
+                setChoicesEnabled(false);
+                // After a short delay, transition to the next node
                 setTimeout(() => handleChoice(node.choices[0]), 800);
             } else {
-                // If it's not an auto-transition node, resolve the promise to allow
+                // If it's a standard node, resolve the promise to allow
                 // the calling function to proceed and render choices.
                 resolve();
             }
@@ -254,9 +260,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function enterFlashback(targetNodeId) {
+        // Save current state to the stack. We save the node ID we are *leaving from*.
+        const currentState = {
+            returnNodeId: currentNodeId,
+            playerState: JSON.parse(JSON.stringify(playerState)) // Deep copy
+        };
+        flashbackStateStack.push(currentState);
+        console.log('Entering flashback. State saved:', currentState);
+        showNode(targetNodeId);
+    }
+
+    function exitFlashback(targetNodeId) {
+        if (flashbackStateStack.length === 0) {
+            console.error("Cannot exit flashback: stack is empty.");
+            showNode('start'); // Fallback to start
+            return;
+        }
+        const previousState = flashbackStateStack.pop();
+        playerState = previousState.playerState;
+        console.log('Exiting flashback. Restoring state to:', previousState);
+
+        // If the choice ending the flashback provides a target, go there.
+        // Otherwise, return to the node that triggered the flashback.
+        const destinationNode = targetNodeId || previousState.returnNodeId;
+        showNode(destinationNode);
+    }
+
     async function handleChoice(choice) {
         // Prevent new choices while one is being processed
         setChoicesEnabled(false);
+
+        // --- Handle Flashback Logic ---
+        // A choice can either trigger a flashback or end one.
+        if (choice.flashback_trigger) {
+            enterFlashback(choice.target_id);
+            return; // Stop further execution
+        }
+        if (choice.flashback_end) {
+            // Pass the target_id from the choice, if it exists.
+            exitFlashback(choice.target_id);
+            return; // Stop further execution
+        }
 
         updatePlayerState(choice.target_id);
 
@@ -268,7 +313,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!transitionImageSrc) {
                 showLoading(true);
                 try {
-                    // For transitions, we create a temporary "pseudo-node" to pass to the generator
                     const pseudoNode = {
                         image_prompt: choice.transition_prompt,
                         no_context: choice.no_context || false
@@ -322,9 +366,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Assemble the prompt from different parts
         let promptParts = [];
 
-        // Add style guide
-        if (storyData.style_guide) {
-            promptParts.push(storyData.style_guide);
+        // 1. Assemble the prompt from different parts
+        let promptParts = [];
+
+        // Determine which style guide to use
+        const styleKey = node.style_override || 'default';
+        const styleGuide = storyData.style_guides?.[styleKey] || storyData.style_guides?.default || '';
+        if (styleGuide) {
+            promptParts.push(styleGuide);
         }
 
         // Add character descriptions

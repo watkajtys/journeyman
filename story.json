@@ -1,8 +1,14 @@
 {
-  "style_guide": "A cinematic sci-fi horror aesthetic, inspired by films like 'Alien' and 'Event Horizon'. Use dark, gritty textures, high-contrast lighting, and a feeling of oppressive isolation.",
+  "style_guides": {
+    "default": "A cinematic sci-fi horror aesthetic, inspired by films like 'Alien' and 'Event Horizon'. Use dark, gritty textures, high-contrast lighting, and a feeling of oppressive isolation.",
+    "flashback_echo": "A distorted, dreamlike, and fragmented memory. The image should feel like an echo of a real event, with visual glitches, blur, and a sense of unreality. Use a muted, almost monochrome color palette with occasional, jarring flashes of color."
+  },
   "characters": {
     "aris_thorne": {
       "description": "Dr. Aris Thorne is a middle-aged man with sharp, intelligent eyes, his face etched with a decade of failure and obsession. He has short, dark hair, greying at the temples, and wears a rugged, utilitarian jumpsuit."
+    },
+    "captain_eva_rostova": {
+      "description": "A woman in her late 40s with a commanding presence. Her hair is tied back in a severe, professional bun, and her eyes are sharp and discerning. She wears the standard captain's uniform of the SS Erebus, adorned with minimal insignia."
     }
   },
   "nodes": {
@@ -131,6 +137,14 @@
         {
           "text": "Investigate the Med Bay.",
           "target_id": "transition_to_med_bay"
+        },
+        {
+          "text": "Check the ship's Engineering bay.",
+          "target_id": "go_to_engineering"
+        },
+        {
+          "text": "Search the Crew Quarters.",
+          "target_id": "go_to_crew_quarters"
         }
       ]
     },
@@ -199,6 +213,35 @@
         {
           "text": "Run a ship-wide environmental diagnostic first.",
           "target_id": "check_environmentals"
+        },
+        {
+          "text": "Just start pushing buttons. See what happens.",
+          "target_id": "failure_vent_atmosphere_1"
+        }
+      ]
+    },
+    "failure_vent_atmosphere_1": {
+      "id": "failure_vent_atmosphere_1",
+      "location": "bridge",
+      "text": "Patience was never your strong suit. You stride over to a secondary console, its screen dark, and jab a promising-looking illuminated button labeled 'MANUAL OVERRIDE'. A klaxon suddenly blares, and the main screen flashes a new, terrifying message: 'EMERGENCY ATMOSPHERIC VENTING INITIATED: BRIDGE'.",
+      "image_prompt": "A close-up on a hand slamming a large, red, illuminated button on a dark console. The main viewscreen on the bridge in the background is now flashing with a huge, red warning symbol and the text 'WARNING: ATMOSPHERIC VENTING IN PROGRESS'. Red klaxon lights are flashing.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "failure_vent_atmosphere_2"
+        }
+      ]
+    },
+    "failure_vent_atmosphere_2": {
+      "id": "failure_vent_atmosphere_2",
+      "location": "bridge",
+      "text": "A violent roar fills the bridge as the air is ripped from the room. Loose items are torn from the consoles and sucked towards a newly opened vent in the ceiling. The pressure in your suit spikes, and your vision tunnels as you are thrown against the console. Your last, desperate thought is of your own foolishness.",
+      "image_prompt": "First-person view of being violently thrown against a console on the bridge. The world is tilted and blurry. Debris and papers are flying through the air towards a vent in the ceiling. A spiderweb of cracks appears on the player's helmet visor.",
+      "choices": [
+        {
+          "text": "Gasp for a breath that will never come...",
+          "target_id": "go_to_bridge_2"
         }
       ]
     },
@@ -206,7 +249,7 @@
       "id": "bridge_knowledge_gap",
       "location": "bridge",
       "characters_present": ["aris_thorne"],
-      "text": "You stare at the console, at the swirling, alien data. A profound sense of unease washes over you. You feel like you're missing a crucial piece of the puzzle. Trying to decrypt this now, blind, feels... reckless. That whisper you heard in the server room, the grim findings in the med bay... maybe they hold the key.",
+      "text": "You stare at the console, at the swirling, alien data. A profound sense of unease washes over you. You feel like you're missing a crucial piece of the puzzle. Trying to decrypt this now, blind, feels... reckless. That strange, hissing sound you heard in the server room, the grim findings in the med bay... maybe they hold the key.",
       "image_prompt": "Dr. Aris Thorne stands before the glowing console, his expression one of deep uncertainty and dread. His hand hovers over the controls, hesitant. The reflection in the screen is distorted, showing a dark, questioning shadow of themselves.",
       "choices": [
         {
@@ -253,7 +296,40 @@
       "image_prompt": "A vast, dark, and cold server room. Endless rows of silent, monolithic server racks create a sense of oppressive scale. The reflection of the protagonist on the side of one of the racks is subtly wrong: the reflection shows the rack as rusted and covered in cobwebs.",
       "choices": [
         {
-          "text": "Play the captain's last message.",
+          "text": "Access the central terminal.",
+          "target_id": "server_access_terminal"
+        },
+        {
+          "text": "Return to the main corridor.",
+          "target_id": "board_ship"
+        }
+      ]
+    },
+    "server_access_terminal": {
+      "id": "server_access_terminal",
+      "location": "server_room",
+      "text": "You access the central terminal. Most of the data is a maelstrom of corruption. You manage to locate the captain's final log, but it's flagged as 'Potentially Corrupted'. The system warns you that attempting to access it might cause... instability.",
+      "image_prompt": "A futuristic computer terminal in a dark server room. The screen is filled with scrolling, corrupted data that looks like digital static. A single dialog box in the center reads: 'WARNING: Data integrity compromised. Access may cause system instability. Proceed?'",
+      "choices": [
+        {
+          "text": "Bypass the corruption filters and play the log.",
+          "target_id": "server_bypass_corruption"
+        },
+        {
+          "text": "Leave the terminal.",
+          "target_id": "go_to_server_room"
+        }
+      ]
+    },
+    "server_bypass_corruption": {
+      "id": "server_bypass_corruption",
+      "location": "server_room",
+      "text": "You override the safety protocols. For a moment, the terminal screen floods with a pattern of crystalline static that feels horribly familiar. The lights in the server room flicker violently, and a wave of dizziness washes over you. Then, the captain's audio log begins to play.",
+      "image_prompt": "The computer terminal screen is a blast of pure, white, crystalline static. The light from the screen is the only light in the room, casting harsh, flickering shadows. The first-person view is distorted at the edges, as if the player is experiencing intense vertigo.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
           "target_id": "read_log"
         }
       ]
@@ -261,9 +337,9 @@
     "read_log": {
       "id": "read_log",
       "location": "server_room",
-      "characters_present": ["aris_thorne"],
-      "text": "You play the file. Captain Eva Rostova's voice crackles, frantic and broken: \"Thorne, if you get this... your machine... it wasn't a failure. It was a success. A horrifying success. We pointed it at the void and the void... answered.\"",
-      "image_prompt": "A close-up on a computer screen showing an audio file being played. The waveform is erratic and sharp. The reflection on the screen shows the focused, tense face of Dr. Aris Thorne.",
+      "characters_present": ["aris_thorne", "captain_eva_rostova"],
+      "text": "The captain's voice crackles, frantic and broken. \"Thorne, if you get this... your machine... it wasn't a failure. It was a success. That 'unknown power source' we detected in Engineering? We pointed the array at it. We awoke something. Something that was sleeping in the void. It's not a signal, Aris, it's a... presence.\"",
+      "image_prompt": "A close-up on a computer screen showing an audio file being played. The waveform is erratic and sharp. The reflection on the screen shows the focused, tense face of Dr. Aris Thorne. For a split second, the ghostly, superimposed face of Captain Eva Rostova, her expression terrified, appears over the waveform.",
       "auto_transition": true,
       "choices": [
         {
@@ -290,8 +366,8 @@
       "id": "read_log_3",
       "location": "server_room",
       "characters_present": ["aris_thorne"],
-      "text": "As silence falls, a voice—impossibly close—whispers your name in your own ear. \"A...ris...\"",
-      "image_prompt": "Extreme close-up on Dr. Aris Thorne's ear and the side of their face. The background is the dark, out-of-focus server room. The expression is one of pure, sudden terror. The lighting is tight and claustrophobic.",
+      "text": "As silence falls, you hear a sound—impossibly close, yet seeming to come from everywhere at once. It's a soft, sibilant hiss, like a billion tiny particles of ice rubbing together. And in the static, you almost think you can hear a voice... your own voice... trying to say your name.",
+      "image_prompt": "Extreme close-up on Dr. Aris Thorne's ear and the side of his face. His eyes are wide with confusion and dawning fear, not reacting to a simple sound, but to an impossible sensory input. The background is the dark, out-of-focus server room. The lighting is tight and claustrophobic.",
       "choices": [
         {
           "text": "It's an auditory hallucination. Stress-induced psychosis.",
@@ -384,8 +460,8 @@
       "id": "access_sensor_logs",
       "location": "bridge",
       "characters_present": ["aris_thorne"],
-      "text": "You lean over the console, your reflection staring back from the dark screen. You begin the decryption sequence. As the code scrolls past, a flicker of movement in the reflection catches your eye. It's not a shadow. For a split second, the reflection shows the bridge as it truly is: a wrecked, derelict tomb. Then it's gone. You whip around. Nothing. Just the oppressive, pristine silence.",
-      "image_prompt": "A tense close-up of Dr. Aris Thorne's face, illuminated by the green glow of a computer screen filled with scrolling code. Reflected in the dark screen is the bridge, but it is a scene of utter devastation. Wires spark, panels are broken. Standing in the middle of the wreckage, directly behind the protagonist's shoulder, is the tall, wavering silhouette of a non-human entity.",
+      "text": "You lean over the console, your reflection staring back from the dark screen. You begin the decryption sequence. As the code scrolls past, a flicker of movement in the reflection catches your eye. It's not a shadow. For a split second, the reflection shows the bridge as it *really* is: a wrecked, derelict tomb, covered in a strange, crystalline frost that seems to absorb the light. Then it's gone. You whip around. Nothing. Just the oppressive, pristine silence.",
+      "image_prompt": "A tense close-up of Dr. Aris Thorne's face, illuminated by the green glow of a computer screen filled with scrolling code. Reflected in the dark screen is the bridge, but it is a scene of utter devastation. Wires spark, panels are broken. Most unsettlingly, a layer of impossible, fractal-like crystalline frost covers every surface, glowing with a faint, sickly light. There is no entity visible, only the ghostly, frozen aftermath of its presence.",
       "auto_transition": true,
       "choices": [
         {
@@ -424,8 +500,8 @@
       "id": "access_sensor_logs_4",
       "location": "bridge",
       "characters_present": ["aris_thorne"],
-      "text": "Your machine didn't fail. It found something. And it has led that something straight to you.",
-      "image_prompt": "Return to the close-up of Dr. Aris Thorne's face, illuminated by the console screen. His eyes are wide with dawning horror and comprehension. The reflection in the screen shows the monstrous silhouette standing right behind him, clearer than before.",
+      "text": "Your machine didn't fail. It found something. And it has led that something straight to you. As the thought forms, the console screen wavers. The reflection of your own face distorts, the features momentarily twisting into an expression of silent, screaming agony that isn't your own.",
+      "image_prompt": "Return to the close-up of Dr. Aris Thorne's face, illuminated by the console screen. His eyes are wide with dawning horror and comprehension. His reflection in the screen is hideously distorted. For a moment, it is not his face, but a screaming, silent mask of agony, the features warped as if seen through water, with the same faint, crystalline frost seeming to crawl at the edges of the reflected image.",
       "choices": [
         {
           "text": "My God. It's real. I have to stop it.",
@@ -590,20 +666,68 @@
     "go_to_med_bay": {
       "id": "go_to_med_bay",
       "location": "med_bay",
-      "text": "You decide to check the Med Bay. The doors hiss open to reveal a scene of chilling sterility. But as the door slides, you see a momentary flash of something else: a dark, unsettling handprint on the wall, gone in an instant.",
-      "image_prompt": "The automatic doors to the med bay are sliding open. For a split second, the pristine white wall inside is marred by a strange, dark handprint that seems to absorb the light, which vanishes as the door opens fully to reveal a perfectly clean room.",
+      "text": "You decide to check the Med Bay. The doors hiss open to reveal a scene of chilling sterility. But as the door slides, the pristine white walls seem to shimmer, and for a split-second, they are covered in a network of faint, glowing lines, like a schematic or a circuit board, before fading back to white.",
+      "image_prompt": "The automatic doors to the med bay are sliding open. For a split second, the pristine white wall inside is covered in a faint, glowing, and impossibly complex network of lines, like an alien circuit board or a glowing fungus. The pattern vanishes as the door opens fully to reveal a perfectly clean room.",
       "choices": [
         {
           "text": "Access the medical log.",
           "target_id": "access_med_log"
+        },
+        {
+          "text": "Investigate the surgical theater.",
+          "target_id": "med_bay_theater"
+        }
+      ]
+    },
+    "med_bay_theater": {
+      "id": "med_bay_theater",
+      "location": "med_bay_theater",
+      "text": "You push through a set of double doors into the surgical theater. The room is dominated by a single operating table. The overhead light is buzzing, casting a harsh glare on the sterile surfaces. It's pristine, except for one thing: a surgical tray on a nearby table is in disarray, its instruments stained with a dark, dried substance.",
+      "image_prompt": "A sterile, white surgical theater on a starship. A single, intimidating operating table sits in the center under a harsh overhead light. On a metal tray nearby, surgical instruments are scattered in a chaotic mess, stained with dried blood. The scene is otherwise perfectly clean, which makes the bloody instruments even more disturbing.",
+      "choices": [
+        {
+          "text": "Examine the instruments.",
+          "target_id": "examine_instruments"
+        },
+        {
+          "text": "Leave the theater.",
+          "target_id": "go_to_med_bay"
+        }
+      ]
+    },
+    "examine_instruments": {
+      "id": "examine_instruments",
+      "location": "med_bay_theater",
+      "text": "You look closer at the instruments. They are scalpels, forceps, and... other things, things you don't recognize. They look less like medical tools and more like carving implements. You notice a faint, intricate pattern has been scratched into the metal of the operating table, almost hidden in the glare of the light.",
+      "image_prompt": "A close-up of the bloody surgical instruments. They are sharp, precise, and unsettling. In the background, out of focus, a series of strange, ritualistic-looking symbols can be seen scratched into the surface of the operating table.",
+      "choices": [
+        {
+          "text": "Pick up one of the carving tools.",
+          "target_id": "failure_med_bay_compulsion"
+        },
+        {
+          "text": "This is a dark place. Leave now.",
+          "target_id": "go_to_med_bay"
+        }
+      ]
+    },
+    "failure_med_bay_compulsion": {
+      "id": "failure_med_bay_compulsion",
+      "location": "med_bay_theater",
+      "text": "You reach for one of the tools. The moment your fingers touch the cold metal, a jolt goes through you. The 'song' you've been hearing, the faint static at the edge of your perception, becomes a deafening roar. You feel an overwhelming compulsion, a deep, horrifying *need* to make the patterns match... to carve the beautiful, terrible symbols from the table into your own skin.",
+      "image_prompt": "First-person view. The protagonist is holding one of the strange, bloody carving tools. Their hand is trembling violently. Their own arm is in the frame, and you can see the tip of the tool pressing against their skin, as if they are fighting an immense internal battle.",
+      "choices": [
+        {
+          "text": "Fight it. Drop the tool.",
+          "target_id": "go_to_med_bay"
         }
       ]
     },
     "access_med_log": {
       "id": "access_med_log",
       "location": "med_bay",
-      "text": "It's the log of the ship's psychologist, Dr. Lena Hanson. Her notes chart the crew's rapid, inexplicable descent into paranoia. \"They all report the same thing,\" she writes. \"A voice. A feeling of being watched. I told them it was mass hysteria, a consequence of deep space isolation. But now... I'm hearing it too.\"",
-      "image_prompt": "A close-up on a futuristic medical datapad. The screen shows the portrait of a concerned-looking female doctor next to a block of text. The text is a psychological evaluation, with phrases like 'mass hysteria' and 'auditory hallucinations' visible.",
+      "text": "It's the log of the ship's psychologist, Dr. Lena Hanson. Her notes chart the crew's rapid, inexplicable descent into paranoia. 'They all report the same thing,' she writes. 'A song. A cold, sharp song of crystal and static. They say it's in the walls, in their heads. I told them it was mass hysteria... but now... I'm hearing it too. It's beautiful. It's terrifying. It's calling to us from the void.'",
+      "image_prompt": "A close-up on a futuristic medical datapad. The screen shows the portrait of a concerned-looking female doctor next to a block of text. The text is a psychological evaluation, with phrases like 'mass hysteria', 'auditory hallucinations', and 'shared auditory phenomena' visible.",
       "choices": [
         {
           "text": "Check the autopsy reports.",
@@ -675,6 +799,169 @@
         {
           "text": "Continue...",
           "target_id": "board_ship"
+        }
+      ]
+    },
+    "go_to_engineering": {
+      "id": "go_to_engineering",
+      "location": "engineering",
+      "text": "You head towards the stern of the ship, following signs for Engineering. The pristine corridors give way to a more industrial aesthetic. Heavy, grease-stained doors hiss open to reveal the heart of the ship.",
+      "image_prompt": "A massive, industrial engineering bay on a starship. Huge, silent machinery dominates the room. Everything is clean, but there's a sense of immense, dormant power. The lighting is colder and more utilitarian than in the rest of the ship. A single diagnostic panel glows in the distance.",
+      "choices": [
+        {
+          "text": "Approach the diagnostic panel.",
+          "target_id": "engineering_panel"
+        },
+        {
+          "text": "Return to the main corridor.",
+          "target_id": "board_ship"
+        }
+      ]
+    },
+    "engineering_panel": {
+      "id": "engineering_panel",
+      "location": "engineering",
+      "text": "The panel shows the power readings for the ship. The main reactor is offline, yet... the ship is drawing a trickle of power from somewhere. The source is listed as 'UNKNOWN'. The energy signature is a hungry, leech-like waveform, actively siphoning residual energy from the ship's systems.",
+      "image_prompt": "A close-up of a futuristic diagnostic screen. Most of the readouts are flatlined, but a single graph shows an aggressive, leech-like power draw. The label for this reading is a flashing red 'UNKNOWN SOURCE'. The energy wavelength is a complex, predatory-looking fractal pattern.",
+      "auto_flashback": "flashback_engineering_start"
+    },
+    "flashback_engineering_start": {
+      "id": "flashback_engineering_start",
+      "location": "engineering_flashback",
+      "style_override": "flashback_echo",
+      "characters_present": ["captain_eva_rostova"],
+      "text": "The glowing panel... the fractal pattern... it triggers something in your memory. A fragment of a moment you weren't there for, but you feel as if you were...",
+      "image_prompt": "A distorted, dreamlike view of the Engineering bay, but it is bustling with activity. Engineers in jumpsuits are shouting, pointing at the same diagnostic screen you were just looking at. The image is blurry and overlaid with static.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "flashback_engineering_2"
+        }
+      ]
+    },
+    "flashback_engineering_2": {
+      "id": "flashback_engineering_2",
+      "location": "engineering_flashback",
+      "style_override": "flashback_echo",
+      "characters_present": ["captain_eva_rostova"],
+      "text": "You hear Captain Rostova's voice over an intercom, sharp and clear through the memory-haze. 'Thorne was right. The array is working. What are we looking at, people?' An engineer replies, his voice full of awe. 'I don't know, Captain. It's... beautiful.'",
+      "image_prompt": "The same blurry, dreamlike scene, but now the focus is on the diagnostic screen. The 'UNKNOWN SOURCE' is not red and flashing, but a brilliant, beautiful, and hypnotic blue. The engineers are gathered around it, mesmerized. The ghost of Captain Rostova is faintly visible, looking on with a mix of triumph and concern.",
+      "choices": [
+        {
+          "text": "The memory fades...",
+          "target_id": "engineering_panel_loop",
+          "flashback_end": true
+        }
+      ]
+    },
+    "engineering_panel_loop": {
+      "id": "engineering_panel_loop",
+      "location": "engineering",
+      "text": "You are back at the diagnostic panel. The parasitic waveform on the screen seems to pulse in time with your heartbeat. The memory you just experienced hangs heavy in the air. You now understand: the pristine state of the ship isn't preservation; it's consumption.",
+      "image_prompt": "A close-up of a futuristic diagnostic screen. The aggressive, leech-like power draw is still visible. The fractal pattern of the energy signature seems to subtly, slowly, change, as if adapting.",
+      "choices": [
+        {
+          "text": "Try to interface directly with the unknown signal.",
+          "target_id": "failure_engineering_interface"
+        },
+        {
+          "text": "This is too dangerous. Leave Engineering.",
+          "target_id": "go_to_engineering"
+        }
+      ]
+    },
+    "failure_engineering_interface": {
+      "id": "failure_engineering_interface",
+      "location": "engineering",
+      "text": "You reach out, placing your hand on the screen. A jolt of ice-cold energy shoots up your arm. The room dissolves into a screaming vortex of crystalline light and fractured data. Your own thoughts are no longer your own. You are a part of the song now.",
+      "image_prompt": "First-person view. The protagonist's hand is on the screen, but it's turning into crystalline, fractal patterns. The world outside the screen is a swirling vortex of light and data, representing a total loss of self.",
+      "choices": [
+        {
+          "text": "Become part of the machine...",
+          "target_id": "go_to_engineering"
+        }
+      ]
+    },
+    "go_to_crew_quarters": {
+      "id": "go_to_crew_quarters",
+      "location": "crew_quarters",
+      "text": "You make your way to the habitat ring of the ship. The corridors here feel different—less sterile, more lived-in, yet utterly silent. The doors to the crew quarters are closed, each with a small nameplate.",
+      "image_prompt": "A corridor in the crew quarters section of a starship. It's clean, but feels more personal than the main corridors. There are several doors, each with a small, unlit nameplate beside it. The silence is profound; it feels like you're walking through a graveyard.",
+      "choices": [
+        {
+          "text": "Enter the first room on the left.",
+          "target_id": "quarters_room_1"
+        },
+        {
+          "text": "Read the nameplates on the doors.",
+          "target_id": "quarters_nameplates"
+        },
+        {
+          "text": "Return to the main corridor.",
+          "target_id": "board_ship"
+        }
+      ]
+    },
+    "quarters_nameplates": {
+      "id": "quarters_nameplates",
+      "location": "crew_quarters",
+      "text": "You scan the names on the doors. Rostova. Hanson. Chen. Names you recognize from the crew manifest. There's no comfort in the familiarity.",
+      "image_prompt": "A close-up on a few of the nameplates on the doors. The names are simple, utilitarian text (ROSTOVA, E. HANSON, L. CHEN, J.). The metal is cold and sterile.",
+      "choices": [
+        {
+          "text": "Stop reading.",
+          "target_id": "go_to_crew_quarters"
+        }
+      ]
+    },
+    "quarters_room_1": {
+      "id": "quarters_room_1",
+      "location": "crew_quarters_room",
+      "text": "You slide open the door. The room is small, spartan. A single bunk, a desk with a datapad, a small closet. Everything is perfectly neat, as if the occupant just stepped out for a moment.",
+      "image_prompt": "The interior of a spartan crew cabin on a starship. The bed is made with military precision. A datapad sits on a small desk. The room is clean and sterile, but a single item is out of place: a child's drawing of a smiling star, taped to the wall.",
+      "choices": [
+        {
+          "text": "Read the datapad.",
+          "target_id": "quarters_datapad"
+        },
+        {
+          "text": "Leave the room.",
+          "target_id": "go_to_crew_quarters"
+        }
+      ]
+    },
+    "quarters_datapad": {
+      "id": "quarters_datapad",
+      "location": "crew_quarters_room",
+      "text": "The datapad contains a single, unfinished letter. 'My dearest Elara, I don't know how to explain what's happening. We found something out there. Something wonderful, I thought. But it's... wrong. The ship... it sings to us now. A cold, sharp song of crystal and static. I see it when I close my eyes. I...' The letter ends there, the last word trailing off.",
+      "image_prompt": "A close-up on a datapad screen. The text of an unfinished letter is visible. The text is written in a slightly panicked, hurried hand. The screen flickers slightly, and for a moment, a faint, crystalline pattern seems to overlay the words.",
+      "auto_flashback": "flashback_quarters_start"
+    },
+    "flashback_quarters_start": {
+      "id": "flashback_quarters_start",
+      "location": "crew_quarters_flashback",
+      "style_override": "flashback_echo",
+      "text": "As you read the words 'My dearest Elara', the datapad screen seems to dissolve into light, pulling you into another memory...",
+      "image_prompt": "A distorted, dreamlike view of the same crew quarters, but the room is personalized. There are photos on the desk, clothes strewn on a chair. A man is sitting on the bunk, smiling as he talks to someone off-screen. The image is warm and happy, but hazy and ephemeral.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "flashback_quarters_2"
+        }
+      ]
+    },
+    "flashback_quarters_2": {
+      "id": "flashback_quarters_2",
+      "location": "crew_quarters_flashback",
+      "style_override": "flashback_echo",
+      "text": "A woman's voice, warm and full of laughter, says 'Tell Elara her papa is a hero. The whole universe is going to know his name.' The man on the bunk laughs. 'Let's not get ahead of ourselves. But this discovery... it's going to change everything.' The scene shimmers and fades, the laughter echoing into silence.",
+      "image_prompt": "The same hazy, dreamlike room. The man is looking at a photo on his desk - a picture of a young girl. The scene is tinged with a deep, tragic sadness, as if the memory itself is aware of what is to come. The edges of the image are dissolving into white light.",
+      "choices": [
+        {
+          "text": "The memory recedes...",
+          "flashback_end": true
         }
       ]
     }
