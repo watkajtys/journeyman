@@ -60,30 +60,47 @@ document.addEventListener('DOMContentLoaded', () => {
         isPreloading = true;
         console.log('Starting preload for choices of:', node.id);
 
-        const preloadPromises = node.choices.map(choice => {
+        const preloadPromises = [];
+        node.choices.forEach(choice => {
             const nextNodeId = choice.target_id;
             const nextNode = storyData[nextNodeId];
+
+            // --- Preload the main image for the next node ---
             if (nextNode && nextNode.image_prompt && !imageCache[nextNodeId]) {
-                console.log('Preloading image for:', nextNodeId);
-                // Pass true for isPreload to suppress main spinner
-                return getGeneratedImage(nextNode.image_prompt, null, lastImageB64, true)
+                console.log('Queueing preload for main image:', nextNodeId);
+                const mainImagePromise = getGeneratedImage(nextNode.image_prompt, null, lastImageB64, true)
                     .then(({ imageData }) => {
                         const imageSrc = `data:image/png;base64,${imageData}`;
                         imageCache[nextNodeId] = imageSrc;
-                        console.log('Successfully preloaded and cached image for:', nextNodeId);
+                        console.log('Successfully preloaded main image for:', nextNodeId);
                     })
-                    .catch(error => {
-                        // Don't let a failed preload stop anything, just log it.
-                        console.warn(`Preloading failed for node "${nextNodeId}":`, error);
-                    });
+                    .catch(error => console.warn(`Preloading main image failed for "${nextNodeId}":`, error));
+                preloadPromises.push(mainImagePromise);
             }
-            return Promise.resolve(); // Resolve immediately if no image or already cached
+
+            // --- Preload the transition image for the choice ---
+            const transitionCacheKey = `${node.id}->${choice.target_id}`;
+            if (choice.transition_prompt && !imageCache[transitionCacheKey]) {
+                console.log('Queueing preload for transition image:', transitionCacheKey);
+                const transitionImagePromise = getGeneratedImage(choice.transition_prompt, null, lastImageB64, true)
+                    .then(({ imageData }) => {
+                        const imageSrc = `data:image/png;base64,${imageData}`;
+                        imageCache[transitionCacheKey] = imageSrc;
+                        console.log('Successfully preloaded transition image for:', transitionCacheKey);
+                    })
+                    .catch(error => console.warn(`Preloading transition image failed for "${transitionCacheKey}":`, error));
+                preloadPromises.push(transitionImagePromise);
+            }
         });
 
-        Promise.all(preloadPromises).then(() => {
+        if (preloadPromises.length > 0) {
+            Promise.all(preloadPromises).then(() => {
+                isPreloading = false;
+                console.log('All preloading tasks finished for node:', node.id);
+            });
+        } else {
             isPreloading = false;
-            console.log('All preloading tasks finished.');
-        });
+        }
     }
 
     function updateImage(newSrc) {
@@ -242,16 +259,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleChoice(choice) {
         if (typeof choice === 'string') {
+            // Handle cases where we just pass a target ID string
             choice = { target_id: choice };
         }
         setChoicesEnabled(false);
-        // tooltipElement.classList.add('hidden'); // No longer needed
 
-        // Transition logic is now handled by the new updateImage function.
-        // If a transition prompt existed, it could be used to generate a temporary
-        // image, but for now we simplify and just move to the next node.
-        // The preloading system should make this transition fast if the image is ready.
+        // --- Intermediary Image Transition ---
+        // If the choice has a transition prompt, we generate and display that image first.
+        if (choice.transition_prompt) {
+            // A unique cache key for the transition image, e.g., "start->bridge_path"
+            const transitionCacheKey = `${currentNodeId}->${choice.target_id}`;
+            let transitionImageSrc = imageCache[transitionCacheKey];
 
+            if (!transitionImageSrc) {
+                // If not preloaded, generate the transition image now.
+                generationController = new AbortController();
+                const signal = generationController.signal;
+                loadingSpinnerElement.classList.remove('hidden');
+                stopButtonElement.classList.remove('hidden');
+
+                try {
+                    // We use lastImageB64 for context, but DON'T update it with the transition image.
+                    const { imageData } = await getGeneratedImage(choice.transition_prompt, signal, lastImageB64, false);
+                    transitionImageSrc = `data:image/png;base64,${imageData}`;
+                    imageCache[transitionCacheKey] = transitionImageSrc; // Cache it for future use.
+                } catch (error) {
+                    console.error("Error generating transition image:", error);
+                    // If generation fails, we'll just skip to the next node.
+                } finally {
+                    loadingSpinnerElement.classList.add('hidden');
+                    stopButtonElement.classList.add('hidden');
+                    generationController = null;
+                }
+            }
+
+            // If we have a transition image (either from cache or just generated), show it.
+            if (transitionImageSrc) {
+                await updateImage(transitionImageSrc);
+            }
+        }
+
+        // After the transition (or if there was none), show the main node.
         showNode(choice.target_id);
     }
 
