@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentNodeId = 'start';
     let lastStableNodeId = 'start';
     let imageCache = {};
+    let lastImageB64 = null;
     let generationController;
     let collectedFragments = new Set();
 
@@ -76,12 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
             setChoicesEnabled(false);
 
             try {
-                const { imageData, textResponse } = await getGeneratedImage(node.image_prompt, signal);
+                const { imageData, textResponse } = await getGeneratedImage(node.image_prompt, signal, lastImageB64);
 
                 if (textResponse) {
                     storyTextElement.innerText = textResponse;
                 }
 
+                lastImageB64 = imageData;
                 const imageSrc = `data:image/png;base64,${imageData}`;
                 imageCache[nodeId] = imageSrc;
                 imageElement.src = imageSrc;
@@ -161,9 +163,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    async function getGeneratedImage(prompt, signal) {
+    async function getGeneratedImage(prompt, signal, lastImageB64 = null) {
+        const parts = [{ text: prompt }];
+
+        if (lastImageB64) {
+            parts.unshift({
+                inlineData: {
+                    mimeType: 'image/png',
+                    data: lastImageB64
+                }
+            });
+             parts.unshift({
+                text: "Given the previous image, create a new image that continues the scene based on the following prompt:"
+            });
+        }
+
         const payload = {
-            contents: [{ parts: [{ text: prompt }] }]
+            contents: [{ parts: parts }]
         };
 
         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
