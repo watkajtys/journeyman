@@ -15,7 +15,7 @@
     "opening_scene": {
       "id": "opening_scene",
       "location": "deep_space",
-      "text": "The void of space is vast, cold, and utterly silent.",
+      "text": "Space.",
       "image_prompt": "An extreme wide shot of deep space. The camera is still, and for a moment, there is nothing but the pinpricks of distant stars and the faint swirl of a nebula.",
       "auto_transition": true,
       "choices": [
@@ -28,8 +28,8 @@
     "opening_shuttle_appears": {
       "id": "opening_shuttle_appears",
       "location": "deep_space",
-      "text": "A single point of light resolves into a small, utilitarian shuttle, a lonely traveler in an ocean of black...",
-      "image_prompt": "From the empty space shot, a tiny rescue shuttle drifts into the frame, its engines cold, emphasizing the profound emptiness and isolation.",
+      "text": "A lone shuttle makes its way through the void.",
+      "image_prompt": "From the empty space shot, a tiny rescue shuttle drifts into the frame, its engines cold, emphasizing the profound emptiness and isolation as it moves towards an unseen destination.",
       "auto_transition": true,
       "choices": [
         {
@@ -41,21 +41,8 @@
     "opening_approach": {
       "id": "opening_approach",
       "location": "deep_space",
-      "text": "...drifting towards the ghost-like silhouette of the derelict starship, SS Erebus.",
+      "text": "A ghost-like silhouette comes into view. The derelict starship, SS Erebus.",
       "image_prompt": "A slow, majestic tracking shot. The small shuttle moves across the screen, its tiny scale contrasted with the immense, dark, and derelict form of the 'SS Erebus' starship, which now dominates the background. The starship is silent, with no lights, showing signs of micrometeoroid impacts and neglect.",
-      "auto_transition": true,
-      "choices": [
-        {
-          "text": "Continue...",
-          "target_id": "opening_zoom"
-        }
-      ]
-    },
-    "opening_zoom": {
-      "id": "opening_zoom",
-      "location": "erebus_exterior",
-      "text": "The shuttle's cockpit comes into view, a tiny bubble of light against the vast, dead hulk of the Erebus.",
-      "image_prompt": "Cinematic shot, zooming in from the previous scene. The camera is now focused on the cockpit window of the small rescue shuttle. The immense, dark shape of the Erebus looms in the background, its scale still apparent.",
       "auto_transition": true,
       "choices": [
         {
@@ -67,11 +54,24 @@
     "opening_cockpit": {
       "id": "opening_cockpit",
       "location": "shuttle_cockpit",
+      "text": "The hulking mass of the Erebus fills your view. A dead ship, waiting.",
+      "image_prompt": "A tense, first-person POV from inside a dark, cramped shuttle cockpit. The only light comes from the viewport, which is completely filled with the view of the immense, derelict 'SS Erebus'. The ship is so close its hull details are visible - pitted, scarred metal, and dark viewports like dead eyes. The exterior of the player's shuttle should NOT be visible at all. The shot must convey a sense of being completely dwarfed and intimidated.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "protagonist_intro"
+        }
+      ]
+    },
+    "protagonist_intro": {
+      "id": "protagonist_intro",
+      "location": "shuttle_cockpit",
       "characters_present": [
         "aris_thorne"
       ],
-      "text": "Inside the cramped cockpit, you are Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. For ten years, you have been a ghost, haunted by the supposed malfunction of your sensor array, your magnum opus, which claimed 117 souls. The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
-      "image_prompt": "First-person view from inside a cramped shuttle cockpit. The grim face of Dr. Aris Thorne is visible in reflection on the glass. The massive, derelict starship 'SS Erebus' fills the entire viewport, blotting out the stars. IMPORTANT: Do not show the exterior of the shuttle.",
+      "text": "You are Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls. The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
+      "image_prompt": "Continue the previous POV shot, but now, the determined face of Dr. Aris Thorne appears as a ghostly, semi-transparent reflection on the cockpit's glass. His eyes are fixed on the derelict ahead. The reflection does not obscure the view of the Erebus.",
       "auto_transition": true,
       "choices": [
         {
@@ -130,6 +130,19 @@
       "choices": [
         {
           "text": "Continue...",
+          "target_id": "hallway_pristine"
+        }
+      ]
+    },
+    "hallway_pristine": {
+      "id": "hallway_pristine",
+      "location": "main_corridor",
+      "text": "The corridor is now pristine. Not a speck of dust, not a wire out of place. Was the wreck a hallucination? A trick of the failing light? You take a hesitant step forward.",
+      "image_prompt": "First-person POV. The interior of the SS Erebus is pristine and unnervingly clean. Sterile emergency lights stretch down a long, metallic corridor. The scene is perfectly composed and symmetrical, creating a deep sense of unease. There is no dust. There is no damage. It is perfect.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
           "target_id": "board_ship"
         }
       ]
@@ -137,8 +150,8 @@
     "board_ship": {
       "id": "board_ship",
       "location": "main_corridor",
-      "text": "You step aboard. The silence is the first thing that hits you. It's not just quiet; it's a dead, pressurized absence of sound. The emergency lights cast a sterile, unwavering glow. The ship is pristine, a ghost preserved in a vacuum. Was the damage you saw just a trick of the light? Your datapad pings with the ship's layout, highlighting several key areas: the Bridge, the Server Room, the Med Bay, Engineering, and the Crew Quarters.",
-      "image_prompt": "First-person POV. The interior of the SS Erebus is pristine and unnervingly clean. Sterile emergency lights stretch down a long, metallic corridor. The scene is perfectly composed and symmetrical, creating a deep sense of unease. There is no dust. There is no damage. It is perfect.",
+      "text": "The silence is the first thing that hits you. It's not just quiet; it's a dead, pressurized absence of sound. Your datapad pings with the ship's layout, highlighting several key areas: the Bridge, the Server Room, the Med Bay, Engineering, and the Crew Quarters.",
+      "image_prompt": "First-person POV, looking down at a futuristic datapad held in your hands. The datapad screen displays a glowing blue schematic of the starship, with key areas like 'BRIDGE' and 'MED BAY' highlighted. The pristine, sterile corridor is visible in the background.",
       "choices": [
         {
           "text": "Proceed to the Bridge.",
@@ -230,8 +243,21 @@
     "go_to_bridge": {
       "id": "go_to_bridge",
       "location": "bridge",
-      "text": "You ascend to the Bridge. The command center is a tomb of dead consoles. As you step inside, you see a flicker in the corner of your eye—a flash of rust and decay on a console, gone as quickly as it appeared. In the center of the room, one panel remains stubbornly alive: the master control for the Erebus Array, your creation. It pulses with a soft, hypnotic light, displaying a data pattern you've never seen before.",
-      "image_prompt": "The cavernous bridge of the starship Erebus is shrouded in darkness. For a split second, one of the 'dead' consoles in the foreground glitches, showing a screen cracked and covered in grime, before returning to its pristine, dark state. The lone, active console in the center of the room draws your attention. Its screen casts a soft, blue, hypnotic light on the dust-covered captain's chair before it.",
+      "text": "You ascend to the Bridge. The command center is a tomb of dead consoles. As you step inside, you see a flicker in the corner of your eye—a flash of rust and decay on a console, gone as quickly as it appeared.",
+      "image_prompt": "The cavernous bridge of the starship Erebus is shrouded in darkness. For a split second, one of the 'dead' consoles in the foreground glitches, showing a screen cracked and covered in grime, before returning to its pristine, dark state.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "bridge_console"
+        }
+      ]
+    },
+    "bridge_console": {
+      "id": "bridge_console",
+      "location": "bridge",
+      "text": "In the center of the room, one panel remains stubbornly alive: the master control for the Erebus Array, your creation. It pulses with a soft, hypnotic light, displaying a data pattern you've never seen before.",
+      "image_prompt": "The lone, active console in the center of the bridge draws your attention. Its screen casts a soft, blue, hypnotic light on the dust-covered captain's chair before it, the strange data pattern swirling on its display.",
       "choices": [
         {
           "text": "Analyze the array's active logs.",
