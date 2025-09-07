@@ -115,11 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const listContainer = document.createElement('div');
         listContainer.className = 'node-list-container';
 
-        // 1. Get all nodes and sort them by ID
-        const sortedNodes = Object.values(storyData.nodes).sort((a, b) => a.id.localeCompare(b.id));
+        // 1. Get all nodes in the order they appear in the JSON file
+        const nodesInStoryOrder = Object.values(storyData.nodes);
 
         // 2. Render nodes sequentially
-        for (const node of sortedNodes) {
+        for (const node of nodesInStoryOrder) {
             const nodeElement = document.createElement('div');
             nodeElement.className = 'graph-node'; // Use existing styling
             nodeElement.textContent = node.id;
