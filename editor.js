@@ -50,6 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let nodeIndex = 0;
 
         sortedLevels.forEach((level, colIndex) => {
+            // Sort nodes within the column alphabetically for consistent layout
+            columns[level].sort();
             columns[level].forEach((nodeId, rowIndex) => {
                 const nodeElement = document.createElement('div');
                 nodeElement.className = 'graph-node';
