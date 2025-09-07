@@ -54,22 +54,24 @@
     "opening_cockpit": {
       "id": "opening_cockpit",
       "location": "shuttle_cockpit",
-      "characters_present": ["aris_thorne"],
-      "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls. The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
-      "image_prompt": "Interior shot. Dr. Aris Thorne looks out the viewport of a cramped, utilitarian shuttle, his face a mask of grim determination. Reflected in the glass, the immense, silent hull of the derelict starship 'SS Erebus' fills the view, eclipsing the distant stars.",
+      "characters_present": [
+        "aris_thorne"
+      ],
+      "text": "Inside the cramped cockpit, you are Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. For ten years, you have been a ghost, haunted by the supposed malfunction of your sensor array, your magnum opus, which claimed 117 souls. The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
+      "image_prompt": "A tense, claustrophobic shot from inside a small shuttle cockpit. The camera is focused on the side of Dr. Aris Thorne's face; his expression is grim, his eyes fixed on the view ahead. The massive, derelict starship 'SS Erebus' completely fills the cockpit's viewport, its dark, silent hull blotting out the stars. No part of the shuttle exterior is visible.",
       "auto_transition": true,
       "choices": [
         {
           "text": "Continue...",
-          "target_id": "protagonist_intro_3"
+          "target_id": "docking_sequence"
         }
       ]
     },
-    "protagonist_intro_3": {
-      "id": "protagonist_intro_3",
-      "location": "airlock",
-      "text": "The comm crackles with the voice of the recovery captain—a man who clearly despises you. \"She's all yours, Thorne. Find something to justify this circus.\"",
-      "image_prompt": "First-person POV from the protagonist's perspective. A gloved hand rests near the airlock controls. A small, crackling speaker grille is visible on the console, its light blinking with the incoming transmission.",
+    "docking_sequence": {
+      "id": "docking_sequence",
+      "location": "shuttle_cockpit",
+      "text": "With a percussive jolt that feels final, the shuttle's clamps lock onto the Erebus. The comm crackles with the voice of the recovery captain—a man who clearly despises you. 'She's all yours, Thorne. Find something to justify this circus.'",
+      "image_prompt": "First-person POV from the protagonist's perspective. The view through the cockpit window violently shudders for a moment. Red indicator lights on the console flash, with text that reads 'DOCKING CLAMPS ENGAGED'. A small, crackling speaker grille is visible on the console, its light blinking with the incoming transmission.",
       "auto_transition": true,
       "choices": [
         {
@@ -157,6 +159,32 @@
         {
           "text": "Search the Crew Quarters.",
           "target_id": "transition_to_crew_quarters"
+        }
+      ]
+    },
+    "transition_to_engineering": {
+      "id": "transition_to_engineering",
+      "location": "main_corridor",
+      "text": "The path to Engineering leads you away from the sterile common areas and into the industrial heart of the Erebus. You cross a narrow catwalk suspended over the chasm of the main reactor housing, the silence of the dead ship somehow more profound here.",
+      "image_prompt": "A dizzying first-person POV shot from a narrow, grated catwalk, looking down into a vast, dark, and impossibly deep chasm housing the ship's main reactor. The scale is immense and terrifying. The only light comes from a few emergency beacons far below, casting long, eerie shadows.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "go_to_engineering"
+        }
+      ]
+    },
+    "transition_to_crew_quarters": {
+      "id": "transition_to_crew_quarters",
+      "location": "main_corridor",
+      "text": "You head to the habitat ring, a section of the ship designed for long-term habitation. The architecture softens, the metallic corridors giving way to warmer, though still unsettlingly empty, living spaces.",
+      "image_prompt": "A wide, cinematic shot of a gracefully curving corridor within the starship's habitat ring. The design is less utilitarian, with synthetic wood paneling and softer lighting fixtures (all dark). The curve of the corridor suggests the rotation of a gravity ring. The complete silence and stillness make it feel like a pristine, abandoned luxury hotel.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "go_to_crew_quarters"
         }
       ]
     },
@@ -994,45 +1022,6 @@
       "choices": [
         {
           "text": "Leave the room.",
-          "target_id": "go_to_crew_quarters"
-        }
-      ]
-    },
-    "transition_to_med_bay_elevator": {
-      "id": "transition_to_med_bay_elevator",
-      "location": "elevator",
-      "text": "You step into a grimy, industrial elevator. The doors hiss shut, and the elevator begins to move. A painted number on the wall indicates the floor number changing.",
-      "image_prompt": "Interior of a futuristic, industrial-style freight elevator. The walls are heavy, riveted metal. A painted number on the wall is partially obscured by grime. A construction-style label with the Althea Corporation logo is visible on the wall.",
-      "auto_transition": true,
-      "choices": [
-        {
-          "text": "Continue...",
-          "target_id": "go_to_med_bay"
-        }
-      ]
-    },
-    "transition_to_engineering_elevator": {
-      "id": "transition_to_engineering_elevator",
-      "location": "elevator",
-      "text": "You step into a grimy, industrial elevator. The doors hiss shut, and the elevator begins to move. A painted number on the wall indicates the floor number changing.",
-      "image_prompt": "Interior of a futuristic, industrial-style freight elevator. The walls are heavy, riveted metal. A painted number on the wall is partially obscured by grime. A construction-style label with the Althea Corporation logo is visible on the wall.",
-      "auto_transition": true,
-      "choices": [
-        {
-          "text": "Continue...",
-          "target_id": "go_to_engineering"
-        }
-      ]
-    },
-    "transition_to_crew_quarters_elevator": {
-      "id": "transition_to_crew_quarters_elevator",
-      "location": "elevator",
-      "text": "You step into a grimy, industrial elevator. The doors hiss shut, and the elevator begins to move. A painted number on the wall indicates the floor number changing.",
-      "image_prompt": "Interior of a futuristic, industrial-style freight elevator. The walls are heavy, riveted metal. A painted number on the wall is partially obscured by grime. A construction-style label with the Althea Corporation logo is visible on the wall.",
-      "auto_transition": true,
-      "choices": [
-        {
-          "text": "Continue...",
           "target_id": "go_to_crew_quarters"
         }
       ]
