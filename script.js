@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastImageB64 = null;
     let generationController;
     let isGenerating = false; // To prevent concurrent generations
-    let isDisplayingText = false; // To prevent skipping text animation
+    let isDisplayingText = false;
+    let skipTextAnimation = false;
     let playerState = {
         visitedServerRoom: false,
         visitedMedBay: false,
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('story.json');
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             storyData = await response.json();
+            currentNodeId = 'opening_scene'; // Set the starting node
             await showNode(currentNodeId);
         } catch (error) {
             narrativeContainerElement.classList.remove('hidden');
@@ -99,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function typeWriterChunk(element, text) {
         return new Promise(resolve => {
+            skipTextAnimation = false; // Reset for each new chunk
             element.innerHTML = ''; // Clear previous text
             const words = text.split(' ');
             let wordIndex = 0;
@@ -107,9 +110,15 @@ document.addEventListener('DOMContentLoaded', () => {
             element.appendChild(cursor);
 
             function typeWord() {
+                if (skipTextAnimation) {
+                    element.innerHTML = text; // Instantly set the full text
+                    cursor.remove();
+                    resolve();
+                    return;
+                }
+
                 if (wordIndex < words.length) {
                     const wordSpan = document.createElement('span');
-                    // Add a space after each word. The final word won't have a trailing space.
                     wordSpan.textContent = words[wordIndex] + (wordIndex < words.length - 1 ? ' ' : '');
                     element.insertBefore(wordSpan, cursor);
                     wordIndex++;
@@ -373,6 +382,12 @@ document.addEventListener('DOMContentLoaded', () => {
             promptParts.push(styleGuide);
         }
 
+        // Inject aspect ratio for mobile
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('portrait') === 'true') {
+            promptParts.push("Use a portrait aspect ratio (9:16) for the image.");
+        }
+
         // Add character descriptions
         if (node.characters_present && storyData.characters) {
             const characterDescriptions = node.characters_present.map(charId => {
@@ -431,6 +446,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners ---
     stopButtonElement.addEventListener('click', () => {
         if (generationController) generationController.abort();
+    });
+
+    storyTextContainerElement.addEventListener('click', () => {
+        if (isDisplayingText) {
+            skipTextAnimation = true;
+        }
     });
 
     // --- Start the adventure ---
