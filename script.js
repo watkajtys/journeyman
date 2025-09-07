@@ -58,6 +58,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    // --- Image Update Logic ---
+    function updateImage(newSrc) {
+        return new Promise((resolve) => {
+            // If there's no new source, resolve immediately.
+            if (!newSrc) {
+                resolve();
+                return;
+            }
+
+            // Preload the image in the background
+            const tempImg = new Image();
+            tempImg.onload = () => {
+                // Once loaded, set the source of the actual image element
+                imageElement.src = newSrc;
+                // The CSS transition will handle the fade
+                resolve();
+            };
+            tempImg.onerror = () => {
+                console.error("Failed to load image for preloading:", newSrc);
+                // Even on error, resolve to not block the game flow
+                resolve();
+            };
+            tempImg.src = newSrc;
+        });
+    }
+
+
     // --- Node Rendering Logic ---
     async function showNode(nodeId) {
         currentNodeId = nodeId;
@@ -82,8 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Image Generation ---
         if (imageCache[nodeId]) {
-            imageElement.src = imageCache[nodeId];
-            imageElement.classList.remove('hidden');
+            await updateImage(imageCache[nodeId]);
             loadingSpinnerElement.classList.add('hidden');
             stopButtonElement.classList.add('hidden');
             lastStableNodeId = nodeId;
@@ -94,34 +120,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
             loadingSpinnerElement.classList.remove('hidden');
             stopButtonElement.classList.remove('hidden');
-            imageElement.classList.add('hidden');
+            // DO NOT HIDE THE IMAGE ANYMORE: imageElement.classList.add('hidden');
             setChoicesEnabled(false);
 
             try {
-                const { imageData, textResponse } = await getGeneratedImage(node.image_prompt, signal, lastImageB64);
+                const { imageData } = await getGeneratedImage(node.image_prompt, signal, lastImageB64);
 
                 lastImageB64 = imageData;
                 const imageSrc = `data:image/png;base64,${imageData}`;
                 imageCache[nodeId] = imageSrc;
-                imageElement.src = imageSrc;
+
+                // Use the new update function
+                await updateImage(imageSrc);
+
                 lastStableNodeId = nodeId;
             } catch (error) {
                 if (error.name === 'AbortError') {
                     console.log('Image generation was stopped. Reverting to last stable state.');
-                    showNode(lastStableNodeId);
-                    return; // Exit to prevent finally block on broken state
+                    // Don't just call showNode, as it could cause loops. Reset state carefully.
+                    loadingSpinnerElement.classList.add('hidden');
+                    stopButtonElement.classList.add('hidden');
+                    setChoicesEnabled(true);
+                    // No need to call showNode again, just stay on the current stable node.
+                    return;
                 } else if (error.message.includes("Could not find image data")) {
                     console.warn(`Soft failure for node "${nodeId}": API did not return image data. Proceeding without an image.`);
                     lastStableNodeId = nodeId; // Treat as stable, just without an image
                 } else {
                     console.error("Error generating image:", error);
                     imageElement.alt = `Failed to generate image: ${error.message}`;
-                    imageElement.src = "";
+                    // Don't clear the src, keep the old image
                 }
             } finally {
                 loadingSpinnerElement.classList.add('hidden');
                 stopButtonElement.classList.add('hidden');
-                imageElement.classList.remove('hidden');
                 setChoicesEnabled(true);
                 generationController = null;
             }
@@ -217,25 +249,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (choice.transition_prompt) {
             loadingSpinnerElement.classList.remove('hidden');
-            imageElement.classList.add('hidden');
+            // DO NOT HIDE IMAGE: imageElement.classList.add('hidden');
             generationController = new AbortController();
             stopButtonElement.classList.remove('hidden');
 
             try {
                 const { imageData } = await getGeneratedImage(choice.transition_prompt, generationController.signal, lastImageB64);
                 lastImageB64 = imageData;
-                imageElement.src = `data:image/png;base64,${imageData}`;
-                imageElement.classList.remove('hidden');
-                loadingSpinnerElement.classList.add('hidden');
-                stopButtonElement.classList.add('hidden');
-                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Use the new update function for a seamless transition
+                const imageSrc = `data:image/png;base64,${imageData}`;
+                await updateImage(imageSrc);
+
+                // No need for an artificial delay anymore
+                // await new Promise(resolve => setTimeout(resolve, 500));
+
             } catch (error) {
                 if (error.name === 'AbortError') {
                     console.log('Transition generation stopped. Reverting.');
-                    showNode(lastStableNodeId); // Revert to last stable node
+                    // Just re-enable choices, stay on the current node.
+                    setChoicesEnabled(true);
                     return;
                 }
-                console.error("Error during transition, proceeding to next node.", error);
+                console.error("Error during transition, proceeding to next node but keeping old image.", error);
+            } finally {
+                // Hide spinner and button regardless of outcome
+                loadingSpinnerElement.classList.add('hidden');
+                stopButtonElement.classList.add('hidden');
             }
         }
         showNode(choice.target_id);

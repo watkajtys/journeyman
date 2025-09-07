@@ -1,30 +1,29 @@
 /* --- Global Styles & Font --- */
 body {
     font-family: 'Lora', serif;
-    background-color: #121212;
-    color: #e0e0e0;
+    background-color: #121212; /* Dark background for the page */
+    color: #333; /* Darker text for better readability on light backgrounds */
     margin: 0;
     overflow: hidden; /* Prevent scrollbars on the body */
 }
 
-/* --- Game Container --- */
+/* --- Game Container - FLEXBOX LAYOUT --- */
 #game-container {
+    display: flex;
     width: 100vw;
     height: 100vh;
-    position: relative; /* For positioning child elements */
     background: #000; /* Black background for the container */
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 /* --- Image & Loading --- */
 #image-container {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
+    flex: 3; /* Takes up 3 parts of the space */
+    position: relative; /* For positioning hotspots and spinner */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Hide anything that spills out */
+    height: 100%; /* Full height of the container */
 }
 
 #scene-image {
@@ -46,11 +45,10 @@ body {
     height: 80px;
     animation: spin 1.5s linear infinite;
     position: absolute;
-    /* Centering the spinner within the game-container */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 5; /* Ensure it's above the image but below UI text */
+    z-index: 5;
     transition: opacity 0.5s ease-in-out;
 }
 
@@ -59,21 +57,18 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* --- Narrative & Choices --- */
+/* --- Narrative & Choices (The "Page") --- */
 #narrative-container {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 10; /* Ensure it's on top of the image */
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    padding: 20px 30px;
-    border-top: 1px solid #333;
-    max-height: 40vh;
+    flex: 2; /* Takes up 2 parts of the space */
+    z-index: 10;
+    background: #f5f5dc; /* Beige, parchment-like color */
+    padding: 30px 40px;
     overflow-y: auto;
-    box-sizing: border-box; /* Include padding in the element's total width and height */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Full height of the container */
+    border-left: 2px solid #3a3a3a; /* A "spine" for the book */
 }
 
 #story-text {
@@ -81,13 +76,14 @@ body {
     line-height: 1.7;
     margin-bottom: 25px;
     font-style: italic;
-    color: #ccc;
+    color: #4a4a4a; /* Dark grey text */
 }
 
 #choices-container {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-top: auto; /* Pushes choices to the bottom */
 }
 
 .choice-button {
@@ -104,14 +100,14 @@ body {
 }
 
 .choice-button:hover {
-    background-color: #34495e; /* Slightly lighter blue-grey */
-    border-color: #8e44ad; /* Purple accent on hover */
+    background-color: #34495e;
+    border-color: #8e44ad;
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
 .choice-button.toggled {
-    background-color: #8e44ad; /* Purple accent to show it's been activated */
+    background-color: #8e44ad;
     border-color: #ecf0f1;
     cursor: default;
 }
@@ -121,7 +117,7 @@ body {
     position: absolute;
     top: 20px;
     right: 20px;
-    z-index: 10; /* Ensure it's above other elements */
+    z-index: 15; /* High z-index to be on top of everything */
     background-color: #c0392b; /* Red */
     color: #ecf0f1;
     padding: 15px 20px;
@@ -130,12 +126,11 @@ body {
     cursor: pointer;
     font-family: 'Lora', serif;
     font-size: 1.1em;
-    text-align: center;
     transition: all 0.2s ease-in-out;
 }
 
 #stop-button:hover {
-    background-color: #e74c3c; /* Lighter red */
+    background-color: #e74c3c;
     border-color: #c0392b;
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.4);
@@ -143,14 +138,12 @@ body {
 
 /* --- Utility --- */
 .hidden {
-    display: none !important; /* Use important to override potential conflicts */
+    display: none !important;
 }
 
 /* --- Hotspot & Tooltip Styles --- */
 .hotspot {
     position: absolute;
-    /* For debugging, uncomment below */
-    /* border: 2px dashed red; */
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -168,10 +161,45 @@ body {
     color: white;
     padding: 10px 15px;
     border-radius: 5px;
-    z-index: 999; /* Ensure it's on top of everything */
-    pointer-events: none; /* So it doesn't interfere with mouse events on hotspots */
+    z-index: 999;
+    pointer-events: none;
     font-size: 1em;
     text-align: center;
     max-width: 300px;
-    transform: translate(-50%, -120%); /* Position it above the cursor */
+    transform: translate(-50%, -120%);
+}
+
+/* --- RESPONSIVE DESIGN FOR MOBILE --- */
+@media (max-width: 800px) {
+    #game-container {
+        flex-direction: column; /* Stack image and text vertically */
+    }
+
+    #image-container {
+        flex: 1; /* Takes up 1 part of vertical space */
+        height: 50vh; /* Explicitly 50% of the viewport height */
+        width: 100%;
+    }
+
+    #narrative-container {
+        flex: 1; /* Takes up 1 part of vertical space */
+        height: 50vh; /* Explicitly 50% of the viewport height */
+        width: 100%;
+        border-left: none; /* Remove the "spine" on mobile */
+        border-top: 2px solid #3a3a3a; /* Add a separator on top */
+    }
+
+    #story-text {
+        font-size: 1.1em; /* Slightly smaller text for mobile */
+        line-height: 1.6;
+    }
+
+    #choices-container {
+        gap: 10px;
+    }
+
+    .choice-button {
+        padding: 12px 15px;
+        font-size: 1em;
+    }
 }
