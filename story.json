@@ -1,7 +1,7 @@
 {
   "start": {
     "id": "start",
-    "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls. The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back. The comm crackles with the voice of the recovery captain—a man who clearly despises you. \"She's all yours, Thorne. Find something to justify this circus.\"",
+    "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls. || The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back. || The comm crackles with the voice of the recovery captain—a man who clearly despises you. \"She's all yours, Thorne. Find something to justify this circus.\"",
     "image_prompt": "Sci-fi horror concept art. A middle-aged man, his face etched with a decade of failure and obsession, looks out the viewport of a cramped, utilitarian shuttle. Reflected in the glass, the immense, silent hull of the derelict starship 'SS Erebus' fills the view, eclipsing the distant stars.",
     "choices": [
       {
@@ -65,6 +65,36 @@
       {
         "text": "Run a ship-wide environmental diagnostic first.",
         "target_id": "check_environmentals"
+      }
+    ]
+  },
+  "bridge_knowledge_gap": {
+    "id": "bridge_knowledge_gap",
+    "text": "You stare at the console, at the swirling, alien data. A profound sense of unease washes over you. You feel like you're missing a crucial piece of the puzzle. Trying to decrypt this now, blind, feels... reckless. That whisper you heard in the server room, the grim findings in the med bay... maybe they hold the key.",
+    "image_prompt": "Psychological horror concept art. The protagonist stands before the glowing console, but their expression is one of deep uncertainty and dread. Their hand hovers over the controls, hesitant. The reflection in the screen is distorted, showing a dark, questioning shadow of themselves.",
+    "choices": [
+      {
+        "text": "I should know more. I'll check the Server Room.",
+        "target_id": "go_to_server_room"
+      },
+      {
+        "text": "Perhaps the Med Bay has answers about the crew.",
+        "target_id": "go_to_med_bay"
+      },
+      {
+        "text": "Ignore the feeling. Push forward with the decryption.",
+        "target_id": "failure_blind_decryption"
+      }
+    ]
+  },
+  "failure_blind_decryption": {
+    "id": "failure_blind_decryption",
+    "text": "You shake off the doubt, attributing it to stress. You're a scientist. You need data, not feelings. You initiate the decryption sequence. As the alien code begins to resolve, your mind feels... open. An intrusive, chilling presence slips into your thoughts, uninvited. The whispers start, not in your ear, but inside your skull. You've connected yourself to the entity without any mental defenses. It floods your consciousness, and you are lost.",
+    "image_prompt": "Cosmic horror art. A first-person view of a computer screen with alien, glowing glyphs. The glyphs are starting to bleed off the screen, swirling into the air around the console. The user's hands, visible at the bottom of the frame, are starting to become translucent and made of static.",
+    "choices": [
+      {
+        "text": "Become one with the void...",
+        "target_id": "start"
       }
     ]
   },
@@ -195,6 +225,42 @@
     "choices": [
       {
         "text": "...",
+        "target_id": "end_glow_in_cabin"
+      }
+    ]
+  },
+  "end_glow_in_cabin": {
+    "id": "end_glow_in_cabin",
+    "text": "The energy release is blinding. A wave of pure, silent, white light erupts from the console.",
+    "image_prompt": "Abstract, surrealist art. A human silhouette made of pure, white light and energy seems to be dissolving into an infinitely repeating, beautiful, and terrifying fractal pattern. At the very center of the silhouette's chest is a single point of absolute darkness, the trapped entity. This is happening inside the bridge of the ship.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "end_outside_ship_close"
+      }
+    ]
+  },
+    "end_outside_ship_close": {
+    "id": "end_outside_ship_close",
+    "text": "From outside, the ship is momentarily illuminated from within.",
+    "image_prompt": "Sci-fi horror concept art. A shot from just outside the SS Erebus, looking at the bridge viewport. A brilliant, white light erupts from within, starkly illuminating the hull and casting long shadows.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "end_outside_ship_far"
+      }
+    ]
+  },
+  "end_outside_ship_far": {
+    "id": "end_outside_ship_far",
+    "text": "The light fades, leaving the ship once again adrift in the silent void.",
+    "image_prompt": "Sci-fi concept art. The camera has pulled back farther. The SS Erebus is a solitary vessel against the backdrop of a star-dusted nebula. The intense light from the bridge has subsided, returning the ship to a quiet silhouette.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
         "target_id": "end_state"
       }
     ]

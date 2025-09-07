@@ -95,13 +95,23 @@ body {
     transform: translateY(0);
 }
 
-#story-text {
+#story-text-container {
+    margin: 0 0 20px 0;
+    text-align: left;
+    min-height: 10em; /* Reserve space to avoid layout shifts */
+}
+
+.story-text-chunk {
     font-size: 1.2em;
     line-height: 1.7;
-    margin: 0 0 20px 0;
     font-style: normal;
     color: #f5f5f5;
-    text-align: left;
+    opacity: 1;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.story-text-chunk.fade-out {
+    opacity: 0;
 }
 
 #choices-container {
