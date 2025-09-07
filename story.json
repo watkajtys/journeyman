@@ -15,8 +15,21 @@
     "opening_scene": {
       "id": "opening_scene",
       "location": "deep_space",
-      "text": "The void of space is vast, cold, and utterly silent. A single point of light resolves into a small, utilitarian shuttle, a lonely traveler in an ocean of black...",
-      "image_prompt": "An extreme wide shot of deep space. The camera is still, and for a moment, there is nothing but the pinpricks of distant stars and the faint swirl of a nebula. A tiny rescue shuttle drifts into the frame, its engines cold, emphasizing the profound emptiness and isolation.",
+      "text": "The void of space is vast, cold, and utterly silent.",
+      "image_prompt": "An extreme wide shot of deep space. The camera is still, and for a moment, there is nothing but the pinpricks of distant stars and the faint swirl of a nebula.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "opening_shuttle_appears"
+        }
+      ]
+    },
+    "opening_shuttle_appears": {
+      "id": "opening_shuttle_appears",
+      "location": "deep_space",
+      "text": "A single point of light resolves into a small, utilitarian shuttle, a lonely traveler in an ocean of black...",
+      "image_prompt": "From the empty space shot, a tiny rescue shuttle drifts into the frame, its engines cold, emphasizing the profound emptiness and isolation.",
       "auto_transition": true,
       "choices": [
         {
@@ -58,7 +71,7 @@
         "aris_thorne"
       ],
       "text": "Inside the cramped cockpit, you are Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. For ten years, you have been a ghost, haunted by the supposed malfunction of your sensor array, your magnum opus, which claimed 117 souls. The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
-      "image_prompt": "A tense, claustrophobic shot from inside a small shuttle cockpit. The camera is focused on the side of Dr. Aris Thorne's face; his expression is grim, his eyes fixed on the view ahead. The massive, derelict starship 'SS Erebus' completely fills the cockpit's viewport, its dark, silent hull blotting out the stars. No part of the shuttle exterior is visible.",
+      "image_prompt": "First-person view from inside a cramped shuttle cockpit. The grim face of Dr. Aris Thorne is visible in reflection on the glass. The massive, derelict starship 'SS Erebus' fills the entire viewport, blotting out the stars. IMPORTANT: Do not show the exterior of the shuttle.",
       "auto_transition": true,
       "choices": [
         {
@@ -83,21 +96,8 @@
     "title_card": {
       "id": "title_card",
       "location": "title_card_style",
-      "text": "EREBUS",
-      "image_prompt": "An epic, cinematic title card. The word 'EREBUS' is written in a stark, futuristic, and slightly distressed font. The background is a dark, subtly textured image that evokes a sense of deep space and cosmic horror. The lighting is minimal and dramatic.",
-      "auto_transition": true,
-      "choices": [
-        {
-          "text": "Continue...",
-          "target_id": "title_card_2"
-        }
-      ]
-    },
-    "title_card_2": {
-      "id": "title_card_2",
-      "location": "title_card_style",
-      "text": "An Althea Corporation Production",
-      "image_prompt": "A simple, clean title card. The text 'An Althea Corporation Production' is displayed in a corporate, sans-serif font. The Althea Corporation logo (a stylized atom) is subtly visible in the background.",
+      "text": "EREBUS||built by vibes",
+      "image_prompt": "An epic, cinematic title poster. The title 'EREBUS' is the main focus, in a stark, futuristic font. At the bottom of the poster, in small text, it says 'built by vibes'.",
       "auto_transition": true,
       "choices": [
         {
