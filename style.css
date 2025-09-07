@@ -11,7 +11,8 @@ body {
 #game-container {
     position: relative;
     width: 100vw;
-    height: 100vh;
+    height: 100vh; /* Fallback for browsers that don't support dvh */
+    height: 100dvh; /* Dynamic viewport height */
     background: #000;
 }
 
@@ -52,6 +53,8 @@ body {
     flex-direction: column;
     justify-content: flex-end; /* Align content to the bottom */
     align-items: center;
+    padding-bottom: env(safe-area-inset-bottom, 10px); /* For mobile devices with notches */
+    box-sizing: border-box;
     pointer-events: none; /* Allow clicks to pass through to elements behind it */
     z-index: 10;
 }
@@ -87,6 +90,8 @@ body {
     opacity: 0;
     transform: translateY(20px);
     transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    max-height: 70%; /* Set a max height */
+    overflow-y: auto; /* Allow scrolling if content overflows */
 }
 
 #narrative-container.visible {
@@ -209,6 +214,25 @@ body {
 @keyframes blink {
   from, to { background-color: transparent }
   50% { background-color: #f5f5f5; }
+}
+
+/* --- Media Queries for Mobile --- */
+@media (max-width: 767px) {
+    #narrative-container {
+        margin: 5px;
+        width: calc(100% - 10px);
+        max-height: 50%;
+    }
+
+    .story-text-chunk {
+        font-size: 0.9em;
+        line-height: 1.5;
+    }
+
+    .choice-button {
+        padding: 10px 12px;
+        font-size: 0.9em;
+    }
 }
 
 /* --- Media Queries for Larger Screens --- */
