@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const choicesContainerElement = document.getElementById('choices-container');
     const imageContainerElement = document.getElementById('image-container');
     const narrativeContainerElement = document.getElementById('narrative-container');
-    const modalContainerElement = document.getElementById('modal-container');
     const imageElements = [document.getElementById('scene-image-1'), document.getElementById('scene-image-2')];
     let activeImageIndex = 0;
     const loadingSpinnerElement = document.getElementById('loading-spinner');
@@ -40,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await showNode(currentNodeId);
         } catch (error) {
             storyTextContainerElement.innerHTML = `<p>Error loading story: ${error}. Please check that story.json is available.</p>`;
-            modalContainerElement.classList.remove('hidden');
+            narrativeContainerElement.classList.remove('hide');
             console.error("Failed to load story.json:", error);
         }
     }
@@ -85,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (isTitleCard && node.auto_transition_delay) {
                  setTimeout(() => {
-                    modalContainerElement.classList.add('hidden');
+                    narrativeContainerElement.classList.add('hide');
                     // Wait for the modal to fade out before transitioning
                     setTimeout(() => handleChoice(node.choices[0]), 500);
                 }, node.auto_transition_delay);
@@ -184,8 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 1. Hide modal, clear choices
-        modalContainerElement.classList.add('hidden');
+        // 1. Hide narrative, clear choices
+        narrativeContainerElement.classList.add('hide');
         clearChoices();
         setChoicesEnabled(false);
 
@@ -195,8 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Preload next images in the background
         preloadChoiceImages(node);
 
-        // 4. Show the modal and animate text
-        modalContainerElement.classList.remove('hidden');
+        // 4. Show the narrative and animate text
+        narrativeContainerElement.classList.remove('hide');
         await displayText(node);
 
         // 5. Render choices (if it's not an auto-transitioning or title card node)
@@ -302,10 +301,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Prevent new choices while one is being processed
         setChoicesEnabled(false);
 
-        // Hide the modal before starting the transition
-        modalContainerElement.classList.add('hidden');
+        // Hide the narrative before starting the transition
+        narrativeContainerElement.classList.add('hide');
 
-        // Wait for modal to fade out before proceeding
+        // Wait for narrative to fade out before proceeding
         await new Promise(resolve => setTimeout(resolve, 500));
 
         // --- Handle Flashback Logic ---
