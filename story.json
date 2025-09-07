@@ -1,35 +1,72 @@
 {
   "start": {
     "id": "start",
+    "text": "In the cold, silent expanse of deep space, a lone rescue shuttle drifts towards the ghost-like silhouette of the derelict starship, SS Erebus.",
+    "image_prompt": "Sci-fi concept art. A vast, cinematic shot of deep space. A small, rugged, utilitarian rescue shuttle is dwarfed by the immense, dark, and derelict form of the 'SS Erebus' starship. The starship is silent, with no lights, showing signs of damage and neglect. The shuttle is approaching it cautiously. The mood is tense and isolated.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "opening_zoom"
+      }
+    ]
+  },
+  "opening_zoom": {
+    "id": "opening_zoom",
+    "text": "The shuttle's cockpit comes into view, a tiny bubble of light against the vast, dead hulk of the Erebus.",
+    "image_prompt": "Cinematic shot, zooming in from the previous scene. The camera is now focused on the cockpit window of the small rescue shuttle. The immense, dark shape of the Erebus looms in the background, its scale still apparent.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "opening_cockpit"
+      }
+    ]
+  },
+  "opening_cockpit": {
+    "id": "opening_cockpit",
     "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls.",
     "image_prompt": "Sci-fi horror concept art. A middle-aged man, his face etched with a decade of failure and obsession, looks out the viewport of a cramped, utilitarian shuttle. Reflected in the glass, the immense, silent hull of the derelict starship 'SS Erebus' fills the view, eclipsing the distant stars.",
     "auto_transition": true,
     "choices": [
       {
         "text": "Continue...",
-        "target_id": "start_2"
+        "target_id": "protagonist_intro_2"
       }
     ]
   },
-  "start_2": {
-    "id": "start_2",
+  "protagonist_intro_2": {
+    "id": "protagonist_intro_2",
     "text": "The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
     "image_prompt": "Continue the previous shot, but zoom in slightly on the man's face, emphasizing the grim determination in his eyes. The reflection of the derelict ship remains dominant.",
     "auto_transition": true,
     "choices": [
       {
         "text": "Continue...",
-        "target_id": "start_3"
+        "target_id": "protagonist_intro_3"
       }
     ]
   },
-  "start_3": {
-    "id": "start_3",
+  "protagonist_intro_3": {
+    "id": "protagonist_intro_3",
     "text": "The comm crackles with the voice of the recovery captain—a man who clearly despises you. \"She's all yours, Thorne. Find something to justify this circus.\"",
     "image_prompt": "First-person view from the protagonist's perspective. A hand rests near the airlock controls. A small, crackling speaker grille is visible on the console, perhaps with a blinking light indicating an incoming transmission.",
+    "auto_transition": true,
     "choices": [
       {
-        "text": "Cycle the airlock. Go aboard.",
+        "text": "Continue...",
+        "target_id": "title_card"
+      }
+    ]
+  },
+  "title_card": {
+    "id": "title_card",
+    "text": "EREBUS",
+    "image_prompt": "An epic, cinematic title card. The word 'EREBUS' is written in a stark, futuristic, and slightly distressed font. The background is a dark, subtly textured image that evokes a sense of deep space and cosmic horror. The lighting is minimal and dramatic.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
         "target_id": "transition_boarding"
       }
     ]
@@ -38,6 +75,7 @@
     "id": "transition_boarding",
     "text": "You take a steadying breath. The airlock hisses open, revealing the corridor beyond.",
     "image_prompt": "Sci-fi horror concept art. First-person view from inside a helmet. Through the thick glass of the now-open inner airlock door, the corridor of the SS Erebus is revealed. It is a wreck. Emergency lights flicker erratically, casting deep shadows. Wires hang from the ceiling like vines, and panels are torn from the walls.",
+    "no_context": true,
     "auto_transition": true,
     "choices": [
       {
@@ -184,7 +222,7 @@
   },
   "go_to_server_room": {
     "id": "go_to_server_room",
-    "text": "You take the lift down into the guts of the ship. The chill in the air is palpable. Monolithic server racks stand in silent, perfect rows. But as you walk past, your reflection in a polished panel seems to show the metal as corroded and ancient for a brief moment.",
+    "text": "You take the lift down into the guts of the ship. The chill in the air is palpable. Monolithic server racks stand in silent, perfect rows. But as you walk past, your reflection in a polished panel seems to show the metal as-corroded and ancient for a brief moment.",
     "image_prompt": "Sci-fi horror concept art. A vast, dark, and cold server room. Endless rows of silent, monolithic server racks create a sense of oppressive scale. The reflection of the protagonist on the side of one of the racks is subtly wrong: the reflection shows the rack as rusted and covered in cobwebs.",
     "choices": [
       {
