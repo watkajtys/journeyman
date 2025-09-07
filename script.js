@@ -2,9 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const storyTextElement = document.getElementById('story-text');
     const choicesContainerElement = document.getElementById('choices-container');
+    const imageContainerElement = document.getElementById('image-container'); // Get image container
     const imageElement = document.getElementById('scene-image');
     const loadingSpinnerElement = document.getElementById('loading-spinner');
     const stopButtonElement = document.getElementById('stop-button');
+    let tooltipElement; // Will be created dynamically
 
     // --- Gemini API Configuration ---
     const API_KEY = 'AIzaSyC7puMSiLTOJJAY5Uf90L6MwtwJQwj44dg';
@@ -21,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initialization ---
     async function init() {
+        createTooltip();
         try {
             const response = await fetch('story.json');
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -32,14 +35,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function createTooltip() {
+        tooltipElement = document.createElement('div');
+        tooltipElement.id = 'tooltip';
+        tooltipElement.classList.add('hidden');
+        document.body.appendChild(tooltipElement); // Append to body to avoid container clipping
+    }
+
     // --- UI State Management ---
     function setChoicesEnabled(enabled) {
+        // For hotspot-based choices
+        document.querySelectorAll('.hotspot').forEach(hotspot => {
+            hotspot.style.pointerEvents = enabled ? 'auto' : 'none';
+        });
+
+        // For button-based choices (fallback and exploration)
         choicesContainerElement.querySelectorAll('.choice-button').forEach(button => {
             button.disabled = !enabled;
             button.style.cursor = enabled ? 'pointer' : 'not-allowed';
             button.style.opacity = enabled ? '1' : '0.6';
         });
     }
+
 
     // --- Node Rendering Logic ---
     async function showNode(nodeId) {
@@ -54,6 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         storyTextElement.innerText = node.text;
 
+        // Clear old choices/hotspots before rendering new ones
+        clearChoices();
+
         if (node.type === 'exploration') {
             renderExplorationNode(node);
         } else {
@@ -67,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingSpinnerElement.classList.add('hidden');
             stopButtonElement.classList.add('hidden');
             lastStableNodeId = nodeId;
+            setChoicesEnabled(true);
         } else {
             generationController = new AbortController();
             const signal = generationController.signal;
@@ -78,10 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const { imageData, textResponse } = await getGeneratedImage(node.image_prompt, signal, lastImageB64);
-
-                if (textResponse) {
-                    storyTextElement.innerText = textResponse;
-                }
 
                 lastImageB64 = imageData;
                 const imageSrc = `data:image/png;base64,${imageData}`;
@@ -111,21 +128,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function renderChoiceNode(node) {
+    function clearChoices() {
+        // Clear button choices
         choicesContainerElement.innerHTML = '';
+        // Clear hotspot choices
+        const existingHotspots = imageContainerElement.querySelectorAll('.hotspot');
+        existingHotspots.forEach(hotspot => hotspot.remove());
+    }
+
+    function renderChoiceNode(node) {
         node.choices.forEach(choice => {
-            const button = document.createElement('button');
-            button.classList.add('choice-button');
-            button.innerText = choice.text;
-            button.addEventListener('click', () => handleChoice(choice.target_id));
-            choicesContainerElement.appendChild(button);
+            if (choice.hotspot) {
+                // Create a hotspot
+                const hotspot = document.createElement('div');
+                hotspot.classList.add('hotspot');
+                hotspot.style.left = `${choice.hotspot.x}%`;
+                hotspot.style.top = `${choice.hotspot.y}%`;
+                hotspot.style.width = `${choice.hotspot.width}%`;
+                hotspot.style.height = `${choice.hotspot.height}%`;
+
+                hotspot.addEventListener('click', () => handleChoice(choice));
+
+                // Tooltip events
+                hotspot.addEventListener('mousemove', e => {
+                    tooltipElement.style.left = `${e.clientX}px`;
+                    tooltipElement.style.top = `${e.clientY}px`;
+                });
+                hotspot.addEventListener('mouseover', () => {
+                    tooltipElement.innerText = choice.text;
+                    tooltipElement.classList.remove('hidden');
+                });
+                hotspot.addEventListener('mouseout', () => {
+                    tooltipElement.classList.add('hidden');
+                });
+
+                imageContainerElement.appendChild(hotspot);
+            } else {
+                // Fallback to creating a button
+                const button = document.createElement('button');
+                button.classList.add('choice-button');
+                button.innerText = choice.text;
+                button.addEventListener('click', () => handleChoice(choice));
+                choicesContainerElement.appendChild(button);
+            }
         });
     }
 
     function renderExplorationNode(node) {
-        choicesContainerElement.innerHTML = '';
         collectedFragments.clear();
-
         node.interactive_objects.forEach(obj => {
             const button = document.createElement('button');
             button.classList.add('choice-button', 'interactive-object');
@@ -144,17 +194,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkExplorationCompletion(node) {
         if (collectedFragments.size >= node.required_fragments) {
-            choicesContainerElement.innerHTML = '';
+            clearChoices(); // Clear the object buttons
             const completionButton = document.createElement('button');
             completionButton.classList.add('choice-button');
             completionButton.innerText = node.completion_choice.text;
-            completionButton.addEventListener('click', () => handleChoice(node.completion_choice.target_id));
+            // The choice here might be a simple target_id string, not a choice object
+            // Let's ensure handleChoice can handle both for max compatibility
+             const completionChoice = { target_id: node.completion_choice.target_id, text: node.completion_choice.text };
+            completionButton.addEventListener('click', () => handleChoice(completionChoice));
             choicesContainerElement.appendChild(completionButton);
         }
     }
 
-    function handleChoice(targetId) {
-        showNode(targetId);
+    async function handleChoice(choice) {
+        // Handle legacy calls where only targetId might be passed
+        if (typeof choice === 'string') {
+            choice = { target_id: choice };
+        }
+
+        setChoicesEnabled(false);
+        tooltipElement.classList.add('hidden');
+
+        if (choice.transition_prompt) {
+            loadingSpinnerElement.classList.remove('hidden');
+            imageElement.classList.add('hidden');
+            generationController = new AbortController();
+            stopButtonElement.classList.remove('hidden');
+
+            try {
+                const { imageData } = await getGeneratedImage(choice.transition_prompt, generationController.signal, lastImageB64);
+                lastImageB64 = imageData;
+                imageElement.src = `data:image/png;base64,${imageData}`;
+                imageElement.classList.remove('hidden');
+                loadingSpinnerElement.classList.add('hidden');
+                stopButtonElement.classList.add('hidden');
+                await new Promise(resolve => setTimeout(resolve, 500));
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    console.log('Transition generation stopped. Reverting.');
+                    showNode(lastStableNodeId); // Revert to last stable node
+                    return;
+                }
+                console.error("Error during transition, proceeding to next node.", error);
+            }
+        }
+        showNode(choice.target_id);
     }
 
     stopButtonElement.addEventListener('click', () => {
@@ -165,7 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function getGeneratedImage(prompt, signal, lastImageB64 = null) {
         const parts = [{ text: prompt }];
-
         if (lastImageB64) {
             parts.unshift({
                 inlineData: {
@@ -173,42 +256,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     data: lastImageB64
                 }
             });
-             parts.unshift({
+            parts.unshift({
                 text: "Given the previous image, create a new image that continues the scene based on the following prompt:"
             });
         }
-
-        const payload = {
-            contents: [{ parts: parts }]
-        };
-
+        const payload = { contents: [{ parts: parts }] };
         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
             signal: signal
         });
-
         if (!response.ok) {
             const errorBody = await response.json();
             throw new Error(`API request failed with status ${response.status}: ${errorBody.error.message}`);
         }
-
         const data = await response.json();
-
-        // The API can return multiple parts, find the one with the image data.
         const textPart = data.candidates[0]?.content?.parts.find(part => part.text);
         const textResponse = textPart?.text;
         const imagePart = data.candidates[0]?.content?.parts.find(part => part.inlineData);
         const imageData = imagePart?.inlineData?.data;
-
         if (!imageData) {
-            // If no image is found, check if it was blocked for safety reasons.
             if (data.candidates[0]?.finishReason === 'SAFETY') {
                 const safetyText = data.candidates[0]?.content?.parts.map(p => p.text).join('') || 'No details provided.';
                 throw new Error(`Image generation failed due to safety settings. Response: ${safetyText}`);
             }
-            throw new Error("Could not find image data in API response. The response might have changed or an error occurred.");
+            throw new Error("Could not find image data in API response.");
         }
         return { imageData, textResponse };
     }

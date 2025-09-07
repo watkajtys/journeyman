@@ -6,7 +6,9 @@
     "choices": [
       {
         "text": "Reach out and touch the artifact.",
-        "target_id": "touch_artifact"
+        "target_id": "touch_artifact",
+        "transition_prompt": "A first-person view of a hand reaching out towards the glowing, geometric crystal on the pedestal. The view is from the perspective of the person reaching.",
+        "hotspot": { "x": 40, "y": 40, "width": 20, "height": 25 }
       }
     ]
   },
@@ -28,11 +30,13 @@
     "choices": [
       {
         "text": "Seek harmony in the logical structures of the Shimmering City.",
-        "target_id": "city_path"
+        "target_id": "city_path",
+        "hotspot": { "x": 10, "y": 50, "width": 40, "height": 40 }
       },
       {
         "text": "Seek harmony in the chaotic whispers of the Shadow Forest.",
-        "target_id": "forest_path"
+        "target_id": "forest_path",
+        "hotspot": { "x": 60, "y": 50, "width": 40, "height": 40 }
       }
     ]
   },
@@ -75,35 +79,74 @@
       "target_id": "harmonized_node_1"
     }
   },
-  "forest_path": {
-    "id": "forest_path",
-    "text": "You follow the path into the Shadow Forest. The chaotic, emotional energy here is another primary 'voice' in the dream. Unlike the city, it has no structure and offers no clear path to harmonization. It is a beautiful, but dangerous, distraction.",
-    "image_prompt": "Stylized digital illustration of an enchanted, peaceful alien forest with giant, glowing mushrooms and bioluminescent plants. The trees are twisted and otherworldly.",
-    "choices": [
-      {
-        "text": "Venture deeper into the chaotic whispers.",
-        "target_id": "forest_dead_end"
-      }
-    ]
-  },
-  "forest_dead_end": {
-    "id": "forest_dead_end",
-    "text": "You wander for what feels like an eternity, drawn in by the beautiful and terrifying whispers. The world becomes more and more unstable around you, a cacophony of unresolved emotion. You've lost the path. This is a dead end. You must retreat and find a more stable path to bring harmony.",
-    "image_prompt": "Abstract digital art. A surreal image of colorful, swirling patterns, representing a sense of being lost.",
-    "choices": [
-      {
-        "text": "Retreat to the crossroads.",
-        "target_id": "alien_world"
-      }
-    ]
-  },
   "harmonized_node_1": {
     "id": "harmonized_node_1",
-    "text": "As you focus on the shared feeling of loneliness, the two clashing memories resonate and merge into a single, stable reality. The dissonance fades, replaced by a feeling of peace. You have brought harmony to this small corner of the dream. The path forward is now clear.",
+    "text": "As you focus on the shared feeling of loneliness, the two clashing memories resonate and merge into a single, stable reality. The dissonance of the city fades, replaced by a feeling of peace. You have brought harmony to this corner of the dream.",
     "image_prompt": "Stylized digital illustration of a futuristic city gate, now stable and glowing with a soft, welcoming light. The sky is a calm, deep blue. The scene feels peaceful and resolved.",
     "choices": [
       {
-        "text": "Continue deeper into the city.",
+        "text": "The dream feels more stable now. Your work is done.",
+        "target_id": "end_of_chapter_1"
+      }
+    ]
+  },
+  "forest_path": {
+    "id": "forest_path",
+    "text": "You follow the path into the Shadow Forest. The chaotic, emotional energy here is another primary 'voice' in the dream. The air is thick with a thousand whispering emotions. To bring harmony, you must find a point of calm in the beautiful, dangerous chaos.",
+    "image_prompt": "Stylized digital illustration of an enchanted, peaceful alien forest with giant, glowing mushrooms and bioluminescent plants. The trees are twisted and otherworldly.",
+    "choices": [
+      {
+        "text": "Focus your mind and search for a point of calm.",
+        "target_id": "forest_puzzle"
+      }
+    ]
+  },
+  "forest_puzzle": {
+    "id": "forest_puzzle",
+    "type": "exploration",
+    "text": "The forest is a whirlwind of emotion—joy, fear, anger, and peace, all swirling together. To harmonize this place, you must find the one 'Fragment of Calm' that can anchor the rest.",
+    "image_prompt": "Surrealist digital art. An enchanted forest blended with abstract representations of emotion. A chaotic swirl of colors is pierced by a single, still, blue butterfly sitting on a leaf.",
+    "interactive_objects": [
+      {
+        "name": "A Weeping Willow of Glass",
+        "description": "This tree seems to cry tears of molten glass. It radiates an intense, beautiful sadness.",
+        "reveals_fragment": false
+      },
+      {
+        "name": "A Laughing River",
+        "description": "The river bubbles and flows with pure, unadulterated joy. It's infectious, but overwhelming.",
+        "reveals_fragment": false
+      },
+      {
+        "name": "A Still Butterfly",
+        "description": "Amidst all the chaos, a single, blue butterfly rests on a leaf. It is perfectly still, radiating an aura of profound peace. [Fragment of Calm Collected]",
+        "reveals_fragment": true
+      }
+    ],
+    "required_fragments": 1,
+    "completion_choice": {
+      "text": "You focus on the butterfly's calm, letting it anchor the emotional storm.",
+      "target_id": "harmonized_node_2"
+    }
+  },
+  "harmonized_node_2": {
+    "id": "harmonized_node_2",
+    "text": "Focusing on the fragment of calm, you provide an anchor for the emotional storm. The chaotic whispers of the forest soften into a gentle hum. The dissonance fades, replaced by a feeling of peace. You have brought harmony to this corner of the dream.",
+    "image_prompt": "Stylized digital illustration of the enchanted forest, now glowing with a soft, peaceful light. The giant mushrooms pulse gently, and the air feels serene and calm.",
+    "choices": [
+      {
+        "text": "The dream feels more stable now. Your work is done.",
+        "target_id": "end_of_chapter_1"
+      }
+    ]
+  },
+  "end_of_chapter_1": {
+    "id": "end_of_chapter_1",
+    "text": "You have brought harmony to the major dissonances in this dreamscape. The world feels stable, peaceful. Your work here is done... for now. The crystal on its pedestal hums with a gentle, satisfied light, waiting for the next dream.",
+    "image_prompt": "Stylized digital illustration. The glowing, geometric crystal from the start, now resting peacefully on its pedestal in the library. It emits a soft, warm, and stable light. The scene is quiet and resolved.",
+    "choices": [
+      {
+        "text": "Play Again?",
         "target_id": "start"
       }
     ]
