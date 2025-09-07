@@ -203,7 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
             isGenerating = true;
             showLoading(true);
             try {
-                const { imageData } = await getGeneratedImage(node.image_prompt, generationController.signal, lastImageB64);
+                // Pass the no_context flag from the node to the image generator
+                const { imageData } = await getGeneratedImage(node.image_prompt, generationController.signal, lastImageB64, false, node.no_context);
                 lastImageB64 = imageData;
                 imageSrc = `data:image/png;base64,${imageData}`;
                 imageCache[node.id] = imageSrc;
@@ -269,7 +270,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!transitionImageSrc) {
                 showLoading(true);
                 try {
-                    const { imageData } = await getGeneratedImage(choice.transition_prompt, null, lastImageB64);
+                     // Pass the no_context flag from the choice to the image generator
+                    const { imageData } = await getGeneratedImage(choice.transition_prompt, null, lastImageB64, false, choice.no_context);
                     transitionImageSrc = `data:image/png;base64,${imageData}`;
                     imageCache[transitionCacheKey] = transitionImageSrc;
                 } catch (error) {
@@ -297,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Preload main image for the next node
             if (nextNode && nextNode.image_prompt && !imageCache[nextNodeId]) {
-                getGeneratedImage(nextNode.image_prompt, null, lastImageB64, true)
+                getGeneratedImage(nextNode.image_prompt, null, lastImageB64, true, nextNode.no_context)
                     .then(({ imageData }) => {
                         imageCache[nextNodeId] = `data:image/png;base64,${imageData}`;
                         console.log(`Preloaded image for: ${nextNodeId}`);
@@ -307,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Preload transition image for the choice
             const transitionCacheKey = `${node.id}->${choice.target_id}`;
             if (choice.transition_prompt && !imageCache[transitionCacheKey]) {
-                 getGeneratedImage(choice.transition_prompt, null, lastImageB64, true)
+                 getGeneratedImage(choice.transition_prompt, null, lastImageB64, true, choice.no_context)
                     .then(({ imageData }) => {
                         imageCache[transitionCacheKey] = `data:image/png;base64,${imageData}`;
                         console.log(`Preloaded transition for: ${transitionCacheKey}`);
@@ -318,9 +320,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- API Call ---
-    async function getGeneratedImage(prompt, signal, contextImageB64 = null, isPreload = false) {
+    async function getGeneratedImage(prompt, signal, contextImageB64 = null, isPreload = false, noContext = false) {
         const parts = [{ text: prompt }];
-        if (contextImageB64) {
+        // Only add the context image if it exists and noContext is false
+        if (contextImageB64 && !noContext) {
             parts.unshift({ inlineData: { mimeType: 'image/png', data: contextImageB64 } });
             parts.unshift({ text: "Given the previous image, create a new image based on the prompt." });
         }
