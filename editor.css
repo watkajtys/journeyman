@@ -1,0 +1,210 @@
+/* --- Global & Layout --- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #1a1a1a;
+    color: #f0f0f0;
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+#editor-container {
+    display: flex;
+    flex-grow: 1;
+    height: calc(100% - 60px); /* Account for toolbar height */
+}
+
+#graph-container {
+    flex-grow: 1;
+    position: relative;
+    overflow: auto;
+    background-color: #242424;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    padding: 20px;
+}
+
+/* --- Graph Nodes --- */
+.graph-node {
+    position: absolute;
+    background-color: #3a3a3a;
+    color: #f0f0f0;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 10px;
+    width: 150px;
+    height: 40px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.graph-node:hover {
+    background-color: #4a4a4a;
+    border-color: #8e44ad;
+}
+
+.graph-node.selected {
+    border-color: #8e44ad;
+    border-width: 2px;
+    box-shadow: 0 0 15px rgba(142, 68, 173, 0.5);
+}
+
+/* --- Editor Panel --- */
+#editor-panel {
+    width: 350px;
+    flex-shrink: 0;
+    background-color: #2c2c2c;
+    padding: 20px;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+    overflow-y: auto;
+    transition: width 0.3s ease-in-out;
+}
+
+#editor-panel.hidden {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#editor-panel h2 {
+    margin-top: 0;
+    color: #8e44ad;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #ccc;
+    font-size: 14px;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 8px;
+    color: #f0f0f0;
+    box-sizing: border-box;
+}
+
+.form-group input[readonly] {
+    background-color: #444;
+    cursor: not-allowed;
+}
+
+/* --- Choices Editor --- */
+#choices-editor h3 {
+    color: #ccc;
+    border-bottom: 1px solid #444;
+    padding-bottom: 8px;
+    margin-top: 20px;
+}
+
+.choice-item {
+    background-color: #383838;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.choice-main-inputs {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+}
+
+.choice-item input, .choice-item textarea {
+    flex-grow: 1;
+    background-color: #2a2a2a;
+    border: 1px solid #555;
+    color: #f0f0f0;
+    padding: 6px;
+    border-radius: 3px;
+}
+
+.delete-choice-btn {
+    background-color: #c0392b;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* --- Buttons & Toolbar --- */
+button {
+    background-color: #8e44ad;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #9b59b6;
+}
+
+#delete-node-btn {
+    background-color: #c0392b;
+}
+#delete-node-btn:hover {
+    background-color: #e74c3c;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+#editor-toolbar {
+    background-color: #1a1a1a;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-top: 1px solid #333;
+    height: 40px; /* Fixed height */
+    flex-shrink: 0;
+}
+
+.toolbar-link {
+    color: #8e44ad;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: auto; /* Pushes it to the right */
+}
+
+.toolbar-link:hover {
+    text-decoration: underline;
+}
+
+.hidden {
+    display: none;
+}
