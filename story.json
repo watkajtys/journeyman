@@ -1,170 +1,317 @@
 {
   "start": {
     "id": "start",
-    "text": "You dock with the 'SS Chimera', a derelict research station that's been silent for years. The air is still and freezing. A single, flickering emergency light casts long, dancing shadows down two corridors.",
-    "image_prompt": "Sci-fi horror concept art. A lone astronaut stands in a vast, dark, and silent docking bay of an ancient, derelict alien space station. The architecture is biomechanical and unsettling. A single flickering light from above illuminates two corridors.",
+    "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls. The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back. The comm crackles with the voice of the recovery captain—a man who clearly despises you. \"She's all yours, Thorne. Find something to justify this circus.\"",
+    "image_prompt": "Sci-fi horror concept art. A middle-aged man, his face etched with a decade of failure and obsession, looks out the viewport of a cramped, utilitarian shuttle. Reflected in the glass, the immense, silent hull of the derelict starship 'SS Erebus' fills the view, eclipsing the distant stars.",
     "choices": [
       {
-        "text": "Head towards the Bridge.",
+        "text": "Cycle the airlock. Go aboard.",
+        "target_id": "transition_boarding"
+      }
+    ]
+  },
+  "transition_boarding": {
+    "id": "transition_boarding",
+    "text": "You take a steadying breath, the recycled air of the shuttle tasting of ozone and finality. You initiate the airlock sequence.",
+    "image_prompt": "Sci-fi horror concept art. First-person view from inside a helmet. A gloved hand rests on a large, illuminated button labeled 'CYCLE AIRLOCK'. Through the thick glass of the inner airlock door, the dark, silent corridor of the 'SS Erebus' waits.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "board_ship"
+      }
+    ]
+  },
+  "board_ship": {
+    "id": "board_ship",
+    "text": "You step aboard. The silence is the first thing that hits you. It's not just quiet; it's a dead, pressurized absence of sound. The emergency lights cast a sterile, clinical glow. The ship is pristine, a ghost preserved in a vacuum. Your datapad pings: Bridge, Server Room, or Med Bay?",
+    "image_prompt": "Sci-fi horror concept art. First-person view. The interior of the SS Erebus is pristine and unnervingly clean. Sterile emergency lights stretch down a long, metallic corridor. The scene is perfectly composed and symmetrical, creating a deep sense of unease. The only thing out of place is a single, drifting particle of dust in the air.",
+    "choices": [
+      {
+        "text": "Proceed to the Bridge.",
         "target_id": "go_to_bridge"
       },
       {
-        "text": "Investigate the Crew Quarters.",
-        "target_id": "go_to_crew_quarters"
+        "text": "Descend to the Server Room.",
+        "target_id": "go_to_server_room"
+      },
+      {
+        "text": "Investigate the Med Bay.",
+        "target_id": "go_to_med_bay"
       }
     ]
   },
   "go_to_bridge": {
     "id": "go_to_bridge",
-    "text": "You head towards the bridge...",
-    "image_prompt": "First-person view from inside an astronaut's helmet, walking down a dark, metallic corridor. The only light source is the astronaut's headlamp illuminating the path towards a sign that reads 'BRIDGE'.",
+    "text": "You ascend to the Bridge. The command center is a tomb of dead consoles, each one a dark mirror reflecting your solitary figure.",
+    "image_prompt": "Sci-fi horror concept art. The cavernous bridge of the starship Erebus is shrouded in darkness, dust motes dancing in the air. The only light comes from the single, active console in the center of the room.",
     "auto_transition": true,
     "choices": [
       {
         "text": "Continue...",
-        "target_id": "bridge_path"
+        "target_id": "go_to_bridge_2"
       }
     ]
   },
-  "go_to_crew_quarters": {
-    "id": "go_to_crew_quarters",
-    "text": "You head towards the crew quarters...",
-    "image_prompt": "First-person view from inside an astronaut's helmet, walking down a dark, narrow corridor. The walls are covered in a strange, organic residue. A sign for 'CREW QUARTERS' is barely visible.",
-    "auto_transition": true,
+  "go_to_bridge_2": {
+    "id": "go_to_bridge_2",
+    "text": "In the center of the room, one panel remains stubbornly alive: the master control for the Erebus Array, your creation. It pulses with a soft, hypnotic light, displaying a data pattern you've never seen before.",
+    "image_prompt": "Continuing from the previous shot, zoom in on the lone, active console. Its screen casts a soft, blue, hypnotic light on the dust-covered captain's chair before it.",
     "choices": [
       {
-        "text": "Continue...",
-        "target_id": "crew_quarters_path"
-      }
-    ]
-  },
-  "bridge_path": {
-    "id": "bridge_path",
-    "text": "You enter the bridge. The main viewscreen is cracked, revealing a terrifyingly beautiful swirling nebula. A holographic log is active on a console, looping a silent, frantic message from the alien captain.",
-    "image_prompt": "Sci-fi horror concept art. The bridge of a derelict alien starship. A massive, cracked viewscreen shows a swirling nebula outside. In the center of the room, a single console projects a flickering, unstable orange hologram of a non-humanoid alien.",
-    "choices": [
-      {
-        "text": "Access the holographic log.",
-        "target_id": "access_log"
-      }
-    ]
-  },
-  "access_log": {
-    "id": "access_log",
-    "text": "You access the holographic log...",
-    "image_prompt": "First-person view of an astronaut's gloved hand reaching out and touching a holographic console. The hologram glitches and resolves into a clear image of a frantic alien.",
-    "auto_transition": true,
-    "choices": [
-      {
-        "text": "Continue...",
-        "target_id": "log_entry"
-      }
-    ]
-  },
-  "crew_quarters_path": {
-    "id": "crew_quarters_path",
-    "text": "The crew quarters are a mess. Personal belongings are strewn about as if the crew vanished mid-sentence. A faint, hypnotic melody emanates from a strange, bioluminescent plant in the corner of the room.",
-    "image_prompt": "Sci-fi horror concept art. The messy, abandoned crew quarters of an alien starship. Personal belongings are scattered everywhere. In the corner, a single, exotic-looking alien plant with bioluminescent fronds glows with a soft, hypnotic light.",
-    "choices": [
-      {
-        "text": "Get a closer look at the strange plant.",
-        "target_id": "touch_plant"
+        "text": "Analyze the array's active logs.",
+        "target_id": "access_sensor_logs"
       },
       {
-        "text": "This place gives you the creeps. Go to the Bridge instead.",
-        "target_id": "go_to_bridge_from_quarters"
+        "text": "Run a ship-wide environmental diagnostic first.",
+        "target_id": "check_environmentals"
       }
     ]
   },
-  "go_to_bridge_from_quarters": {
-    "id": "go_to_bridge_from_quarters",
-    "text": "You turn your back on the creepy crew quarters and head towards the bridge.",
-    "image_prompt": "First-person view of an astronaut turning their back on the creepy crew quarters and walking purposefully down a corridor towards a sign that reads 'BRIDGE'.",
+  "go_to_server_room": {
+    "id": "go_to_server_room",
+    "text": "You take the lift down to the server room. The chill in the air is palpable. Monolithic server racks stand in silent rows, their own kind of graveyard. You access the central terminal for the crew's personal logs.",
+    "image_prompt": "Sci-fi horror concept art. A vast, dark, and cold server room. Endless rows of silent, monolithic server racks create a sense of oppressive scale. A single computer terminal glows in the darkness, its light illuminating the determined face of the person accessing it.",
+    "choices": [
+      {
+        "text": "Play the captain's last message.",
+        "target_id": "read_log"
+      }
+    ]
+  },
+  "read_log": {
+    "id": "read_log",
+    "text": "You play the file. Captain Eva Rostova's voice, frantic and broken: \"Thorne, if you get this... your machine... it wasn't a failure. It was a success. A horrifying success. We pointed it at the void and the void... answered. It's not a signal, Aris, it's a... presence. It's in the walls. It's in our heads...\" The log dissolves into a string of terrified, incoherent whispers, then a final, sharp scream. As silence falls, a voice—impossibly close—whispers your name in your own ear. \"A...ris...\"",
+    "image_prompt": "Surrealist horror art. A soundwave visualization on a dark computer screen glitches and distorts violently. For a split second, the waveform contorts into the shape of a screaming human skull. The reflection in the screen shows the protagonist recoiling in shock.",
+    "choices": [
+      {
+        "text": "It's an auditory hallucination. Stress-induced psychosis.",
+        "target_id": "go_to_bridge_from_server"
+      },
+      {
+        "text": "That was real. Brace your mind. Resist it.",
+        "target_id": "failure_fight_it"
+      }
+    ]
+  },
+  "failure_fight_it": {
+    "id": "failure_fight_it",
+    "text": "\"No,\" you snarl, gritting your teeth. You try to erect a mental barrier, to focus your thoughts. The whisper chuckles, a sound like grinding static. \"Your thoughts,\" it mocks, \"are so... loud.\" The pressure in your skull becomes an unbearable, white-hot spike. The server racks ripple like liquid. A warm trickle of blood escapes your nose. Your mind is a fortress with its gates thrown wide open.",
+    "image_prompt": "Psychological horror art. An extreme close-up of a human eye, bloodshot and wide with agony. A single tear, black as oil, rolls down the cheek. Reflected in the pupil is an abstract, swirling vortex of dark, chaotic energy.",
+    "choices": [
+      {
+        "text": "Collapse...",
+        "target_id": "board_ship"
+      }
+    ]
+  },
+  "go_to_bridge_from_server": {
+    "id": "go_to_bridge_from_server",
+    "text": "You dismiss the whisper as a symptom of stress and isolation. You need hard data, not phantom voices. You leave the server room and head for the Bridge to confront the source of the malfunction yourself.",
+    "image_prompt": "Sci-fi horror concept art. First-person view of the protagonist marching purposefully down a sterile corridor, their fists clenched at their sides. A sign on the wall points towards 'THE BRIDGE'.",
     "auto_transition": true,
     "choices": [
       {
         "text": "Continue...",
-        "target_id": "bridge_path"
+        "target_id": "go_to_bridge"
       }
     ]
   },
-  "touch_plant": {
-    "id": "touch_plant",
-    "text": "You reach out and your glove makes contact with the plant's pulsating surface. A low hum vibrates through your suit, and the hypnotic melody intensifies, echoing directly inside your mind.",
-    "image_prompt": "First-person view from inside an astronaut's helmet. A gloved hand is touching the surface of a strange, glowing, bioluminescent alien plant. The point of contact is glowing brightly.",
-    "auto_transition": true,
+  "check_environmentals": {
+    "id": "check_environmentals",
+    "text": "Before touching the array, you run a diagnostic on the environmental systems. The console flashes a critical alert you almost missed: 'CO2 Scrubber Filter Efficiency: 15%. Total System Failure Imminent.' The air is turning toxic by the second. You have maybe an hour, tops.",
+    "image_prompt": "Sci-fi horror concept art. A close-up on a grimy computer console. A bright red warning box flashes with the text: 'WARNING: LETHAL ATMOSPHERE DETECTED. IMMEDIATE ACTION REQUIRED.' The screen is filled with rapidly declining graphs.",
     "choices": [
       {
-        "text": "Continue...",
-        "target_id": "hypnotic_plant_failure"
-      }
-    ]
-  },
-  "hypnotic_plant_failure": {
-    "id": "hypnotic_plant_failure",
-    "text": "The melody envelops you. Your thoughts unravel into beautiful, meaningless patterns. You feel a profound sense of peace as you sink to the floor, your last sight being the gently pulsing fronds of the plant. You are one with the garden now.",
-    "image_prompt": "Surrealist horror art. An astronaut's helmeted face, with an expression of peaceful horror reflected in the visor. The reflection shows a beautiful but terrifying alien plant with swirling, hypnotic patterns of light. The background is a blur of color.",
-    "choices": [
-      {
-        "text": "Awaken...",
-        "target_id": "start"
-      }
-    ]
-  },
-  "log_entry": {
-    "id": "log_entry",
-    "text": "The hologram stabilizes. It's a warning. The alien captain gestures frantically at a schematic of the station's life support system, pointing to a parasitic entity that seems to be feeding on it.",
-    "image_prompt": "A close-up of a flickering, translucent orange hologram. The hologram shows the frantic face of a non-humanoid alien. The alien is pointing at a technical schematic of a machine with a strange, cancerous growth on it. The image is glitchy and distorted.",
-    "choices": [
-      {
-        "text": "Go to Life Support.",
+        "text": "An hour is too long. I must find new filters in Life Support now.",
         "target_id": "go_to_life_support"
+      },
+      {
+        "text": "Time is short, which is why I must access the logs immediately.",
+        "target_id": "access_sensor_logs"
+      }
+    ]
+  },
+  "failure_suffocate": {
+    "id": "failure_suffocate",
+    "text": "You ignore the warning, convinced the array holds the immediate answers. You throw yourself into decrypting the logs. Time blurs. Your vision begins to swim, your thoughts growing sluggish. A dull ache in your temples blossoms into a pounding headache. You look up from the console, gasping, finally realizing your fatal error. The air is thick and heavy. You claw at your collar, your lungs burning. Your last sight is the beautiful, deadly pattern on the sensor screen.",
+    "image_prompt": "Psychological horror art. First-person view from a collapsing perspective. The edges of the vision are vignetted and dark. The hands in front of your face are pale and trembling. The computer console in the distance is a blurry, out-of-focus mess of light. A single red alert light is the last thing you see clearly.",
+    "choices": [
+      {
+        "text": "Fade to black...",
+        "target_id": "go_to_bridge"
+      }
+    ]
+  },
+  "access_sensor_logs": {
+    "id": "access_sensor_logs",
+    "text": "You lean over the console, your reflection staring back from the dark screen. You begin the decryption sequence, a complex cypher of your own design. As the code scrolls past, a flicker of movement in the reflection catches your eye. A tall, distorted shadow, standing right behind you. You whip around. Nothing. Just the oppressive silence of the bridge.",
+    "image_prompt": "Sci-fi horror concept art. A tense close-up of the protagonist's face, illuminated by the green glow of a computer screen filled with scrolling code. Reflected in the dark screen, standing directly behind the protagonist's shoulder, is the tall, wavering, and deeply unsettling silhouette of a non-human entity.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "access_sensor_logs_2"
+      }
+    ]
+  },
+  "access_sensor_logs_2": {
+    "id": "access_sensor_logs_2",
+    "text": "The final layer of encryption falls away. The log is not a diagnostic; it's a recording. It shows the Erebus's sensor array targeting a patch of seemingly empty space. Then, a wave of incandescent, non-Euclidean energy washes over the ship. The log displays the crew's biometric data; as the wave hits, every single crew member's brain activity spirals into instantaneous, violent chaos. You see security footage: the crew, screaming, turning on each other, tearing at their own faces. Your machine didn't fail. It found something. And it has led that something straight to you.",
+    "image_prompt": "Cosmic horror art. A holographic star map displays a wave of impossible, fractal energy washing over a schematic of the starship Erebus. Beside the map, dozens of synced biometric displays simultaneously flatline after showing a burst of chaotic, peaked brain activity.",
+    "choices": [
+      {
+        "text": "My God. It's real. I have to stop it.",
+        "target_id": "the_only_way"
+      }
+    ]
+  },
+  "the_only_way": {
+    "id": "the_only_way",
+    "text": "The realization crashes over you. The entity isn't just on the ship; it's in the systems, it's in the walls, it's wearing the silence like a glove. You can feel its ancient, alien mind pressing against your own, tasting your guilt, savoring your fear. You can't fight it with force. You can't outrun it. But the array... the array is a gateway. A gateway that can be opened, but also... re-purposed. You see the only way out. A terrible, final solution.",
+    "image_prompt": "Psychological horror art. The protagonist stands before the glowing sensor console, their face a mask of grim, terrible resolve. Their reflection in the screen is warped and overlaid with swirling, ethereal energy. Their hand, shaking but determined, reaches for the master control panel.",
+    "choices": [
+      {
+        "text": "Become the prison. Repurpose the array.",
+        "target_id": "prepare_sacrifice"
+      }
+    ]
+  },
+  "prepare_sacrifice": {
+    "id": "prepare_sacrifice",
+    "text": "You throw yourself at the console, fingers flying across the interface, rewriting core functions. The entity knows. The whispers become a psychic roar. The ship groans, metal stressing under an unseen force. Hallucinations bombard you: the desiccated, accusing faces of the crew; the voice of your family, begging you to come home. You grit your teeth, shutting it all out. You are not building a weapon. You are building a cage, and your consciousness will be the bars.",
+    "image_prompt": "Sci-fi horror concept art. The protagonist is a blur of frantic motion, working at a glowing console. The world around them is dissolving into a nightmare landscape, with ghostly, screaming figures made of static and light swirling in the air like a vortex.",
+    "choices": [
+      {
+        "text": "Initiate the broadcast. This is my final protocol.",
+        "target_id": "sacrificial_broadcast"
+      }
+    ]
+  },
+  "sacrificial_broadcast": {
+    "id": "sacrificial_broadcast",
+    "text": "You slam the final command into place. A wave of pure, silent, white energy erupts from the console, not burning, but consuming. There is no pain. There is... everything. Every memory, every regret, your mother's smile, the sting of your disgrace, the taste of coffee, the feeling of loss—all of it, your entire being, is unspooled and woven into an infinitely complex, repeating signal. A broadcast of a soul. You feel the parasite latch onto the signal, a starving god finding an eternal feast. It is trapped. And so are you.",
+    "image_prompt": "Abstract, surrealist art. A human silhouette made of pure, white light and energy seems to be dissolving into an infinitely repeating, beautiful, and terrifying fractal pattern. At the very center of the silhouette's chest is a single point of absolute darkness, the trapped entity.",
+    "choices": [
+      {
+        "text": "...",
+        "target_id": "end_state"
+      }
+    ]
+  },
+  "end_state": {
+    "id": "end_state",
+    "text": "The SS Erebus is silent once more. The emergency lights hum their endless, sterile tune. On the bridge, the master sensor array glows with a new, steady, and beautiful pattern—the intricate, looping consciousness of Dr. Aris Thorne. The monster is contained. The ship is a tomb, but it is also a prison. Nothing is truly solved, but the thread of the story is cut. Humanity is safe. For now.",
+    "image_prompt": "Sci-fi horror concept art. The bridge of the Erebus is silent and still. The single, glowing console now displays a steady, peaceful, yet infinitely complex pattern of light. Dust motes dance in the low light. The ship is quiet. A tomb floating in the endless dark.",
+    "choices": [
+      {
+        "text": "Start Again?",
+        "target_id": "start"
       }
     ]
   },
   "go_to_life_support": {
     "id": "go_to_life_support",
-    "text": "You rush towards the Life Support chamber.",
-    "image_prompt": "First-person view of an astronaut running down a long, metallic corridor. Red alert lights are flashing. The corridor is labeled 'LIFE SUPPORT' in a glowing alien script.",
+    "text": "You abandon the bridge and race towards the Life Support section, the ship's schematics guiding you through the sterile corridors. The thought of the air thinning with every breath adds a new, primal layer of fear to the situation.",
+    "image_prompt": "Sci-fi horror concept art. First-person view of an astronaut running down a long, metallic corridor. Red alert lights are flashing, reflecting off the polished floor. The corridor is labeled 'LIFE SUPPORT' in a stark, utilitarian font.",
     "auto_transition": true,
     "choices": [
       {
         "text": "Continue...",
-        "target_id": "life_support"
+        "target_id": "life_support_room"
       }
     ]
   },
-  "life_support": {
-    "id": "life_support",
-    "text": "You find the parasite in the life support chamber. It's a massive, pulsating crystalline growth, latched onto the machinery and glowing with a sickly green light. It seems to be the source of the station's decay.",
-    "image_prompt": "Sci-fi horror concept art. A massive, complex piece of alien machinery covered in a pulsating, crystalline, parasitic growth. The growth glows with a sickly green light and has dark, vein-like tendrils burrowing into the machine. The room is dark and filled with steam.",
+  "life_support_room": {
+    "id": "life_support_room",
+    "text": "You find the Life Support chamber, a maze of pipes and humming machinery. You locate the primary CO2 scrubber unit. The filter housing is sealed tight with bolts that have rusted from a decade of disuse. This is going to be a fight.",
+    "image_prompt": "Sci-fi horror concept art. A massive, complex piece of industrial machinery covered in pipes and valves. A single panel is glowing red, marked 'FILTER ACCESS'. The bolts on the panel are visibly rusted and corroded, one of them stripped.",
     "choices": [
       {
-        "text": "Try to purge the parasite from the system.",
-        "target_id": "purge_parasite"
+        "text": "Spend the time to replace the filters.",
+        "target_id": "fix_scrubbers"
       }
     ]
   },
-  "purge_parasite": {
-    "id": "purge_parasite",
-    "text": "You prepare to purge the parasite from the system.",
-    "image_prompt": "First-person view of an astronaut's gloved hands holding a plasma cutter, firing a bright beam of energy at a pulsating, crystalline alien parasite on a machine. Electrical sparks fly everywhere.",
+  "fix_scrubbers": {
+    "id": "fix_scrubbers",
+    "text": "It takes precious minutes, your muscles straining, but you finally break the rusted bolts and swap the clogged filter with a fresh one from the emergency locker. The system hums to life, and the critical warning on your datapad winks out. The air is safe. With the threat of suffocation gone, you can now investigate the mystery of the array without a clock ticking over your head.",
+    "image_prompt": "Sci-fi concept art. The protagonist is wiping sweat from their brow, holding a new, clean air filter. In the background, the life support machinery is humming with steady green indicator lights. A sense of relief and renewed purpose.",
+    "choices": [
+      {
+        "text": "Return to the Bridge.",
+        "target_id": "go_to_bridge_after_fix"
+      }
+    ]
+  },
+  "go_to_bridge_after_fix": {
+    "id": "go_to_bridge_after_fix",
+    "text": "You return to the bridge, the ship's air now clean and stable. The sensor console is still there, its hypnotic pattern waiting for you, seeming to pulse with a quiet malevolence.",
+    "image_prompt": "Sci-fi horror concept art. The bridge of the starship Erebus, dark and silent. In the center of the room, the single console for the advanced sensor array is illuminated, its screen displaying a complex, slowly shifting, and hypnotic pattern of light. It feels more menacing now.",
+    "choices": [
+      {
+        "text": "Analyze the array's active logs.",
+        "target_id": "access_sensor_logs"
+      }
+    ]
+  },
+  "go_to_med_bay": {
+    "id": "go_to_med_bay",
+    "text": "You decide to check the Med Bay first. The doors hiss open to reveal a scene of chilling sterility. Medical beds are neatly made. Surgical instruments are perfectly arranged. A single medical monitor is active, displaying a looping biometric log.",
+    "image_prompt": "Sci-fi horror concept art. A pristine, white medical bay. Everything is in its proper place. Surgical tools are laid out on a tray with unnerving precision. The only light comes from a single, active heart monitor in the corner, displaying a flat line.",
+    "choices": [
+      {
+        "text": "Access the medical log.",
+        "target_id": "access_med_log"
+      }
+    ]
+  },
+  "access_med_log": {
+    "id": "access_med_log",
+    "text": "It's the log of the ship's psychologist, Dr. Lena Hanson. Her notes chart the crew's rapid, inexplicable descent into paranoia. \"They all report the same thing,\" she writes. \"A voice. A feeling of being watched. I told them it was mass hysteria, a consequence of deep space isolation. But now... I'm hearing it too.\"",
+    "image_prompt": "A close-up on a futuristic medical datapad. The screen shows the portrait of a concerned-looking female doctor next to a block of text. The text is a psychological evaluation, with phrases like 'mass hysteria' and 'auditory hallucinations' visible.",
+    "choices": [
+      {
+        "text": "Check the autopsy reports.",
+        "target_id": "check_autopsy"
+      }
+    ]
+  },
+  "check_autopsy": {
+    "id": "check_autopsy",
+    "text": "You find the autopsy report for the first crew member who died. The cause of death is listed as 'Self-inflicted cerebral hemorrhage.' The notes are terrifying. 'Subject claimed something was trying to 'get out'. Subject proceeded to repeatedly and violently strike their own head against a bulkhead.' A security image shows the bloody aftermath.",
+    "image_prompt": "Psychological horror art. A sterile, scientific autopsy report is displayed on a screen. The text is clinical, but a single, redacted security photo attached to the file is visible. The photo is mostly blacked out, but shows a dark, gruesome bloodstain on a white wall.",
+    "choices": [
+      {
+        "text": "This is too much. Leave the Med Bay.",
+        "target_id": "leave_med_bay"
+      },
+      {
+        "text": "Access the secure medical cabinet.",
+        "target_id": "failure_med_cabinet"
+      }
+    ]
+  },
+  "failure_med_cabinet": {
+    "id": "failure_med_cabinet",
+    "text": "You see the secure medical cabinet, where the most potent drugs are kept. A desperate thought crosses your mind: maybe a powerful sedative could quiet the voices. You override the lock. An alarm blares. A soft, female automated voice says, 'Lethal contaminant protocol initiated. Medical bay is now under permanent quarantine.' A heavy steel door slams shut behind you. You are trapped. Forever.",
+    "image_prompt": "Sci-fi horror concept art. First-person view. A heavy, steel quarantine door, marked with yellow and black biohazard symbols, is slamming shut, plunging the room into near darkness. The only light is a single, flashing red alarm light.",
+    "choices": [
+      {
+        "text": "Accept your fate...",
+        "target_id": "board_ship"
+      }
+    ]
+  },
+  "leave_med_bay": {
+    "id": "leave_med_bay",
+    "text": "You've seen enough. The Med Bay offers only horror. You back out, the doors hissing shut behind you, and resolve to find answers elsewhere.",
+    "image_prompt": "First-person view of the protagonist backing away from the sterile, white Med Bay. The automatic doors are sliding shut, sealing the horrors within.",
     "auto_transition": true,
     "choices": [
       {
         "text": "Continue...",
-        "target_id": "end_win"
-      }
-    ]
-  },
-  "end_win": {
-    "id": "end_win",
-    "text": "With a final, agonizing screech, the parasite dissolves under your plasma cutter. The station's primary power hums back to life. An automated distress beacon activates, broadcasting your location. You are safe... for now.",
-    "image_prompt": "Sci-fi concept art. The previously dark bridge of the alien starship is now fully illuminated with clean, white light. The main viewscreen shows a rescue ship approaching. The lone astronaut looks on from the captain's chair, exhausted but safe.",
-    "choices": [
-      {
-        "text": "Play Again?",
-        "target_id": "start"
+        "target_id": "board_ship"
       }
     ]
   }
