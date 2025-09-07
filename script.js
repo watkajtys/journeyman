@@ -206,13 +206,33 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- NEW: Handle auto-transitioning nodes ---
             if (node.auto_transition && node.choices && node.choices.length > 0) {
                 console.log(`Auto-transitioning from "${nodeId}"...`);
-                // Disable choices to prevent user interaction during the brief pause
-                setChoicesEnabled(false);
-                // Wait a very short moment to ensure the image is visible, then proceed.
-                setTimeout(() => {
-                    // Automatically trigger the first (and only) choice
-                    handleChoice(node.choices[0]);
-                }, 500); // A brief 500ms pause for the user to see the transition image/text
+                setChoicesEnabled(false); // Disable choices during transition
+
+                const choice = node.choices[0];
+                const nextNodeId = choice.target_id;
+
+                // The image for the current intermediary node is already loading or has loaded.
+                // Now, we need to ensure the image for the *next* node is ready before we transition.
+                // This logic effectively makes the user "wait" on the intermediary frame.
+
+                // Check if the next image is already in the cache
+                if (imageCache[nextNodeId]) {
+                    // If it's cached, we can transition after a brief, deliberate pause
+                    // to let the user read the intermediary text.
+                    console.log(`Next image for "${nextNodeId}" is cached. Transitioning shortly.`);
+                    setTimeout(() => {
+                        handleChoice(choice);
+                    }, 1500); // A fixed delay for readability
+                } else {
+                    // If the next image is NOT cached, we need to fetch it now.
+                    // The showNode function is responsible for showing a loading spinner.
+                    // We will call showNode for the next node ID.
+                    // It will handle the loading indicator and image fetching.
+                    console.log(`Next image for "${nextNodeId}" is not cached. Proceeding to load.`);
+                    // We call handleChoice directly. It will in turn call showNode for the next node.
+                    // showNode will then handle the image generation and display the loading spinner.
+                    handleChoice(choice);
+                }
             }
         }
     }
