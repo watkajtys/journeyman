@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
     let storyData = {};
     let selectedNodeId = null;
-    let nodePositions = {}; // To store and calculate node positions
 
     // --- Initialization ---
     async function init() {
@@ -24,144 +23,129 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             storyData = await response.json();
             console.log("Story data loaded:", storyData);
+
+            // Ensure consistent element keys exist
+            if (!storyData.style_guides) storyData.style_guides = {};
+            if (!storyData.characters) storyData.characters = {};
+            if (!storyData.locations) storyData.locations = {}; // Add new category
+
             renderGraph();
+            renderConsistentElements();
+            setupConsistentElementsEventListeners();
         } catch (error) {
             graphContainer.innerHTML = `<p style="color: red;">Error loading story.json: ${error.message}</p>`;
             console.error("Failed to load or parse story.json:", error);
         }
     }
 
-    // --- Graph Rendering ---
-    function renderGraph() {
-        graphContainer.innerHTML = ''; // Clear previous render
-        if (!storyData.nodes) return;
-        nodePositions = {}; // Reset positions
+    // --- Consistent Elements Rendering ---
+    function renderConsistentElements() {
+        const accordionContainer = document.getElementById('elements-accordion');
+        accordionContainer.innerHTML = ''; // Clear previous render
 
-        // 1. Group nodes by arch and location
-        const groupedNodes = {};
-        Object.values(storyData.nodes).forEach(node => {
-            const arch = node.id.split('_')[0] || 'general';
-            const location = node.location || 'no-location';
+        // Define the categories of consistent elements
+        const categories = {
+            'style_guides': { title: 'Style Guides', fields: ['description'] },
+            'characters': { title: 'Characters', fields: ['description'] },
+            'locations': { title: 'Locations', fields: ['description'] }
+        };
 
-            if (!groupedNodes[arch]) {
-                groupedNodes[arch] = {};
-            }
-            if (!groupedNodes[arch][location]) {
-                groupedNodes[arch][location] = [];
-            }
-            groupedNodes[arch][location].push(node);
-        });
+        for (const categoryKey in categories) {
+            const category = categories[categoryKey];
+            const categoryData = storyData[categoryKey];
 
-        // 2. Render groups and nodes
-        const archKeys = Object.keys(groupedNodes).sort();
+            const accordion = document.createElement('div');
+            accordion.innerHTML = `
+                <button class="accordion-title">${category.title}</button>
+                <div class="accordion-content">
+                    <div id="${categoryKey}-editor-content"></div>
+                </div>
+            `;
+            accordionContainer.appendChild(accordion);
 
-        for (const arch of archKeys) {
-            const archContainer = document.createElement('div');
-            archContainer.className = 'arch-container';
+            const contentDiv = accordion.querySelector(`#${categoryKey}-editor-content`);
+            if (Object.keys(categoryData).length === 0) {
+                contentDiv.innerHTML = '<p class="empty-state">No elements defined.</p>';
+            } else {
+                for (const elementId in categoryData) {
+                    const element = categoryData[elementId];
+                    const elementDiv = document.createElement('div');
+                    elementDiv.className = 'element-item';
+                    let fieldsHTML = `<label>ID: ${elementId}</label>`;
 
-            const archTitle = document.createElement('h2');
-            archTitle.className = 'arch-title';
-            archTitle.textContent = arch;
-            archContainer.appendChild(archTitle);
+                    // For now, we assume a simple key-value (like style_guides) or an object with description
+                    if (typeof element === 'string') {
+                         fieldsHTML += `<textarea data-id="${elementId}" data-field="value">${element}</textarea>`;
+                    } else if (typeof element === 'object' && element.description) {
+                         fieldsHTML += `<textarea data-id="${elementId}" data-field="description">${element.description}</textarea>`;
+                    }
 
-            const locationKeys = Object.keys(groupedNodes[arch]).sort();
-
-            for (const location of locationKeys) {
-                const locationContainer = document.createElement('div');
-                locationContainer.className = 'location-container';
-
-                const locationTitle = document.createElement('h3');
-                locationTitle.className = 'location-title';
-                locationTitle.textContent = location;
-                locationContainer.appendChild(locationTitle);
-
-                const nodes = groupedNodes[arch][location];
-                nodes.sort((a, b) => a.id.localeCompare(b.id));
-
-                let nodeY = 60; // Initial Y position for the first node in a location
-                for (const node of nodes) {
-                    const nodeElement = document.createElement('div');
-                    nodeElement.className = 'graph-node';
-                    nodeElement.textContent = node.id;
-                    nodeElement.dataset.id = node.id;
-
-                    // Position nodes statically within the flex item
-                    nodeElement.style.position = 'relative';
-                    nodeElement.style.marginBottom = '10px';
-
-                    nodeElement.addEventListener('click', () => selectNode(node.id));
-                    locationContainer.appendChild(nodeElement);
+                    fieldsHTML += `
+                        <div class="element-item-actions">
+                            <button class="save-element-btn" data-category="${categoryKey}" data-id="${elementId}">Save</button>
+                            <button class="delete-element-btn" data-category="${categoryKey}" data-id="${elementId}">Delete</button>
+                        </div>
+                    `;
+                    elementDiv.innerHTML = fieldsHTML;
+                    contentDiv.appendChild(elementDiv);
                 }
-                archContainer.appendChild(locationContainer);
             }
-            graphContainer.appendChild(archContainer);
         }
 
-        // Use requestAnimationFrame to ensure the DOM is updated before calculating positions
-        requestAnimationFrame(() => {
-            // One frame to render, another to ensure layout is stable
-            requestAnimationFrame(() => {
-                calculateAbsolutePositions();
-                drawConnections();
+        // Add event listeners for accordion toggling
+        accordionContainer.querySelectorAll('.accordion-title').forEach(button => {
+            button.addEventListener('click', () => {
+                button.classList.toggle('active');
+                const content = button.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
             });
         });
     }
 
-    function calculateAbsolutePositions() {
-        nodePositions = {};
-        const allNodeElements = graphContainer.querySelectorAll('.graph-node');
-        const containerRect = graphContainer.getBoundingClientRect();
-        const scrollLeft = graphContainer.scrollLeft;
-        const scrollTop = graphContainer.scrollTop;
+    // --- Node Rendering ---
+    function renderGraph() {
+        graphContainer.innerHTML = ''; // Clear previous render
+        if (!storyData.nodes) return;
 
-        allNodeElements.forEach(nodeEl => {
-            const rect = nodeEl.getBoundingClientRect();
-            nodePositions[nodeEl.dataset.id] = {
-                x: rect.left - containerRect.left + scrollLeft + (rect.width / 2),
-                y: rect.top - containerRect.top + scrollTop + (rect.height / 2)
-            };
-        });
-    }
+        // Create a container for the sequential list
+        const listContainer = document.createElement('div');
+        listContainer.className = 'node-list-container';
 
-    function drawConnections() {
-        let svg = graphContainer.querySelector('svg');
-        if (!svg) {
-            svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.style.position = 'absolute';
-            svg.style.top = '0';
-            svg.style.left = '0';
-            svg.style.width = '100%';
-            svg.style.height = '100%';
-            svg.style.zIndex = '-1';
-            graphContainer.prepend(svg);
-        }
-        svg.innerHTML = '';
+        // 1. Get all nodes and sort them by ID
+        const sortedNodes = Object.values(storyData.nodes).sort((a, b) => a.id.localeCompare(b.id));
 
-        Object.values(storyData.nodes).forEach(node => {
-            if (node.choices) {
-                node.choices.forEach(choice => {
-                    const startPos = nodePositions[node.id];
-                    const endPos = nodePositions[choice.target_id];
-                    if (startPos && endPos) {
-                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                        line.setAttribute('x1', startPos.x);
-                        line.setAttribute('y1', startPos.y);
-                        line.setAttribute('x2', endPos.x);
-                        line.setAttribute('y2', endPos.y);
+        // 2. Render nodes sequentially
+        for (const node of sortedNodes) {
+            const nodeElement = document.createElement('div');
+            nodeElement.className = 'graph-node'; // Use existing styling
+            nodeElement.textContent = node.id;
+            nodeElement.dataset.id = node.id;
 
-                        if (choice.transition_prompt) {
-                            line.setAttribute('stroke', '#8e44ad');
-                            line.setAttribute('stroke-width', '4');
-                        } else {
-                            line.setAttribute('stroke', 'rgba(255, 255, 255, 0.3)');
-                            line.setAttribute('stroke-width', '2');
-                        }
-
-                        svg.appendChild(line);
-                    }
-                });
+            // Add a small indicator for choices
+            if (node.choices && node.choices.length > 0) {
+                const choicesIndicator = document.createElement('span');
+                choicesIndicator.className = 'node-choice-indicator';
+                choicesIndicator.textContent = `→ ${node.choices.map(c => c.target_id).join(', ')}`;
+                nodeElement.appendChild(choicesIndicator);
             }
-        });
+
+            nodeElement.addEventListener('click', () => selectNode(node.id));
+            listContainer.appendChild(nodeElement);
+        }
+
+        graphContainer.appendChild(listContainer);
+
+        // After rendering, if a node was selected, re-apply the 'selected' class
+        if (selectedNodeId) {
+            const selectedEl = listContainer.querySelector(`[data-id="${selectedNodeId}"]`);
+            if (selectedEl) {
+                selectedEl.classList.add('selected');
+            }
+        }
     }
 
 
@@ -207,6 +191,71 @@ document.addEventListener('DOMContentLoaded', () => {
         choicesList.appendChild(choiceElement);
     }
 
+    // --- Consistent Elements Event Handling ---
+    function setupConsistentElementsEventListeners() {
+        const panel = document.getElementById('elements-panel');
+
+        panel.addEventListener('click', (e) => {
+            const target = e.target;
+            const category = target.dataset.category;
+            const id = target.dataset.id;
+
+            if (target.classList.contains('save-element-btn')) {
+                const itemDiv = target.closest('.element-item');
+                const textarea = itemDiv.querySelector('textarea');
+                const field = textarea.dataset.field;
+
+                if (field === 'value') { // Simple key-value like style_guides
+                    storyData[category][id] = textarea.value;
+                } else { // Object with properties like characters/locations
+                    if (!storyData[category][id]) storyData[category][id] = {};
+                    storyData[category][id][field] = textarea.value;
+                }
+
+                alert(`Element "${id}" in "${category}" saved.`);
+                // No re-render needed, but maybe a visual confirmation
+            }
+
+            if (target.classList.contains('delete-element-btn')) {
+                if (confirm(`Are you sure you want to delete "${id}" from "${category}"?`)) {
+                    delete storyData[category][id];
+                    renderConsistentElements();
+                }
+            }
+        });
+
+        document.getElementById('add-style-guide-btn').addEventListener('click', () => {
+            const id = prompt("Enter new style guide ID:");
+            if (id && !storyData.style_guides[id]) {
+                storyData.style_guides[id] = "New style guide description.";
+                renderConsistentElements();
+            } else if (id) {
+                alert("ID already exists.");
+            }
+        });
+
+        document.getElementById('add-character-btn').addEventListener('click', () => {
+            const id = prompt("Enter new character ID:");
+            if (id && !storyData.characters[id]) {
+                storyData.characters[id] = { description: "New character description." };
+                renderConsistentElements();
+            } else if (id) {
+                alert("ID already exists.");
+            }
+        });
+
+        document.getElementById('add-location-btn').addEventListener('click', () => {
+            const id = prompt("Enter new location ID:");
+            if (id && !storyData.locations[id]) {
+                storyData.locations[id] = { description: "New location description." };
+                renderConsistentElements();
+            } else if (id) {
+                alert("ID already exists.");
+            }
+        });
+    }
+
+
     // --- Event Handlers ---
     nodeEditorForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -237,6 +286,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
         alert(`Node "${selectedNodeId}" updated!`);
         renderGraph(); // Re-render to show changes like new connections
+    });
+
+    nodeEditorForm.addEventListener('click', (e) => {
+        if (e.target.classList.contains('insert-template-btn')) {
+            const targetId = e.target.dataset.target;
+            const textarea = document.getElementById(targetId);
+            const category = prompt("Enter category (style_guides, characters, locations):");
+            if (category && storyData[category]) {
+                const elementId = prompt(`Enter ID from ${category}:`);
+                if (elementId && storyData[category][elementId]) {
+                    const template = `{{${category}.${elementId}.description}}`;
+                    textarea.value += template;
+                } else if (elementId) {
+                    alert("ID not found.");
+                }
+            } else if(category) {
+                alert("Category not found.");
+            }
+        }
+
+        if (e.target.classList.contains('preview-template-btn')) {
+            const targetId = e.target.dataset.target;
+            const textarea = document.getElementById(targetId);
+            let content = textarea.value;
+
+            content = content.replace(/\{\{(.*?)\}\}/g, (match, key) => {
+                const keys = key.trim().split('.');
+                let value = storyData;
+                try {
+                    for (const k of keys) {
+                        value = value[k];
+                    }
+                    return value || match;
+                } catch (err) {
+                    return match; // If path is invalid, return original placeholder
+                }
+            });
+
+            alert("Preview:\n\n" + content);
+        }
     });
 
     addChoiceBtn.addEventListener('click', () => {

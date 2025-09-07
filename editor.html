@@ -11,19 +11,44 @@
         <div id="graph-container">
             <!-- Story graph will be rendered here by editor.js -->
         </div>
+
+        <div id="elements-panel">
+            <h2 class="panel-title">Consistent Elements</h2>
+            <div id="elements-accordion">
+                <!-- Accordions will be dynamically generated here -->
+            </div>
+            <div class="panel-actions">
+                 <button id="add-style-guide-btn" class="add-element-btn">Add Style Guide</button>
+                 <button id="add-character-btn" class="add-element-btn">Add Character</button>
+                 <button id="add-location-btn" class="add-element-btn">Add Location</button>
+            </div>
+        </div>
+
         <div id="editor-panel" class="hidden">
-            <h2>Edit Node</h2>
+            <h2 class="panel-title">Edit Node</h2>
             <form id="node-editor-form">
                 <div class="form-group">
                     <label for="node-id">Node ID</label>
                     <input type="text" id="node-id" name="id" readonly>
                 </div>
                 <div class="form-group">
-                    <label for="node-text">Text</label>
+                    <div class="label-bar">
+                        <label for="node-text">Text</label>
+                        <div class="textarea-actions">
+                            <button type="button" class="insert-template-btn" data-target="node-text">Insert</button>
+                            <button type="button" class="preview-template-btn" data-target="node-text">Preview</button>
+                        </div>
+                    </div>
                     <textarea id="node-text" name="text" rows="6"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="node-image-prompt">Image Prompt</label>
+                     <div class="label-bar">
+                        <label for="node-image-prompt">Image Prompt</label>
+                        <div class="textarea-actions">
+                            <button type="button" class="insert-template-btn" data-target="node-image-prompt">Insert</button>
+                            <button type="button" class="preview-template-btn" data-target="node-image-prompt">Preview</button>
+                        </div>
+                    </div>
                     <textarea id="node-image-prompt" name="image_prompt" rows="4"></textarea>
                 </div>
                 <div id="choices-editor">

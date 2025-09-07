@@ -28,28 +28,43 @@ body {
     padding: 20px;
 }
 
-/* --- Graph Nodes --- */
+/* --- Node List Layout --- */
+.node-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* --- Graph Nodes (Revised for List View) --- */
 .graph-node {
-    position: absolute;
+    position: relative; /* Changed from absolute */
     background-color: #3a3a3a;
     color: #f0f0f0;
     border: 1px solid #555;
     border-radius: 8px;
-    padding: 10px;
-    width: 150px;
-    height: 40px;
+    padding: 12px 15px;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
     display: flex;
-    justify-content: center;
+    justify-content: space-between; /* Align content and indicator */
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .graph-node:hover {
     background-color: #4a4a4a;
     border-color: #8e44ad;
+}
+
+.node-choice-indicator {
+    font-size: 12px;
+    color: #aaa;
+    font-style: italic;
+    margin-left: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .graph-node.selected {
@@ -132,6 +147,23 @@ body {
 
 .form-group {
     margin-bottom: 15px;
+}
+
+.label-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.textarea-actions button {
+    padding: 3px 8px;
+    font-size: 11px;
+    background-color: #444;
+    margin-left: 5px;
+}
+.textarea-actions button:hover {
+    background-color: #555;
 }
 
 .form-group label {
