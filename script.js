@@ -366,9 +366,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Assemble the prompt from different parts
         let promptParts = [];
 
-        // 1. Assemble the prompt from different parts
-        let promptParts = [];
-
         // Determine which style guide to use
         const styleKey = node.style_override || 'default';
         const styleGuide = storyData.style_guides?.[styleKey] || storyData.style_guides?.default || '';
