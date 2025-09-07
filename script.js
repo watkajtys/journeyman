@@ -58,56 +58,68 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         isPreloading = true;
-        console.log('Starting preload for choices of:', node.id);
+        console.log('Starting sequential preload for choices of:', node.id);
 
-        const preloadPromises = [];
+        // Create a sequence of promise-returning functions
+        const preloadTasks = [];
         node.choices.forEach(choice => {
             const nextNodeId = choice.target_id;
             const nextNode = storyData[nextNodeId];
 
-            // --- Preload the main image for the next node ---
+            // --- Task for preloading the main image ---
             if (nextNode && nextNode.image_prompt && !imageCache[nextNodeId]) {
-                console.log('Queueing preload for main image:', nextNodeId);
-                const mainImagePromise = getGeneratedImage(nextNode.image_prompt, null, lastImageB64, true)
-                    .then(({ imageData }) => {
-                        const imageSrc = `data:image/png;base64,${imageData}`;
-                        imageCache[nextNodeId] = imageSrc;
-                        console.log('Successfully preloaded main image for:', nextNodeId);
-                    })
-                    .catch(error => console.warn(`Preloading main image failed for "${nextNodeId}":`, error));
-                preloadPromises.push(mainImagePromise);
+                preloadTasks.push(() => {
+                    console.log('Starting preload for main image:', nextNodeId);
+                    return getGeneratedImage(nextNode.image_prompt, null, lastImageB64, true)
+                        .then(({ imageData }) => {
+                            const imageSrc = `data:image/png;base64,${imageData}`;
+                            imageCache[nextNodeId] = imageSrc;
+                            console.log('Successfully preloaded main image for:', nextNodeId);
+                        })
+                        .catch(error => console.warn(`Preloading main image failed for "${nextNodeId}":`, error));
+                });
             }
 
-            // --- Preload the transition image for the choice ---
+            // --- Task for preloading the transition image ---
             const transitionCacheKey = `${node.id}->${choice.target_id}`;
             if (choice.transition_prompt && !imageCache[transitionCacheKey]) {
-                console.log('Queueing preload for transition image:', transitionCacheKey);
-                const transitionImagePromise = getGeneratedImage(choice.transition_prompt, null, lastImageB64, true)
-                    .then(({ imageData }) => {
-                        const imageSrc = `data:image/png;base64,${imageData}`;
-                        imageCache[transitionCacheKey] = imageSrc;
-                        console.log('Successfully preloaded transition image for:', transitionCacheKey);
-                    })
-                    .catch(error => console.warn(`Preloading transition image failed for "${transitionCacheKey}":`, error));
-                preloadPromises.push(transitionImagePromise);
+                preloadTasks.push(() => {
+                    console.log('Starting preload for transition image:', transitionCacheKey);
+                    return getGeneratedImage(choice.transition_prompt, null, lastImageB64, true)
+                        .then(({ imageData }) => {
+                            const imageSrc = `data:image/png;base64,${imageData}`;
+                            imageCache[transitionCacheKey] = imageSrc;
+                            console.log('Successfully preloaded transition image for:', transitionCacheKey);
+                        })
+                        .catch(error => console.warn(`Preloading transition image failed for "${transitionCacheKey}":`, error));
+                });
             }
         });
 
-        if (preloadPromises.length > 0) {
-            Promise.all(preloadPromises).then(() => {
+        if (preloadTasks.length > 0) {
+            // Execute tasks sequentially
+            let sequence = Promise.resolve();
+            preloadTasks.forEach(task => {
+                sequence = sequence.then(task);
+            });
+
+            sequence.then(() => {
                 isPreloading = false;
-                console.log('All preloading tasks finished for node:', node.id);
+                console.log('All sequential preloading tasks finished for node:', node.id);
             });
         } else {
             isPreloading = false;
         }
     }
 
-    function updateImage(newSrc) {
+    function updateImage(newSrc, newText) {
         return new Promise((resolve) => {
             if (!newSrc) {
                 // Deactivate both images if there's no source
                 imageElements.forEach(img => img.classList.remove('active'));
+                if (newText !== undefined) {
+                    storyTextElement.innerText = newText;
+                }
                 resolve();
                 return;
             }
@@ -125,16 +137,69 @@ document.addEventListener('DOMContentLoaded', () => {
                     activeImage.classList.remove('active');
                     inactiveImage.classList.add('active');
                     activeImageIndex = inactiveImageIndex; // Update the active index
+
+                    if (newText !== undefined) {
+                        storyTextElement.innerText = newText;
+                    }
+
                     // Resolve after the transition is expected to finish
                     setTimeout(resolve, 1500); // Match CSS transition duration
                 }, 50);
             };
             tempImg.onerror = (err) => {
                 console.error("Failed to load image for display:", newSrc, err);
+                 if (newText !== undefined) {
+                    storyTextElement.innerText = newText;
+                }
                 resolve(); // Resolve anyway to not block the game
             };
             tempImg.src = newSrc;
         });
+    }
+
+    // --- Scene Loading and Rendering ---
+    async function loadAndDisplayScene(node) {
+        const nodeId = node.id;
+        let imageAvailable = false;
+
+        if (imageCache[nodeId]) {
+            await updateImage(imageCache[nodeId], node.text);
+            lastStableNodeId = nodeId;
+            imageAvailable = true;
+        } else {
+            generationController = new AbortController();
+            const signal = generationController.signal;
+
+            loadingSpinnerElement.classList.remove('hidden');
+            stopButtonElement.classList.remove('hidden');
+            setChoicesEnabled(false);
+
+            try {
+                const { imageData } = await getGeneratedImage(node.image_prompt, signal, lastImageB64, false);
+                lastImageB64 = imageData;
+                const imageSrc = `data:image/png;base64,${imageData}`;
+                imageCache[nodeId] = imageSrc;
+                await updateImage(imageSrc, node.text);
+                lastStableNodeId = nodeId;
+                imageAvailable = true;
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    console.log('Image generation was stopped. Reverting to last stable state.');
+                } else if (error.message.includes("Could not find image data")) {
+                    console.warn(`Soft failure for node "${nodeId}": API did not return image data. Proceeding without an image.`);
+                    lastStableNodeId = nodeId;
+                    await updateImage(null, node.text);
+                } else {
+                    console.error("Error generating image:", error);
+                }
+            } finally {
+                loadingSpinnerElement.classList.add('hidden');
+                stopButtonElement.classList.add('hidden');
+                setChoicesEnabled(true);
+                generationController = null;
+            }
+        }
+        return imageAvailable;
     }
 
     // --- Node Rendering Logic ---
@@ -148,7 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        storyTextElement.innerText = node.text;
         clearChoices();
 
         if (node.type === 'exploration') {
@@ -157,49 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
             renderChoiceNode(node);
         }
 
-        let imageAvailable = false;
-        if (imageCache[nodeId]) {
-            await updateImage(imageCache[nodeId]);
-            lastStableNodeId = nodeId;
-            setChoicesEnabled(true);
-            imageAvailable = true;
-        } else {
-            generationController = new AbortController();
-            const signal = generationController.signal;
+        const imageAvailable = await loadAndDisplayScene(node);
 
-            // Show spinner only for primary, non-preloaded images
-            loadingSpinnerElement.classList.remove('hidden');
-            stopButtonElement.classList.remove('hidden');
-            setChoicesEnabled(false);
-
-            try {
-                // Pass false for isPreload
-                const { imageData } = await getGeneratedImage(node.image_prompt, signal, lastImageB64, false);
-                lastImageB64 = imageData;
-                const imageSrc = `data:image/png;base64,${imageData}`;
-                imageCache[nodeId] = imageSrc;
-                await updateImage(imageSrc);
-                lastStableNodeId = nodeId;
-                imageAvailable = true;
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    console.log('Image generation was stopped. Reverting to last stable state.');
-                    // No need to call showNode again, just stay on the current stable node.
-                } else if (error.message.includes("Could not find image data")) {
-                    console.warn(`Soft failure for node "${nodeId}": API did not return image data. Proceeding without an image.`);
-                    lastStableNodeId = nodeId; // Treat as stable, just without an image
-                    await updateImage(null); // Clear the image
-                } else {
-                    console.error("Error generating image:", error);
-                    // Don't clear the src, keep the old image
-                }
-            } finally {
-                loadingSpinnerElement.classList.add('hidden');
-                stopButtonElement.classList.add('hidden');
-                setChoicesEnabled(true);
-                generationController = null;
-            }
-        }
         // After the main image is loaded and displayed, kick off preloading for the next choices
         if (imageAvailable) {
             preloadChoiceImages(node);
