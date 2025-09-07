@@ -11,13 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Gemini API Configuration ---
     const API_KEY = 'AIzaSyC7puMSiLTOJJAY5Uf90L6MwtwJQwj44dg';
-    const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent';
+    const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
     // --- Game State ---
     let storyData = {};
     let currentNodeId = 'start';
-    let lastStableNodeId = 'start';
     let imageCache = {};
+    let locationImageCache = {}; // Cache for master location images
     let lastImageB64 = null;
     let generationController;
     let isGenerating = false; // To prevent concurrent generations
@@ -156,9 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
             nodeId = 'bridge_knowledge_gap';
         }
 
-
         currentNodeId = nodeId;
-        const node = storyData[currentNodeId];
+        const node = storyData.nodes[currentNodeId]; // Access node from storyData.nodes
 
         if (!node) {
             console.error(`Node "${nodeId}" not found.`);
@@ -186,11 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 5. Render choices (if it's not an auto-transitioning node)
         if (!node.auto_transition) {
-            if (node.type === 'exploration') {
-                renderExplorationNode(node);
-            } else {
-                renderChoiceNode(node);
-            }
+            renderChoiceNode(node);
             setChoicesEnabled(true);
         }
     }
@@ -203,11 +198,22 @@ document.addEventListener('DOMContentLoaded', () => {
             isGenerating = true;
             showLoading(true);
             try {
-                // Pass the no_context flag from the node to the image generator
-                const { imageData } = await getGeneratedImage(node.image_prompt, generationController.signal, lastImageB64, false, node.no_context);
-                lastImageB64 = imageData;
+                // Determine the correct context image (location master or last image)
+                let contextImageB64 = lastImageB64;
+                if (node.location && locationImageCache[node.location]) {
+                    contextImageB64 = locationImageCache[node.location];
+                }
+
+                const { imageData } = await getGeneratedImage(node, generationController.signal, contextImageB64);
+                lastImageB64 = imageData; // Always update the last generated image
                 imageSrc = `data:image/png;base64,${imageData}`;
                 imageCache[node.id] = imageSrc;
+
+                // If this is the first time visiting a location, cache its image
+                if (node.location && !locationImageCache[node.location]) {
+                    locationImageCache[node.location] = imageData;
+                }
+
             } catch (error) {
                 if (error.name === 'AbortError') {
                     console.log('Image generation stopped.');
@@ -223,7 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         await updateImage(imageSrc);
-        lastStableNodeId = node.id;
     }
 
     function clearChoices() {
@@ -239,13 +244,6 @@ document.addEventListener('DOMContentLoaded', () => {
             button.addEventListener('click', () => handleChoice(choice), { once: true });
             choicesContainerElement.appendChild(button);
         });
-    }
-
-    // --- Exploration Node Logic (simplified for now) ---
-    function renderExplorationNode(node) {
-        // This complex logic can be reintegrated later if needed.
-        // For now, we'll treat it like a standard choice node.
-        renderChoiceNode(node);
     }
 
     function updatePlayerState(nodeId) {
@@ -270,8 +268,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!transitionImageSrc) {
                 showLoading(true);
                 try {
-                     // Pass the no_context flag from the choice to the image generator
-                    const { imageData } = await getGeneratedImage(choice.transition_prompt, null, lastImageB64, false, choice.no_context);
+                    // For transitions, we create a temporary "pseudo-node" to pass to the generator
+                    const pseudoNode = {
+                        image_prompt: choice.transition_prompt,
+                        no_context: choice.no_context || false
+                    };
+                    const { imageData } = await getGeneratedImage(pseudoNode, null, lastImageB64);
                     transitionImageSrc = `data:image/png;base64,${imageData}`;
                     imageCache[transitionCacheKey] = transitionImageSrc;
                 } catch (error) {
@@ -295,72 +297,86 @@ document.addEventListener('DOMContentLoaded', () => {
 
         node.choices.forEach(choice => {
             const nextNodeId = choice.target_id;
-            const nextNode = storyData[nextNodeId];
+            const nextNode = storyData.nodes[nextNodeId];
 
             // Preload main image for the next node
             if (nextNode && nextNode.image_prompt && !imageCache[nextNodeId]) {
-                getGeneratedImage(nextNode.image_prompt, null, lastImageB64, true, nextNode.no_context)
+                // Determine context for preloading
+                let contextImageB64 = lastImageB64;
+                if (nextNode.location && locationImageCache[nextNode.location]) {
+                    contextImageB64 = locationImageCache[nextNode.location];
+                }
+
+                getGeneratedImage(nextNode, null, contextImageB64, true)
                     .then(({ imageData }) => {
                         imageCache[nextNodeId] = `data:image/png;base64,${imageData}`;
                         console.log(`Preloaded image for: ${nextNodeId}`);
                     })
                     .catch(err => console.warn(`Preloading failed for ${nextNodeId}:`, err));
             }
-            // Preload transition image for the choice
-            const transitionCacheKey = `${node.id}->${choice.target_id}`;
-            if (choice.transition_prompt && !imageCache[transitionCacheKey]) {
-                 getGeneratedImage(choice.transition_prompt, null, lastImageB64, true, choice.no_context)
-                    .then(({ imageData }) => {
-                        imageCache[transitionCacheKey] = `data:image/png;base64,${imageData}`;
-                        console.log(`Preloaded transition for: ${transitionCacheKey}`);
-                    })
-                    .catch(err => console.warn(`Preloading transition failed for ${transitionCacheKey}:`, err));
-            }
         });
     }
 
     // --- API Call ---
-    async function getGeneratedImage(prompt, signal, contextImageB64 = null, isPreload = false, noContext = false) {
-        const parts = [{ text: prompt }];
-        // Only add the context image if it exists and noContext is false
+    async function getGeneratedImage(node, signal, contextImageB64 = null, isPreload = false) {
+        // 1. Assemble the prompt from different parts
+        let promptParts = [];
+
+        // Add style guide
+        if (storyData.style_guide) {
+            promptParts.push(storyData.style_guide);
+        }
+
+        // Add character descriptions
+        if (node.characters_present && storyData.characters) {
+            const characterDescriptions = node.characters_present.map(charId => {
+                return storyData.characters[charId]?.description || '';
+            }).join(' ');
+            if (characterDescriptions) {
+                 promptParts.push(`Character details: ${characterDescriptions}`);
+            }
+        }
+
+        // Add the scene-specific prompt
+        promptParts.push(node.image_prompt);
+
+        const finalPrompt = promptParts.join('. ');
+
+        // 2. Construct the API payload
+        const parts = [{ text: finalPrompt }];
+        const noContext = node.no_context || false;
+
         if (contextImageB64 && !noContext) {
             parts.unshift({ inlineData: { mimeType: 'image/png', data: contextImageB64 } });
-            parts.unshift({ text: "Given the previous image, create a new image based on the prompt." });
+            parts.unshift({ text: "Use the previous image as a strong reference for the environment, characters, and art style. Then, create a new image that follows the new prompt:" });
         }
+
         const payload = {
             contents: [{ parts: parts }],
             safetySettings: [
-                {
-                    category: "HARM_CATEGORY_HATE_SPEECH",
-                    threshold: "BLOCK_NONE"
-                },
-                {
-                    category: "HARM_CATEGORY_HARASSMENT",
-                    threshold: "BLOCK_NONE"
-                },
-                {
-                    category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                    threshold: "BLOCK_NONE"
-                },
-                {
-                    category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                    threshold: "BLOCK_NONE"
-                }
+                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
             ]
         };
+
         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
             signal: signal
         });
+
         if (!response.ok) {
             const errorBody = await response.json();
+            console.error("API Error Response:", errorBody);
             throw new Error(`API Error: ${errorBody.error.message}`);
         }
         const data = await response.json();
         const imagePart = data.candidates[0]?.content?.parts.find(p => p.inlineData);
         if (!imagePart) {
+            console.warn("API Response did not contain image data:", data);
             throw new Error("No image data found in API response.");
         }
         return { imageData: imagePart.inlineData.data };
