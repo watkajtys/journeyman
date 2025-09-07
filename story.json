@@ -1,7 +1,7 @@
 {
   "start": {
     "id": "start",
-    "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls. The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back. The comm crackles with the voice of the recovery captain—a man who clearly despises you. \"She's all yours, Thorne. Find something to justify this circus.\"",
+    "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls. || The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back. || The comm crackles with the voice of the recovery captain—a man who clearly despises you. \"She's all yours, Thorne. Find something to justify this circus.\"",
     "image_prompt": "Sci-fi horror concept art. A middle-aged man, his face etched with a decade of failure and obsession, looks out the viewport of a cramped, utilitarian shuttle. Reflected in the glass, the immense, silent hull of the derelict starship 'SS Erebus' fills the view, eclipsing the distant stars.",
     "choices": [
       {
@@ -12,8 +12,20 @@
   },
   "transition_boarding": {
     "id": "transition_boarding",
-    "text": "You take a steadying breath, the recycled air of the shuttle tasting of ozone and finality. You initiate the airlock sequence.",
-    "image_prompt": "Sci-fi horror concept art. First-person view from inside a helmet. A gloved hand rests on a large, illuminated button labeled 'CYCLE AIRLOCK'. Through the thick glass of the inner airlock door, the dark, silent corridor of the 'SS Erebus' waits.",
+    "text": "You take a steadying breath. The airlock hisses open, revealing the corridor beyond.",
+    "image_prompt": "Sci-fi horror concept art. First-person view from inside a helmet. Through the thick glass of the now-open inner airlock door, the corridor of the SS Erebus is revealed. It is a wreck. Emergency lights flicker erratically, casting deep shadows. Wires hang from the ceiling like vines, and panels are torn from the walls.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "hallway_flash"
+      }
+    ]
+  },
+  "hallway_flash": {
+    "id": "hallway_flash",
+    "text": "You blink, your eyes adjusting to the harsh light. For a moment, the scene ripples, like a faulty hologram. The flickering lights stabilize. The hanging wires retract. The torn panels seem to mend themselves before your very eyes.",
+    "image_prompt": "Surrealist horror art. The same wrecked corridor, but it is glitching violently. A wave of digital static washes over the scene, and in its wake, the corridor is transforming into a pristine, clean, and sterile environment. The transition is caught mid-frame, with half the corridor wrecked and half perfectly clean.",
     "auto_transition": true,
     "choices": [
       {
@@ -24,27 +36,63 @@
   },
   "board_ship": {
     "id": "board_ship",
-    "text": "You step aboard. The silence is the first thing that hits you. It's not just quiet; it's a dead, pressurized absence of sound. The emergency lights cast a sterile, clinical glow. The ship is pristine, a ghost preserved in a vacuum. Your datapad pings: Bridge, Server Room, or Med Bay?",
-    "image_prompt": "Sci-fi horror concept art. First-person view. The interior of the SS Erebus is pristine and unnervingly clean. Sterile emergency lights stretch down a long, metallic corridor. The scene is perfectly composed and symmetrical, creating a deep sense of unease. The only thing out of place is a single, drifting particle of dust in the air.",
+    "text": "You step aboard. The silence is the first thing that hits you. It's not just quiet; it's a dead, pressurized absence of sound. The emergency lights cast a sterile, unwavering glow. The ship is pristine, a ghost preserved in a vacuum. Was the damage you saw just a trick of the light? Your datapad pings: Bridge, Server Room, or Med Bay?",
+    "image_prompt": "Sci-fi horror concept art. First-person view. The interior of the SS Erebus is pristine and unnervingly clean. Sterile emergency lights stretch down a long, metallic corridor. The scene is perfectly composed and symmetrical, creating a deep sense of unease. There is no dust. There is no damage. It is perfect.",
     "choices": [
       {
         "text": "Proceed to the Bridge.",
-        "target_id": "go_to_bridge"
+        "target_id": "transition_to_bridge"
       },
       {
         "text": "Descend to the Server Room.",
-        "target_id": "go_to_server_room"
+        "target_id": "transition_to_server_room"
       },
       {
         "text": "Investigate the Med Bay.",
+        "target_id": "transition_to_med_bay"
+      }
+    ]
+  },
+  "transition_to_bridge": {
+    "id": "transition_to_bridge",
+    "text": "You head towards the command center, taking a lift upwards through the ship's spine.",
+    "image_prompt": "Sci-fi concept art. Interior of a futuristic, cylindrical glass elevator ascending. Through the glass, the vast, complex inner structures of the starship can be seen. The lighting is sterile and cold.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "go_to_bridge"
+      }
+    ]
+  },
+  "transition_to_server_room": {
+    "id": "transition_to_server_room",
+    "text": "You take a lift down into the guts of the ship, the temperature dropping with each level you descend.",
+    "image_prompt": "Sci-fi concept art. Interior of a futuristic, industrial-style freight elevator descending into darkness. The walls are heavy, riveted metal. The only light comes from a dim, caged bulb overhead.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "go_to_server_room"
+      }
+    ]
+  },
+  "transition_to_med_bay": {
+    "id": "transition_to_med_bay",
+    "text": "You follow the signs on the wall, your footsteps echoing in the unnervingly quiet corridors.",
+    "image_prompt": "Sci-fi horror concept art. A long, sterile, white corridor on a starship. The corridor is empty and eerily silent. A sign on the wall, written in a clean, sans-serif font, points ahead with an arrow and the word 'MED BAY'.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
         "target_id": "go_to_med_bay"
       }
     ]
   },
   "go_to_bridge": {
     "id": "go_to_bridge",
-    "text": "You ascend to the Bridge. The command center is a tomb of dead consoles, each one a dark mirror reflecting your solitary figure.",
-    "image_prompt": "Sci-fi horror concept art. The cavernous bridge of the starship Erebus is shrouded in darkness, dust motes dancing in the air. The only light comes from the single, active console in the center of the room.",
+    "text": "You ascend to the Bridge. The command center is a tomb of dead consoles. As you step inside, you see a flicker in the corner of your eye—a flash of rust and decay on a console, gone as quickly as it appeared.",
+    "image_prompt": "Sci-fi horror concept art. The cavernous bridge of the starship Erebus is shrouded in darkness. For a split second, one of the 'dead' consoles in the foreground glitches, showing a screen cracked and covered in grime, before returning to its pristine, dark state.",
     "auto_transition": true,
     "choices": [
       {
@@ -68,10 +116,52 @@
       }
     ]
   },
+  "bridge_knowledge_gap": {
+    "id": "bridge_knowledge_gap",
+    "text": "You stare at the console, at the swirling, alien data. A profound sense of unease washes over you. You feel like you're missing a crucial piece of the puzzle. Trying to decrypt this now, blind, feels... reckless. That whisper you heard in the server room, the grim findings in the med bay... maybe they hold the key.",
+    "image_prompt": "Psychological horror concept art. The protagonist stands before the glowing console, but their expression is one of deep uncertainty and dread. Their hand hovers over the controls, hesitant. The reflection in the screen is distorted, showing a dark, questioning shadow of themselves.",
+    "choices": [
+      {
+        "text": "I should know more. I'll check the Server Room.",
+        "target_id": "go_to_server_room"
+      },
+      {
+        "text": "Perhaps the Med Bay has answers about the crew.",
+        "target_id": "go_to_med_bay"
+      },
+      {
+        "text": "Ignore the feeling. Push forward with the decryption.",
+        "target_id": "failure_blind_decryption"
+      }
+    ]
+  },
+  "failure_blind_decryption": {
+    "id": "failure_blind_decryption",
+    "text": "You shake off the doubt, attributing it to stress. You're a scientist. You need data, not feelings. You initiate the decryption sequence. As the alien code begins to resolve, your mind feels... open. An intrusive, chilling presence slips into your thoughts, uninvited.",
+    "image_prompt": "Cosmic horror art. A first-person view of a computer screen with alien, glowing glyphs. The glyphs are starting to bleed off the screen, swirling into the air around the console, as if trying to reach for the viewer.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "failure_blind_decryption_2"
+      }
+    ]
+  },
+  "failure_blind_decryption_2": {
+    "id": "failure_blind_decryption_2",
+    "text": "The whispers start, not in your ear, but inside your skull. You've connected yourself to the entity without any mental defenses. It floods your consciousness, and you are lost in the terrible, beautiful static of its thoughts.",
+    "image_prompt": "Cosmic horror art. The first-person view continues, but the user's hands, visible at the bottom of the frame, are starting to become translucent and made of shimmering, colorful static. The world beyond the console is dissolving into a whirlwind of abstract energy.",
+    "choices": [
+      {
+        "text": "Become one with the void...",
+        "target_id": "start"
+      }
+    ]
+  },
   "go_to_server_room": {
     "id": "go_to_server_room",
-    "text": "You take the lift down to the server room. The chill in the air is palpable. Monolithic server racks stand in silent rows, their own kind of graveyard. You access the central terminal for the crew's personal logs.",
-    "image_prompt": "Sci-fi horror concept art. A vast, dark, and cold server room. Endless rows of silent, monolithic server racks create a sense of oppressive scale. A single computer terminal glows in the darkness, its light illuminating the determined face of the person accessing it.",
+    "text": "You take the lift down into the guts of the ship. The chill in the air is palpable. Monolithic server racks stand in silent, perfect rows. But as you walk past, your reflection in a polished panel seems to show the metal as corroded and ancient for a brief moment.",
+    "image_prompt": "Sci-fi horror concept art. A vast, dark, and cold server room. Endless rows of silent, monolithic server racks create a sense of oppressive scale. The reflection of the protagonist on the side of one of the racks is subtly wrong: the reflection shows the rack as rusted and covered in cobwebs.",
     "choices": [
       {
         "text": "Play the captain's last message.",
@@ -96,8 +186,20 @@
   },
   "failure_fight_it": {
     "id": "failure_fight_it",
-    "text": "\"No,\" you snarl, gritting your teeth. You try to erect a mental barrier, to focus your thoughts. The whisper chuckles, a sound like grinding static. \"Your thoughts,\" it mocks, \"are so... loud.\" The pressure in your skull becomes an unbearable, white-hot spike. The server racks ripple like liquid. A warm trickle of blood escapes your nose. Your mind is a fortress with its gates thrown wide open.",
-    "image_prompt": "Psychological horror art. An extreme close-up of a human eye, bloodshot and wide with agony. A single tear, black as oil, rolls down the cheek. Reflected in the pupil is an abstract, swirling vortex of dark, chaotic energy.",
+    "text": "\"No,\" you snarl, gritting your teeth as you try to erect a mental barrier. The whisper chuckles, a sound like grinding static. \"Your thoughts,\" it mocks, \"are so... loud.\" The pressure in your skull becomes an unbearable, white-hot spike.",
+    "image_prompt": "Psychological horror art. The protagonist is on their knees, clutching their head in agony. The server racks around them are starting to ripple and distort as if seen through a heat haze. Ghostly, static-like tendrils of energy are reaching for their head.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "failure_fight_it_2"
+      }
+    ]
+  },
+  "failure_fight_it_2": {
+    "id": "failure_fight_it_2",
+    "text": "The server racks ripple like liquid. A warm trickle of blood escapes your nose. Your mind is a fortress with its gates thrown wide open. The last thing you see is the server room dissolving into a vortex of screaming data.",
+    "image_prompt": "Psychological horror art. An extreme close-up of a human eye, bloodshot and wide with agony. A single tear, black as oil, rolls down the cheek. Reflected in the pupil is an abstract, swirling vortex of dark, chaotic energy and screaming digital faces.",
     "choices": [
       {
         "text": "Collapse...",
@@ -134,8 +236,20 @@
   },
   "failure_suffocate": {
     "id": "failure_suffocate",
-    "text": "You ignore the warning, convinced the array holds the immediate answers. You throw yourself into decrypting the logs. Time blurs. Your vision begins to swim, your thoughts growing sluggish. A dull ache in your temples blossoms into a pounding headache. You look up from the console, gasping, finally realizing your fatal error. The air is thick and heavy. You claw at your collar, your lungs burning. Your last sight is the beautiful, deadly pattern on the sensor screen.",
-    "image_prompt": "Psychological horror art. First-person view from a collapsing perspective. The edges of the vision are vignetted and dark. The hands in front of your face are pale and trembling. The computer console in the distance is a blurry, out-of-focus mess of light. A single red alert light is the last thing you see clearly.",
+    "text": "You ignore the warning, convinced the array holds the key. You throw yourself into decrypting the logs. Time blurs. Your vision begins to swim, your thoughts growing sluggish. A dull ache in your temples blossoms into a pounding headache.",
+    "image_prompt": "Psychological horror art. A first-person view of the console. The edges of the vision are starting to blur and vignette. The text on the screen is becoming difficult to read, slightly warped. A sense of dizziness and disorientation.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "failure_suffocate_2"
+      }
+    ]
+  },
+  "failure_suffocate_2": {
+    "id": "failure_suffocate_2",
+    "text": "You look up from the console, gasping, finally realizing your fatal error. The air is thick and heavy. You claw at your collar, your lungs burning. Your last sight is the beautiful, deadly pattern on the sensor screen, mocking you.",
+    "image_prompt": "Psychological horror art. First-person view from a collapsing perspective. The hands in front of your face are pale and trembling, clawing at your throat. The computer console in the distance is a blurry, out-of-focus mess of light. A single red alert light on the console is the last thing you see clearly.",
     "choices": [
       {
         "text": "Fade to black...",
@@ -145,8 +259,8 @@
   },
   "access_sensor_logs": {
     "id": "access_sensor_logs",
-    "text": "You lean over the console, your reflection staring back from the dark screen. You begin the decryption sequence, a complex cypher of your own design. As the code scrolls past, a flicker of movement in the reflection catches your eye. A tall, distorted shadow, standing right behind you. You whip around. Nothing. Just the oppressive silence of the bridge.",
-    "image_prompt": "Sci-fi horror concept art. A tense close-up of the protagonist's face, illuminated by the green glow of a computer screen filled with scrolling code. Reflected in the dark screen, standing directly behind the protagonist's shoulder, is the tall, wavering, and deeply unsettling silhouette of a non-human entity.",
+    "text": "You lean over the console, your reflection staring back from the dark screen. You begin the decryption sequence. As the code scrolls past, a flicker of movement in the reflection catches your eye. It's not a shadow. For a split second, the reflection shows the bridge as it truly is: a wrecked, derelict tomb. Then it's gone. You whip around. Nothing. Just the oppressive, pristine silence.",
+    "image_prompt": "Sci-fi horror concept art. A tense close-up of the protagonist's face, illuminated by the green glow of a computer screen filled with scrolling code. Reflected in the dark screen is the bridge, but it is a scene of utter devastation. Wires spark, panels are broken. Standing in the middle of the wreckage, directly behind the protagonist's shoulder, is the tall, wavering silhouette of a non-human entity.",
     "auto_transition": true,
     "choices": [
       {
@@ -195,6 +309,42 @@
     "choices": [
       {
         "text": "...",
+        "target_id": "end_glow_in_cabin"
+      }
+    ]
+  },
+  "end_glow_in_cabin": {
+    "id": "end_glow_in_cabin",
+    "text": "The energy release is blinding. A wave of pure, silent, white light erupts from the console.",
+    "image_prompt": "Abstract, surrealist art. A human silhouette made of pure, white light and energy seems to be dissolving into an infinitely repeating, beautiful, and terrifying fractal pattern. At the very center of the silhouette's chest is a single point of absolute darkness, the trapped entity. This is happening inside the bridge of the ship.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "end_outside_ship_close"
+      }
+    ]
+  },
+    "end_outside_ship_close": {
+    "id": "end_outside_ship_close",
+    "text": "From outside, the ship is momentarily illuminated from within.",
+    "image_prompt": "Sci-fi horror concept art. A shot from just outside the SS Erebus, looking at the bridge viewport. A brilliant, white light erupts from within, starkly illuminating the hull and casting long shadows.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "end_outside_ship_far"
+      }
+    ]
+  },
+  "end_outside_ship_far": {
+    "id": "end_outside_ship_far",
+    "text": "The light fades, leaving the ship once again adrift in the silent void.",
+    "image_prompt": "Sci-fi concept art. The camera has pulled back farther. The SS Erebus is a solitary vessel against the backdrop of a star-dusted nebula. The intense light from the bridge has subsided, returning the ship to a quiet silhouette.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
         "target_id": "end_state"
       }
     ]
@@ -257,8 +407,8 @@
   },
   "go_to_med_bay": {
     "id": "go_to_med_bay",
-    "text": "You decide to check the Med Bay first. The doors hiss open to reveal a scene of chilling sterility. Medical beds are neatly made. Surgical instruments are perfectly arranged. A single medical monitor is active, displaying a looping biometric log.",
-    "image_prompt": "Sci-fi horror concept art. A pristine, white medical bay. Everything is in its proper place. Surgical tools are laid out on a tray with unnerving precision. The only light comes from a single, active heart monitor in the corner, displaying a flat line.",
+    "text": "You decide to check the Med Bay. The doors hiss open to reveal a scene of chilling sterility. But as the door slides, you see a momentary flash of something else: a bloody handprint on the wall, gone in an instant.",
+    "image_prompt": "Sci-fi horror concept art. The automatic doors to the med bay are sliding open. For a split second, the pristine white wall inside is marred by a gruesome, bloody handprint, which vanishes as the door opens fully to reveal a perfectly clean room.",
     "choices": [
       {
         "text": "Access the medical log.",
@@ -294,8 +444,32 @@
   },
   "failure_med_cabinet": {
     "id": "failure_med_cabinet",
-    "text": "You see the secure medical cabinet, where the most potent drugs are kept. A desperate thought crosses your mind: maybe a powerful sedative could quiet the voices. You override the lock. An alarm blares. A soft, female automated voice says, 'Lethal contaminant protocol initiated. Medical bay is now under permanent quarantine.' A heavy steel door slams shut behind you. You are trapped. Forever.",
-    "image_prompt": "Sci-fi horror concept art. First-person view. A heavy, steel quarantine door, marked with yellow and black biohazard symbols, is slamming shut, plunging the room into near darkness. The only light is a single, flashing red alarm light.",
+    "text": "You override the lock on the secure medical cabinet. A piercing alarm blares. A soft, female automated voice announces, 'Lethal contaminant protocol initiated.'",
+    "image_prompt": "Sci-fi horror concept art. A close-up on the protagonist's hand as they override a digital lock on a medical cabinet. The screen flashes red with the word 'OVERRIDE'. In the background, red alarm lights begin to strobe.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "failure_med_cabinet_2"
+      }
+    ]
+  },
+  "failure_med_cabinet_2": {
+    "id": "failure_med_cabinet_2",
+    "text": "'Medical bay is now under permanent quarantine.' With a deafening clang, a heavy steel door slams shut, sealing you inside. The main lights die.",
+    "image_prompt": "Sci-fi horror concept art. First-person view. A heavy, steel quarantine door, marked with yellow and black biohazard symbols, is slamming shut, plunging the room into near darkness. The only light is the single, flashing red alarm light, casting long, dramatic shadows.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "failure_med_cabinet_3"
+      }
+    ]
+  },
+  "failure_med_cabinet_3": {
+    "id": "failure_med_cabinet_3",
+    "text": "The alarm cuts out, leaving you in an oppressive, ringing silence. You are trapped. Forever. A prisoner in a pristine tomb.",
+    "image_prompt": "Sci-fi horror concept art. A wide shot from inside the med bay, now pitch black except for the faint, rhythmic pulse of the red emergency light. The light glints off the sterile medical instruments, arranged with chilling precision on a nearby tray. The figure of the protagonist is a barely-visible silhouette in the oppressive darkness.",
     "choices": [
       {
         "text": "Accept your fate...",

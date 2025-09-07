@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
-    const storyTextElement = document.getElementById('story-text');
+    const storyTextContainerElement = document.getElementById('story-text-container');
     const choicesContainerElement = document.getElementById('choices-container');
     const imageContainerElement = document.getElementById('image-container');
     const narrativeContainerElement = document.getElementById('narrative-container');
@@ -21,7 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastImageB64 = null;
     let generationController;
     let isGenerating = false; // To prevent concurrent generations
-    let isTyping = false; // To prevent skipping text animation
+    let isDisplayingText = false; // To prevent skipping text animation
+    let playerState = {
+        visitedServerRoom: false,
+        visitedMedBay: false,
+    };
 
     // --- Initialization ---
     async function init() {
@@ -33,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             narrativeContainerElement.classList.remove('hidden');
             narrativeContainerElement.classList.add('visible');
-            storyTextElement.innerText = `Error loading story: ${error}. Please check that story.json is available.`;
+            storyTextContainerElement.innerHTML = `<p>Error loading story: ${error}. Please check that story.json is available.</p>`;
             console.error("Failed to load story.json:", error);
         }
     }
@@ -52,21 +56,49 @@ document.addEventListener('DOMContentLoaded', () => {
         stopButtonElement.classList.toggle('hidden', !show);
     }
 
-    // --- Typewriter Effect ---
-    async function typeWriter(text) {
+    // --- Text Display Logic ---
+    async function displayText(fullText) {
+        return new Promise(async (resolve) => {
+            isDisplayingText = true;
+            storyTextContainerElement.innerHTML = ''; // Clear previous content
+            const chunks = fullText.split('||').map(s => s.trim()).filter(s => s.length > 0);
+
+            for (let i = 0; i < chunks.length; i++) {
+                const chunk = chunks[i];
+                const p = document.createElement('p');
+                p.className = 'story-text-chunk';
+                storyTextContainerElement.appendChild(p);
+
+                // Start typewriter for the current chunk
+                await typeWriterChunk(p, chunk);
+
+                // Keep the chunk visible for a moment before fading
+                await new Promise(res => setTimeout(res, 1000));
+
+                // Don't fade out the last chunk
+                if (i < chunks.length - 1) {
+                    p.classList.add('fade-out');
+                    // Wait for fade out to complete before showing the next chunk
+                    await new Promise(res => setTimeout(res, 800));
+                }
+            }
+            isDisplayingText = false;
+            resolve();
+        });
+    }
+
+    function typeWriterChunk(element, text) {
         return new Promise(resolve => {
-            isTyping = true;
-            storyTextElement.innerHTML = ''; // Clear previous text
+            element.innerHTML = ''; // Clear previous text
             const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
             let sentenceIndex = 0;
             let charIndex = 0;
             const cursor = document.createElement('span');
             cursor.className = 'typewriter-cursor';
-            storyTextElement.appendChild(cursor);
+            element.appendChild(cursor);
 
             function type() {
                 if (sentenceIndex >= sentences.length) {
-                    isTyping = false;
                     cursor.remove();
                     resolve();
                     return;
@@ -76,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (charIndex < sentence.length) {
                     const charSpan = document.createElement('span');
                     charSpan.textContent = sentence.charAt(charIndex);
-                    storyTextElement.insertBefore(charSpan, cursor);
+                    element.insertBefore(charSpan, cursor);
                     charIndex++;
                     setTimeout(type, 30); // Typing speed
                 } else {
@@ -123,6 +155,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Core Scene Rendering Logic ---
     async function showNode(nodeId) {
+        // --- State-based Node Redirection (Soft Gate) ---
+        if (nodeId === 'access_sensor_logs' && !playerState.visitedServerRoom && !playerState.visitedMedBay) {
+            nodeId = 'bridge_knowledge_gap';
+        }
+
+
         currentNodeId = nodeId;
         const node = storyData[currentNodeId];
 
@@ -149,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 3. Show the narrative container and animate text
             narrativeContainerElement.classList.remove('hidden');
             narrativeContainerElement.classList.add('visible');
-            await typeWriter(node.text);
+            await displayText(node.text);
 
             // 4. Render choices
             if (node.type === 'exploration') {
@@ -227,9 +265,19 @@ document.addEventListener('DOMContentLoaded', () => {
         renderChoiceNode(node);
     }
 
+    function updatePlayerState(nodeId) {
+        if (nodeId === 'go_to_server_room') {
+            playerState.visitedServerRoom = true;
+        } else if (nodeId === 'go_to_med_bay') {
+            playerState.visitedMedBay = true;
+        }
+    }
+
     async function handleChoice(choice) {
         // Prevent new choices while one is being processed
         setChoicesEnabled(false);
+
+        updatePlayerState(choice.target_id);
 
         // --- Handle potential intermediary transition image ---
         if (choice.transition_prompt) {
