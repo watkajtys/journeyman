@@ -1,149 +1,89 @@
 {
   "start": {
     "id": "start",
-    "text": "You stand in the dust-filled silence of a ruined library. The scene feels... familiar, like a memory you can't quite place. Sunlight streams through a collapsed ceiling, illuminating a single pedestal. Upon it rests a pulsating, crystalline artifact that hums with a low, hypnotic energy.",
-    "image_prompt": "Stylized digital illustration. A peaceful, serene library with tall bookshelves. In the center, a single stone pedestal is illuminated by a beautiful ray of light from above. On the pedestal is a glowing, geometric crystal.",
+    "text": "You dock with the 'SS Chimera', a derelict research station that's been silent for years. The air is still and freezing. A single, flickering emergency light casts long, dancing shadows down two corridors.",
+    "image_prompt": "Sci-fi horror concept art. A lone astronaut stands in a vast, dark, and silent docking bay of an ancient, derelict alien space station. The architecture is biomechanical and unsettling. A single flickering light from above illuminates two corridors.",
     "choices": [
       {
-        "text": "Reach out and touch the artifact.",
-        "target_id": "touch_artifact",
-        "transition_prompt": "A first-person view of a hand reaching out towards the glowing, geometric crystal on the pedestal. The view is from the perspective of the person reaching.",
-        "hotspot": { "x": 40, "y": 40, "width": 20, "height": 25 }
-      }
-    ]
-  },
-  "touch_artifact": {
-    "id": "touch_artifact",
-    "text": "As your fingers brush against the crystal's smooth, cool surface, the world doesn't dissolve—it clarifies. The dust, the silence, it was all a veneer. The hum intensifies into a chorus of whispers, and you feel consciousness itself expanding, not moving, but awakening to the reality of the dream.",
-    "image_prompt": "Abstract concept art. Swirls of gentle, bright colors like white, blue, and purple, representing a mind awakening. A hand silhouette is visible, touching a glowing crystal that sends pulses of light outwards.",
-    "choices": [
-      {
-        "text": "Accept the new reality...",
-        "target_id": "alien_world"
-      }
-    ]
-  },
-  "alien_world": {
-    "id": "alien_world",
-    "text": "You are standing on a cliff of purple rock, overlooking a vast, constructed landscape. The air is warm and smells of strange, sweet blossoms that you know aren't real. This world is a tapestry woven from multiple minds, a psychic symphony currently out of tune. Your goal is clear: find the source of the discord and bring harmony to this chaotic dream. Before you, the path splits.",
-    "image_prompt": "Stylized digital illustration of a beautiful, peaceful alien landscape. A figure stands on a purple cliff. In the distance is a shimmering, futuristic city and a dark, quiet forest. The sky is turquoise with two suns.",
-    "choices": [
-      {
-        "text": "Seek harmony in the logical structures of the Shimmering City.",
-        "target_id": "city_path",
-        "hotspot": { "x": 10, "y": 50, "width": 40, "height": 40 }
+        "text": "Head towards the Bridge.",
+        "target_id": "bridge_path",
+        "transition_prompt": "First-person view from inside an astronaut's helmet, walking down a dark, metallic corridor. The only light source is the astronaut's headlamp illuminating the path towards a sign that reads 'BRIDGE'."
       },
       {
-        "text": "Seek harmony in the chaotic whispers of the Shadow Forest.",
-        "target_id": "forest_path",
-        "hotspot": { "x": 60, "y": 50, "width": 40, "height": 40 }
+        "text": "Investigate the Crew Quarters.",
+        "target_id": "crew_quarters_path",
+        "transition_prompt": "First-person view from inside an astronaut's helmet, walking down a dark, narrow corridor. The walls are covered in a strange, organic residue. A sign for 'CREW QUARTERS' is barely visible."
       }
     ]
   },
-  "city_path": {
-    "id": "city_path",
-    "text": "You follow the path to the shimmering city. The strange, logical energy here feels like one of the primary 'voices' in the dream's symphony. As you approach the massive, sealed gates, you feel the hum of two minds clashing—a 'Discordant Note' that needs to be resolved.",
-    "image_prompt": "Stylized digital illustration of the massive, sealed gates of a futuristic, pristine city. The walls are made of smooth, iridescent metal. A lone figure stands before the gate.",
+  "bridge_path": {
+    "id": "bridge_path",
+    "text": "You enter the bridge. The main viewscreen is cracked, revealing a terrifyingly beautiful swirling nebula. A holographic log is active on a console, looping a silent, frantic message from the alien captain.",
+    "image_prompt": "Sci-fi horror concept art. The bridge of a derelict alien starship. A massive, cracked viewscreen shows a swirling nebula outside. In the center of the room, a single console projects a flickering, unstable orange hologram of a non-humanoid alien.",
     "choices": [
       {
-        "text": "Focus on the dissonance and enter the Memory Space.",
-        "target_id": "memory_space_01"
+        "text": "Access the holographic log.",
+        "target_id": "log_entry",
+        "transition_prompt": "First-person view of an astronaut's gloved hand reaching out and touching a holographic console. The hologram glitches and resolves into a clear image of a frantic alien."
       }
     ]
   },
-  "memory_space_01": {
-    "id": "memory_space_01",
-    "type": "exploration",
-    "text": "The memories of a smoky jazz club and a silent starship bridge overlap. The air smells of bourbon and ozone. You must find the 'Resonance Point'—the shared feeling that connects the two minds trapped here.",
-    "image_prompt": "Surrealist digital art. An interior that is a blend of a music club and a starship bridge. A person plays a saxophone in the corner, while another person looks at a glowing star chart on a table.",
-    "interactive_objects": [
-      {
-        "name": "The Saxophone Player",
-        "description": "He plays a mournful, lonely tune, lost in his own world. His mind is full of rainy city streets and missed connections. [Fragment of Loneliness Collected]",
-        "reveals_fragment": true
-      },
-      {
-        "name": "The Star Chart",
-        "description": "The chart displays a long, solitary route through an empty quadrant of space. The navigator's mind is focused on the vast, silent emptiness between stars. [Fragment of Loneliness Collected]",
-        "reveals_fragment": true
-      },
-      {
-        "name": "A dusty bottle of bourbon",
-        "description": "A half-empty bottle. It seems out of place here, a small detail from one of the memories.",
-        "reveals_fragment": false
-      }
-    ],
-    "required_fragments": 2,
-    "completion_choice": {
-      "text": "You realize both souls are defined by their profound loneliness. Harmonize this feeling.",
-      "target_id": "harmonized_node_1"
-    }
-  },
-  "harmonized_node_1": {
-    "id": "harmonized_node_1",
-    "text": "As you focus on the shared feeling of loneliness, the two clashing memories resonate and merge into a single, stable reality. The dissonance of the city fades, replaced by a feeling of peace. You have brought harmony to this corner of the dream.",
-    "image_prompt": "Stylized digital illustration of a futuristic city gate, now stable and glowing with a soft, welcoming light. The sky is a calm, deep blue. The scene feels peaceful and resolved.",
+  "crew_quarters_path": {
+    "id": "crew_quarters_path",
+    "text": "The crew quarters are a mess. Personal belongings are strewn about as if the crew vanished mid-sentence. A faint, hypnotic melody emanates from a strange, bioluminescent plant in the corner of the room.",
+    "image_prompt": "Sci-fi horror concept art. The messy, abandoned crew quarters of an alien starship. Personal belongings are scattered everywhere. In the corner, a single, exotic-looking alien plant with bioluminescent fronds glows with a soft, hypnotic light.",
     "choices": [
       {
-        "text": "The dream feels more stable now. Your work is done.",
-        "target_id": "end_of_chapter_1"
-      }
-    ]
-  },
-  "forest_path": {
-    "id": "forest_path",
-    "text": "You follow the path into the Shadow Forest. The chaotic, emotional energy here is another primary 'voice' in the dream. The air is thick with a thousand whispering emotions. To bring harmony, you must find a point of calm in the beautiful, dangerous chaos.",
-    "image_prompt": "Stylized digital illustration of an enchanted, peaceful alien forest with giant, glowing mushrooms and bioluminescent plants. The trees are twisted and otherworldly.",
-    "choices": [
-      {
-        "text": "Focus your mind and search for a point of calm.",
-        "target_id": "forest_puzzle"
-      }
-    ]
-  },
-  "forest_puzzle": {
-    "id": "forest_puzzle",
-    "type": "exploration",
-    "text": "The forest is a whirlwind of emotion—joy, fear, anger, and peace, all swirling together. To harmonize this place, you must find the one 'Fragment of Calm' that can anchor the rest.",
-    "image_prompt": "Surrealist digital art. An enchanted forest blended with abstract representations of emotion. A chaotic swirl of colors is pierced by a single, still, blue butterfly sitting on a leaf.",
-    "interactive_objects": [
-      {
-        "name": "A Weeping Willow of Glass",
-        "description": "This tree seems to cry tears of molten glass. It radiates an intense, beautiful sadness.",
-        "reveals_fragment": false
+        "text": "Get a closer look at the strange plant.",
+        "target_id": "hypnotic_plant_failure",
+        "transition_prompt": "First-person view of an astronaut cautiously approaching a strange, glowing alien plant. The view is getting slightly blurry and distorted at the edges, with psychedelic colors."
       },
       {
-        "name": "A Laughing River",
-        "description": "The river bubbles and flows with pure, unadulterated joy. It's infectious, but overwhelming.",
-        "reveals_fragment": false
-      },
-      {
-        "name": "A Still Butterfly",
-        "description": "Amidst all the chaos, a single, blue butterfly rests on a leaf. It is perfectly still, radiating an aura of profound peace. [Fragment of Calm Collected]",
-        "reveals_fragment": true
-      }
-    ],
-    "required_fragments": 1,
-    "completion_choice": {
-      "text": "You focus on the butterfly's calm, letting it anchor the emotional storm.",
-      "target_id": "harmonized_node_2"
-    }
-  },
-  "harmonized_node_2": {
-    "id": "harmonized_node_2",
-    "text": "Focusing on the fragment of calm, you provide an anchor for the emotional storm. The chaotic whispers of the forest soften into a gentle hum. The dissonance fades, replaced by a feeling of peace. You have brought harmony to this corner of the dream.",
-    "image_prompt": "Stylized digital illustration of the enchanted forest, now glowing with a soft, peaceful light. The giant mushrooms pulse gently, and the air feels serene and calm.",
-    "choices": [
-      {
-        "text": "The dream feels more stable now. Your work is done.",
-        "target_id": "end_of_chapter_1"
+        "text": "This place gives you the creeps. Go to the Bridge instead.",
+        "target_id": "bridge_path",
+        "transition_prompt": "First-person view of an astronaut turning their back on the creepy crew quarters and walking purposefully down a corridor towards a sign that reads 'BRIDGE'."
       }
     ]
   },
-  "end_of_chapter_1": {
-    "id": "end_of_chapter_1",
-    "text": "You have brought harmony to the major dissonances in this dreamscape. The world feels stable, peaceful. Your work here is done... for now. The crystal on its pedestal hums with a gentle, satisfied light, waiting for the next dream.",
-    "image_prompt": "Stylized digital illustration. The glowing, geometric crystal from the start, now resting peacefully on its pedestal in the library. It emits a soft, warm, and stable light. The scene is quiet and resolved.",
+  "hypnotic_plant_failure": {
+    "id": "hypnotic_plant_failure",
+    "text": "The melody envelops you. Your thoughts unravel into beautiful, meaningless patterns. You feel a profound sense of peace as you sink to the floor, your last sight being the gently pulsing fronds of the plant. You are one with the garden now.",
+    "image_prompt": "Surrealist horror art. An astronaut's helmeted face, with an expression of peaceful horror reflected in the visor. The reflection shows a beautiful but terrifying alien plant with swirling, hypnotic patterns of light. The background is a blur of color.",
+    "choices": [
+      {
+        "text": "Awaken...",
+        "target_id": "start"
+      }
+    ]
+  },
+  "log_entry": {
+    "id": "log_entry",
+    "text": "The hologram stabilizes. It's a warning. The alien captain gestures frantically at a schematic of the station's life support system, pointing to a parasitic entity that seems to be feeding on it.",
+    "image_prompt": "A close-up of a flickering, translucent orange hologram. The hologram shows the frantic face of a non-humanoid alien. The alien is pointing at a technical schematic of a machine with a strange, cancerous growth on it. The image is glitchy and distorted.",
+    "choices": [
+      {
+        "text": "Go to Life Support.",
+        "target_id": "life_support",
+        "transition_prompt": "First-person view of an astronaut running down a long, metallic corridor. Red alert lights are flashing. The corridor is labeled 'LIFE SUPPORT' in a glowing alien script."
+      }
+    ]
+  },
+  "life_support": {
+    "id": "life_support",
+    "text": "You find the parasite in the life support chamber. It's a massive, pulsating crystalline growth, latched onto the machinery and glowing with a sickly green light. It seems to be the source of the station's decay.",
+    "image_prompt": "Sci-fi horror concept art. A massive, complex piece of alien machinery covered in a pulsating, crystalline, parasitic growth. The growth glows with a sickly green light and has dark, vein-like tendrils burrowing into the machine. The room is dark and filled with steam.",
+    "choices": [
+      {
+        "text": "Try to purge the parasite from the system.",
+        "target_id": "end_win",
+        "transition_prompt": "First-person view of an astronaut's gloved hands holding a plasma cutter, firing a bright beam of energy at a pulsating, crystalline alien parasite on a machine. Electrical sparks fly everywhere."
+      }
+    ]
+  },
+  "end_win": {
+    "id": "end_win",
+    "text": "With a final, agonizing screech, the parasite dissolves under your plasma cutter. The station's primary power hums back to life. An automated distress beacon activates, broadcasting your location. You are safe... for now.",
+    "image_prompt": "Sci-fi concept art. The previously dark bridge of the alien starship is now fully illuminated with clean, white light. The main viewscreen shows a rescue ship approaching. The lone astronaut looks on from the captain's chair, exhausted but safe.",
     "choices": [
       {
         "text": "Play Again?",
