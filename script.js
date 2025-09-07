@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initialization ---
     async function init() {
         try {
-            const response = await fetch('story.json');
+            const response = await fetch(`story.json?t=${new Date().getTime()}`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             storyData = await response.json();
             currentNodeId = 'opening_scene'; // Set the starting node
