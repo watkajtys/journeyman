@@ -76,8 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
             setChoicesEnabled(false);
 
             try {
-                const imageData = await getGeneratedImage(node.image_prompt, signal);
-                const imageSrc = `data:image/png;base64,${imageData}`;
+                const { data: imageData, mimeType } = await getGeneratedImage(node.image_prompt, signal);
+                const imageSrc = `data:${mimeType};base64,${imageData}`;
                 imageCache[nodeId] = imageSrc;
                 imageElement.src = imageSrc;
                 lastStableNodeId = nodeId;
@@ -174,11 +174,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const data = await response.json();
-        const imageData = data.candidates[0]?.content?.parts[0]?.inline_data?.data;
-        if (!imageData) {
-            throw new Error("Could not find image data in API response.");
+
+        // The API can return multiple parts, find the one with the image data.
+        const imagePart = data.candidates[0]?.content?.parts.find(part => part.inlineData);
+
+    // If no image is found, or if the found part doesn't have data, handle error cases.
+    if (!imagePart?.inlineData?.data) {
+            if (data.candidates[0]?.finishReason === 'SAFETY') {
+                const safetyText = data.candidates[0]?.content?.parts.map(p => p.text).join('') || 'No details provided.';
+                throw new Error(`Image generation failed due to safety settings. Response: ${safetyText}`);
+            }
+            throw new Error("Could not find image data in API response. The response might have changed or an error occurred.");
         }
-        return imageData;
+
+    // Return both the image data and its mime type.
+    return {
+        data: imagePart.inlineData.data,
+        mimeType: imagePart.inlineData.mimeType
+    };
     }
 
     init();
