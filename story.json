@@ -1,7 +1,7 @@
 {
   "style_guides": {
     "default": "A cinematic sci-fi horror aesthetic, inspired by films like 'Alien' and 'Event Horizon'. Use dark, gritty textures, high-contrast lighting, and a feeling of oppressive isolation.",
-    "flashback_echo": "A distorted, dreamlike, and fragmented memory. The image should feel like an echo of a real event, with visual glitches, blur, and a sense of unreality. Use a muted, almost monochrome color palette with occasional, jarring flashes of color."
+    "flashback_echo": "A ghostly, ethereal memory, steeped in blue and white light. The scene should be overexposed and dreamlike, with figures appearing as semi-translucent, ghostly after-images. Heavy use of light bloom, lens flare, and a subtle, swirling particle effect to create a sense of unreality and a memory that is both beautiful and haunting."
   },
   "characters": {
     "aris_thorne": {
@@ -12,11 +12,11 @@
     }
   },
   "nodes": {
-    "start": {
-      "id": "start",
-      "location": "erebus_exterior",
-      "text": "In the cold, silent expanse of deep space, a lone rescue shuttle drifts towards the ghost-like silhouette of the derelict starship, SS Erebus.",
-      "image_prompt": "A vast, cinematic shot of deep space. A small, rugged, utilitarian rescue shuttle is dwarfed by the immense, dark, and derelict form of the 'SS Erebus' starship. The starship is silent, with no lights, showing signs of damage and neglect. The shuttle is approaching it cautiously. The mood is tense and isolated.",
+    "opening_scene": {
+      "id": "opening_scene",
+      "location": "deep_space",
+      "text": "The void of space is vast, cold, and utterly silent. A single point of light resolves into a small, utilitarian shuttle, a lonely traveler in an ocean of black, drifting towards the ghost-like silhouette of the derelict starship, SS Erebus.",
+      "image_prompt": "An extreme wide shot of deep space. The camera is still, and for a moment, there is nothing but the pinpricks of distant stars and the faint swirl of a nebula. A tiny rescue shuttle drifts into the frame, its engines cold, emphasizing the profound emptiness and isolation. The immense, dark, and derelict form of the 'SS Erebus' starship is visible in the distance.",
       "auto_transition": true,
       "choices": [
         {
@@ -42,22 +42,8 @@
       "id": "opening_cockpit",
       "location": "shuttle_cockpit",
       "characters_present": ["aris_thorne"],
-      "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls.",
-      "image_prompt": "Dr. Aris Thorne looks out the viewport of a cramped, utilitarian shuttle. Reflected in the glass, the immense, silent hull of the derelict starship 'SS Erebus' fills the view, eclipsing the distant stars.",
-      "auto_transition": true,
-      "choices": [
-        {
-          "text": "Continue...",
-          "target_id": "protagonist_intro_2"
-        }
-      ]
-    },
-    "protagonist_intro_2": {
-      "id": "protagonist_intro_2",
-      "location": "shuttle_cockpit",
-      "characters_present": ["aris_thorne"],
-      "text": "The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
-      "image_prompt": "Continue the previous shot, but zoom in slightly on Dr. Aris Thorne's face, emphasizing the grim determination in his eyes. The reflection of the derelict ship remains dominant.",
+      "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls. The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
+      "image_prompt": "Dr. Aris Thorne looks out the viewport of a cramped, utilitarian shuttle, his face a mask of grim determination. Reflected in the glass, the immense, silent hull of the derelict starship 'SS Erebus' fills the view, eclipsing the distant stars.",
       "auto_transition": true,
       "choices": [
         {
@@ -75,7 +61,7 @@
       "choices": [
         {
           "text": "Continue...",
-          "target_id": "transition_boarding"
+          "target_id": "title_card"
         }
       ]
     },
@@ -88,7 +74,20 @@
       "choices": [
         {
           "text": "Continue...",
-          "target_id": "title_card"
+          "target_id": "title_card_2"
+        }
+      ]
+    },
+    "title_card_2": {
+      "id": "title_card_2",
+      "location": "title_card_style",
+      "text": "An Althea Corporation Production",
+      "image_prompt": "A simple, clean title card. The text 'An Althea Corporation Production' is displayed in a corporate, sans-serif font. The Althea Corporation logo (a stylized atom) is subtly visible in the background.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "transition_boarding"
         }
       ]
     },
@@ -136,15 +135,15 @@
         },
         {
           "text": "Investigate the Med Bay.",
-          "target_id": "transition_to_med_bay"
+          "target_id": "transition_to_med_bay_elevator"
         },
         {
           "text": "Check the ship's Engineering bay.",
-          "target_id": "go_to_engineering"
+          "target_id": "transition_to_engineering_elevator"
         },
         {
           "text": "Search the Crew Quarters.",
-          "target_id": "go_to_crew_quarters"
+          "target_id": "transition_to_crew_quarters_elevator"
         }
       ]
     },
@@ -152,7 +151,7 @@
       "id": "transition_to_bridge",
       "location": "elevator",
       "text": "You head towards the command center, taking a lift upwards through the ship's spine.",
-      "image_prompt": "Interior of a futuristic, cylindrical glass elevator ascending. Through the glass, the vast, complex inner structures of the starship can be seen. The lighting is sterile and cold, and for a moment, a fleeting, distorted shadow seems to move in the periphery.",
+      "image_prompt": "Interior of a futuristic, cylindrical glass elevator ascending. The elevator is a bubble of light in the darkness, offering an expansive, panoramic view of the vast, complex inner structures of the starship. The lighting is sterile and cold.",
       "auto_transition": true,
       "choices": [
         {
@@ -190,21 +189,8 @@
     "go_to_bridge": {
       "id": "go_to_bridge",
       "location": "bridge",
-      "text": "You ascend to the Bridge. The command center is a tomb of dead consoles. As you step inside, you see a flicker in the corner of your eye—a flash of rust and decay on a console, gone as quickly as it appeared.",
-      "image_prompt": "The cavernous bridge of the starship Erebus is shrouded in darkness. For a split second, one of the 'dead' consoles in the foreground glitches, showing a screen cracked and covered in grime, before returning to its pristine, dark state.",
-      "auto_transition": true,
-      "choices": [
-        {
-          "text": "Continue...",
-          "target_id": "go_to_bridge_2"
-        }
-      ]
-    },
-    "go_to_bridge_2": {
-      "id": "go_to_bridge_2",
-      "location": "bridge",
-      "text": "In the center of the room, one panel remains stubbornly alive: the master control for the Erebus Array, your creation. It pulses with a soft, hypnotic light, displaying a data pattern you've never seen before.",
-      "image_prompt": "Continuing from the previous shot, zoom in on the lone, active console. Its screen casts a soft, blue, hypnotic light on the dust-covered captain's chair before it.",
+      "text": "You ascend to the Bridge. The command center is a tomb of dead consoles. As you step inside, you see a flicker in the corner of your eye—a flash of rust and decay on a console, gone as quickly as it appeared. In the center of the room, one panel remains stubbornly alive: the master control for the Erebus Array, your creation. It pulses with a soft, hypnotic light, displaying a data pattern you've never seen before.",
+      "image_prompt": "The cavernous bridge of the starship Erebus is shrouded in darkness. For a split second, one of the 'dead' consoles in the foreground glitches, showing a screen cracked and covered in grime, before returning to its pristine, dark state. The lone, active console in the center of the room draws your attention. Its screen casts a soft, blue, hypnotic light on the dust-covered captain's chair before it.",
       "choices": [
         {
           "text": "Analyze the array's active logs.",
@@ -216,32 +202,52 @@
         },
         {
           "text": "Just start pushing buttons. See what happens.",
-          "target_id": "failure_vent_atmosphere_1"
+          "target_id": "failure_power_surge_1"
         }
       ]
     },
-    "failure_vent_atmosphere_1": {
-      "id": "failure_vent_atmosphere_1",
+    "failure_power_surge_1": {
+      "id": "failure_power_surge_1",
       "location": "bridge",
-      "text": "Patience was never your strong suit. You stride over to a secondary console, its screen dark, and jab a promising-looking illuminated button labeled 'MANUAL OVERRIDE'. A klaxon suddenly blares, and the main screen flashes a new, terrifying message: 'EMERGENCY ATMOSPHERIC VENTING INITIATED: BRIDGE'.",
-      "image_prompt": "A close-up on a hand slamming a large, red, illuminated button on a dark console. The main viewscreen on the bridge in the background is now flashing with a huge, red warning symbol and the text 'WARNING: ATMOSPHERIC VENTING IN PROGRESS'. Red klaxon lights are flashing.",
+      "text": "Patience was never your strong suit. You stride over to a secondary console, its screen dark, and jab a promising-looking illuminated button labeled 'MANUAL OVERRIDE'. The console sparks violently. All the lights on the bridge die, plunging you into absolute darkness. A high-pitched whine fills the air.",
+      "image_prompt": "A close-up on a hand slamming a large, red, illuminated button on a dark console. The button sparks with a brilliant, blue electrical discharge. The rest of the bridge is instantly plunged into pitch darkness.",
       "auto_transition": true,
       "choices": [
         {
           "text": "Continue...",
-          "target_id": "failure_vent_atmosphere_2"
+          "target_id": "failure_power_surge_2"
         }
       ]
     },
-    "failure_vent_atmosphere_2": {
-      "id": "failure_vent_atmosphere_2",
+    "failure_power_surge_2": {
+      "id": "failure_power_surge_2",
       "location": "bridge",
-      "text": "A violent roar fills the bridge as the air is ripped from the room. Loose items are torn from the consoles and sucked towards a newly opened vent in the ceiling. The pressure in your suit spikes, and your vision tunnels as you are thrown against the console. Your last, desperate thought is of your own foolishness.",
-      "image_prompt": "First-person view of being violently thrown against a console on the bridge. The world is tilted and blurry. Debris and papers are flying through the air towards a vent in the ceiling. A spiderweb of cracks appears on the player's helmet visor.",
+      "text": "The emergency lights flicker back on, casting the bridge in a blood-red glow. The central console, the one for your array, is no longer displaying its hypnotic pattern. Instead, it shows a single, static-laced image: a screaming face, half-hidden in shadow, its eyes wide with terror. The image vanishes as quickly as it appeared, replaced by the familiar, swirling data. But the afterimage is burned into your mind.",
+      "image_prompt": "The bridge is bathed in the eerie, crimson light of the emergency backup power. The main console screen, which was previously dark, now shows a horrifying, static-filled image of a screaming face, distorted and glitching. The image is caught mid-flicker, about to disappear.",
       "choices": [
         {
-          "text": "Gasp for a breath that will never come...",
-          "target_id": "go_to_bridge_2"
+          "text": "Shake it off. It was just a glitch...",
+          "target_id": "go_to_bridge_after_surge"
+        }
+      ]
+    },
+    "go_to_bridge_after_surge": {
+      "id": "go_to_bridge_after_surge",
+      "location": "bridge",
+      "text": "You shake your head, trying to clear the disturbing afterimage from your mind. The bridge is still bathed in a blood-red glow, and the main console is still displaying its hypnotic pattern. What was that face? A trick of the light, or something more?",
+      "image_prompt": "The bridge is bathed in the eerie, crimson light of the emergency backup power. The main console screen is displaying its hypnotic pattern again, but the afterimage of the screaming face seems to linger in your mind.",
+      "choices": [
+        {
+          "text": "Analyze the array's active logs.",
+          "target_id": "access_sensor_logs"
+        },
+        {
+          "text": "Run a ship-wide environmental diagnostic first.",
+          "target_id": "check_environmentals"
+        },
+        {
+          "text": "Just start pushing buttons. See what happens.",
+          "target_id": "failure_power_surge_1"
         }
       ]
     },
@@ -285,7 +291,7 @@
       "choices": [
         {
           "text": "Become one with the void...",
-          "target_id": "start"
+          "target_id": "opening_scene"
         }
       ]
     },
@@ -609,7 +615,7 @@
       "choices": [
         {
           "text": "Start Again?",
-          "target_id": "start"
+          "target_id": "opening_scene"
         }
       ]
     },
@@ -674,52 +680,53 @@
           "target_id": "access_med_log"
         },
         {
-          "text": "Investigate the surgical theater.",
-          "target_id": "med_bay_theater"
+          "text": "Investigate the cryo-bay.",
+          "target_id": "go_to_cryobay"
         }
       ]
     },
-    "med_bay_theater": {
-      "id": "med_bay_theater",
-      "location": "med_bay_theater",
-      "text": "You push through a set of double doors into the surgical theater. The room is dominated by a single operating table. The overhead light is buzzing, casting a harsh glare on the sterile surfaces. It's pristine, except for one thing: a surgical tray on a nearby table is in disarray, its instruments stained with a dark, dried substance.",
-      "image_prompt": "A sterile, white surgical theater on a starship. A single, intimidating operating table sits in the center under a harsh overhead light. On a metal tray nearby, surgical instruments are scattered in a chaotic mess, stained with dried blood. The scene is otherwise perfectly clean, which makes the bloody instruments even more disturbing.",
+    "go_to_cryobay": {
+      "id": "go_to_cryobay",
+      "location": "cryo_bay",
+      "text": "You push through a set of double doors into a large, circular chamber lined with dozens of cryo-pods. A low hum fills the air, and a faint, blue light emanates from the pods, casting an eerie glow on the polished floor. One of the pods is dark, its light extinguished. A thick layer of frost covers its surface, and a faint, rhythmic echo seems to emanate from within.",
+      "image_prompt": "A large, circular cryo-bay, with rows of glowing blue cryo-pods lining the walls. The room is dark and cold. In the center of the room, one pod is dark and covered in a thick layer of frost. A faint, ethereal energy seems to pulse around it.",
       "choices": [
         {
-          "text": "Examine the instruments.",
-          "target_id": "examine_instruments"
+          "text": "Examine the failed pod.",
+          "target_id": "examine_failed_pod"
         },
         {
-          "text": "Leave the theater.",
-          "target_id": "go_to_med_bay"
-        }
-      ]
-    },
-    "examine_instruments": {
-      "id": "examine_instruments",
-      "location": "med_bay_theater",
-      "text": "You look closer at the instruments. They are scalpels, forceps, and... other things, things you don't recognize. They look less like medical tools and more like carving implements. You notice a faint, intricate pattern has been scratched into the metal of the operating table, almost hidden in the glare of the light.",
-      "image_prompt": "A close-up of the bloody surgical instruments. They are sharp, precise, and unsettling. In the background, out of focus, a series of strange, ritualistic-looking symbols can be seen scratched into the surface of the operating table.",
-      "choices": [
-        {
-          "text": "Pick up one of the carving tools.",
-          "target_id": "failure_med_bay_compulsion"
+          "text": "Access the nearby medical terminal.",
+          "target_id": "access_med_log_from_cryo"
         },
         {
-          "text": "This is a dark place. Leave now.",
+          "text": "Leave the cryo-bay.",
           "target_id": "go_to_med_bay"
         }
       ]
     },
-    "failure_med_bay_compulsion": {
-      "id": "failure_med_bay_compulsion",
-      "location": "med_bay_theater",
-      "text": "You reach for one of the tools. The moment your fingers touch the cold metal, a jolt goes through you. The 'song' you've been hearing, the faint static at the edge of your perception, becomes a deafening roar. You feel an overwhelming compulsion, a deep, horrifying *need* to make the patterns match... to carve the beautiful, terrible symbols from the table into your own skin.",
-      "image_prompt": "First-person view. The protagonist is holding one of the strange, bloody carving tools. Their hand is trembling violently. Their own arm is in the frame, and you can see the tip of the tool pressing against their skin, as if they are fighting an immense internal battle.",
+    "examine_failed_pod": {
+      "id": "examine_failed_pod",
+      "location": "cryo_bay",
+      "text": "You approach the failed pod. The frost is thick, obscuring the view inside. The rhythmic echo grows louder as you get closer, a sound like a slow, faint heartbeat. You wipe away some of the frost and peer inside. The person within is gone. The pod is empty. But on the inside of the glass, a single, desperate word has been scratched into the frost: 'LISTEN'.",
+      "image_prompt": "A close-up of the failed cryo-pod. A hand has wiped away some of the thick frost, revealing the empty interior. On the inside of the glass, the word 'LISTEN' is scratched into the frost, glowing with a faint, ethereal light.",
       "choices": [
         {
-          "text": "Fight it. Drop the tool.",
-          "target_id": "go_to_med_bay"
+          "text": "Step back from the pod.",
+          "target_id": "go_to_cryobay"
+        }
+      ]
+    },
+    "access_med_log_from_cryo": {
+      "id": "access_med_log_from_cryo",
+      "location": "cryo_bay",
+      "text": "You turn to a nearby medical terminal. The screen flickers to life, displaying the medical logs for the crew of the SS Erebus.",
+      "image_prompt": "A close-up on a futuristic medical terminal in the cryo-bay. The screen is displaying the main menu of the medical logs, with a list of crew members. The reflection on the screen shows the glowing cryo-pods behind you.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "access_med_log"
         }
       ]
     },
@@ -831,7 +838,7 @@
       "style_override": "flashback_echo",
       "characters_present": ["captain_eva_rostova"],
       "text": "The glowing panel... the fractal pattern... it triggers something in your memory. A fragment of a moment you weren't there for, but you feel as if you were...",
-      "image_prompt": "A distorted, dreamlike view of the Engineering bay, but it is bustling with activity. Engineers in jumpsuits are shouting, pointing at the same diagnostic screen you were just looking at. The image is blurry and overlaid with static.",
+      "image_prompt": "A ghostly memory of the Engineering bay, bathed in an ethereal, blue-white light. The figures of the engineers are translucent and overexposed, their movements leaving faint trails of light. The diagnostic screen they are gathered around glows with a blinding, beautiful light that bleeds into the scene.",
       "auto_transition": true,
       "choices": [
         {
@@ -846,7 +853,7 @@
       "style_override": "flashback_echo",
       "characters_present": ["captain_eva_rostova"],
       "text": "You hear Captain Rostova's voice over an intercom, sharp and clear through the memory-haze. 'Thorne was right. The array is working. What are we looking at, people?' An engineer replies, his voice full of awe. 'I don't know, Captain. It's... beautiful.'",
-      "image_prompt": "The same blurry, dreamlike scene, but now the focus is on the diagnostic screen. The 'UNKNOWN SOURCE' is not red and flashing, but a brilliant, beautiful, and hypnotic blue. The engineers are gathered around it, mesmerized. The ghost of Captain Rostova is faintly visible, looking on with a mix of triumph and concern.",
+      "image_prompt": "The ghostly memory continues. The focus is on the diagnostic screen, which pulses with a brilliant, hypnotic blue light that casts long, ethereal shadows. The translucent figures of the engineers are mesmerized. The ghostly after-image of Captain Rostova is more defined, her face a mixture of triumph and dawning horror, her form shimmering with light.",
       "choices": [
         {
           "text": "The memory fades...",
@@ -943,7 +950,7 @@
       "location": "crew_quarters_flashback",
       "style_override": "flashback_echo",
       "text": "As you read the words 'My dearest Elara', the datapad screen seems to dissolve into light, pulling you into another memory...",
-      "image_prompt": "A distorted, dreamlike view of the same crew quarters, but the room is personalized. There are photos on the desk, clothes strewn on a chair. A man is sitting on the bunk, smiling as he talks to someone off-screen. The image is warm and happy, but hazy and ephemeral.",
+      "image_prompt": "A ghostly memory of the crew quarters, washed out with a soft, ethereal light. The room is personalized, but the objects are semi-translucent and shimmering. The figure of a man on the bunk is a bright, overexposed silhouette, his smile a ghostly after-image. The air is thick with swirling motes of light.",
       "auto_transition": true,
       "choices": [
         {
@@ -957,7 +964,7 @@
       "location": "crew_quarters_flashback",
       "style_override": "flashback_echo",
       "text": "A woman's voice, warm and full of laughter, says 'Tell Elara her papa is a hero. The whole universe is going to know his name.' The man on the bunk laughs. 'Let's not get ahead of ourselves. But this discovery... it's going to change everything.' The scene shimmers and fades, a ghostly echo of laughter in the silence.",
-      "image_prompt": "The same hazy, dreamlike room. The man is looking at a photo on his desk - a picture of a young girl. The scene is tinged with a deep, tragic sadness, as if the memory itself is aware of what is to come. The edges of the image are dissolving into white light.",
+      "image_prompt": "The ghostly memory continues. The overexposed silhouette of the man picks up a shimmering, translucent photograph. The image on the photograph is a searingly bright portrait of a young girl. The edges of the memory are dissolving into a brilliant, beautiful, and terrifying white light that seems to be consuming the scene.",
       "choices": [
         {
           "text": "The memory recedes...",
@@ -974,6 +981,45 @@
       "choices": [
         {
           "text": "Leave the room.",
+          "target_id": "go_to_crew_quarters"
+        }
+      ]
+    },
+    "transition_to_med_bay_elevator": {
+      "id": "transition_to_med_bay_elevator",
+      "location": "elevator",
+      "text": "You step into a grimy, industrial elevator. The doors hiss shut, and the elevator begins to move. A painted number on the wall indicates the floor number changing.",
+      "image_prompt": "Interior of a futuristic, industrial-style freight elevator. The walls are heavy, riveted metal. A painted number on the wall is partially obscured by grime. A construction-style label with the Althea Corporation logo is visible on the wall.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "go_to_med_bay"
+        }
+      ]
+    },
+    "transition_to_engineering_elevator": {
+      "id": "transition_to_engineering_elevator",
+      "location": "elevator",
+      "text": "You step into a grimy, industrial elevator. The doors hiss shut, and the elevator begins to move. A painted number on the wall indicates the floor number changing.",
+      "image_prompt": "Interior of a futuristic, industrial-style freight elevator. The walls are heavy, riveted metal. A painted number on the wall is partially obscured by grime. A construction-style label with the Althea Corporation logo is visible on the wall.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "go_to_engineering"
+        }
+      ]
+    },
+    "transition_to_crew_quarters_elevator": {
+      "id": "transition_to_crew_quarters_elevator",
+      "location": "elevator",
+      "text": "You step into a grimy, industrial elevator. The doors hiss shut, and the elevator begins to move. A painted number on the wall indicates the floor number changing.",
+      "image_prompt": "Interior of a futuristic, industrial-style freight elevator. The walls are heavy, riveted metal. A painted number on the wall is partially obscured by grime. A construction-style label with the Althea Corporation logo is visible on the wall.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
           "target_id": "go_to_crew_quarters"
         }
       ]
