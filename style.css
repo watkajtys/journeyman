@@ -79,52 +79,60 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-#narrative-container {
-    background: rgba(0, 0, 0, 0.8);
-    padding: 15px;
-    margin: 10px;
-    border-radius: 8px;
-    width: calc(100% - 20px); /* Full width minus margins */
-    box-sizing: border-box;
-    pointer-events: all; /* Re-enable pointer events for the narrative block */
+/* --- Modal Styles --- */
+#modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-    max-height: 70%; /* Set a max height */
-    overflow-y: auto; /* Allow scrolling if content overflows */
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out;
 }
 
-#narrative-container.visible {
+#modal-container:not(.hidden) {
     opacity: 1;
-    transform: translateY(0);
+    pointer-events: all;
 }
 
-/* --- Title Card Specific Styles --- */
-/*
-  Targets the narrative container when it's likely a title card.
-  We assume title cards are the primary nodes that have no choices.
-  This allows for a more cinematic, centered presentation for titles.
-*/
-#narrative-container:has(#choices-container:empty) {
-    background: transparent;
-    text-align: center;
-    max-height: none;
+#modal-backdrop {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
 }
 
-#narrative-container:has(#choices-container:empty) #story-text-container {
-    margin: 0;
+#modal-content {
+    position: relative;
+    z-index: 101;
+    transform: scale(0.9);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-#narrative-container:has(#choices-container:empty) .story-text-chunk {
-    font-size: 4em; /* Large font for the title */
-    font-weight: bold;
-    line-height: 1.2;
-    text-shadow: 0 0 15px rgba(142, 68, 173, 0.5); /* Purple glow */
+#modal-container:not(.hidden) #modal-content {
+    transform: scale(1);
+}
+
+/* --- Narrative Container (within Modal) --- */
+#narrative-container {
+    background: rgba(10, 10, 10, 0.85);
+    padding: 20px;
+    border: 1px solid #444;
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    max-height: 80vh; /* Set a max height relative to viewport */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+    display: flex;
+    flex-direction: column;
 }
 
 #story-text-container {
@@ -266,10 +274,6 @@ body {
 
 /* --- Media Queries for Mobile --- */
 @media (max-width: 767px) {
-    #narrative-container:has(#choices-container:empty) .story-text-chunk {
-        font-size: 2.5em; /* Smaller font for mobile titles */
-    }
-
     #narrative-container {
         margin: 5px;
         width: calc(100% - 10px);
