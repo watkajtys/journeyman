@@ -1,0 +1,111 @@
+{
+  "start": {
+    "id": "start",
+    "text": "You stand in the dust-filled silence of a ruined library. The scene feels... familiar, like a memory you can't quite place. Sunlight streams through a collapsed ceiling, illuminating a single pedestal. Upon it rests a pulsating, crystalline artifact that hums with a low, hypnotic energy.",
+    "image_prompt": "Stylized digital illustration. A peaceful, serene library with tall bookshelves. In the center, a single stone pedestal is illuminated by a beautiful ray of light from above. On the pedestal is a glowing, geometric crystal.",
+    "choices": [
+      {
+        "text": "Reach out and touch the artifact.",
+        "target_id": "touch_artifact"
+      }
+    ]
+  },
+  "touch_artifact": {
+    "id": "touch_artifact",
+    "text": "As your fingers brush against the crystal's smooth, cool surface, the world doesn't dissolve—it clarifies. The dust, the silence, it was all a veneer. The hum intensifies into a chorus of whispers, and you feel consciousness itself expanding, not moving, but awakening to the reality of the dream.",
+    "image_prompt": "Abstract concept art. Swirls of gentle, bright colors like white, blue, and purple, representing a mind awakening. A hand silhouette is visible, touching a glowing crystal that sends pulses of light outwards.",
+    "choices": [
+      {
+        "text": "Accept the new reality...",
+        "target_id": "alien_world"
+      }
+    ]
+  },
+  "alien_world": {
+    "id": "alien_world",
+    "text": "You are standing on a cliff of purple rock, overlooking a vast, constructed landscape. The air is warm and smells of strange, sweet blossoms that you know aren't real. This world is a tapestry woven from multiple minds, a psychic symphony currently out of tune. Your goal is clear: find the source of the discord and bring harmony to this chaotic dream. Before you, the path splits.",
+    "image_prompt": "Stylized digital illustration of a beautiful, peaceful alien landscape. A figure stands on a purple cliff. In the distance is a shimmering, futuristic city and a dark, quiet forest. The sky is turquoise with two suns.",
+    "choices": [
+      {
+        "text": "Seek harmony in the logical structures of the Shimmering City.",
+        "target_id": "city_path"
+      },
+      {
+        "text": "Seek harmony in the chaotic whispers of the Shadow Forest.",
+        "target_id": "forest_path"
+      }
+    ]
+  },
+  "city_path": {
+    "id": "city_path",
+    "text": "You follow the path to the shimmering city. The strange, logical energy here feels like one of the primary 'voices' in the dream's symphony. As you approach the massive, sealed gates, you feel the hum of two minds clashing—a 'Discordant Note' that needs to be resolved.",
+    "image_prompt": "Stylized digital illustration of the massive, sealed gates of a futuristic, pristine city. The walls are made of smooth, iridescent metal. A lone figure stands before the gate.",
+    "choices": [
+      {
+        "text": "Focus on the dissonance and enter the Memory Space.",
+        "target_id": "memory_space_01"
+      }
+    ]
+  },
+  "memory_space_01": {
+    "id": "memory_space_01",
+    "type": "exploration",
+    "text": "The memories of a smoky jazz club and a silent starship bridge overlap. The air smells of bourbon and ozone. You must find the 'Resonance Point'—the shared feeling that connects the two minds trapped here.",
+    "image_prompt": "Surrealist digital art. An interior that is a blend of a music club and a starship bridge. A person plays a saxophone in the corner, while another person looks at a glowing star chart on a table.",
+    "interactive_objects": [
+      {
+        "name": "The Saxophone Player",
+        "description": "He plays a mournful, lonely tune, lost in his own world. His mind is full of rainy city streets and missed connections. [Fragment of Loneliness Collected]",
+        "reveals_fragment": true
+      },
+      {
+        "name": "The Star Chart",
+        "description": "The chart displays a long, solitary route through an empty quadrant of space. The navigator's mind is focused on the vast, silent emptiness between stars. [Fragment of Loneliness Collected]",
+        "reveals_fragment": true
+      },
+      {
+        "name": "A dusty bottle of bourbon",
+        "description": "A half-empty bottle. It seems out of place here, a small detail from one of the memories.",
+        "reveals_fragment": false
+      }
+    ],
+    "required_fragments": 2,
+    "completion_choice": {
+      "text": "You realize both souls are defined by their profound loneliness. Harmonize this feeling.",
+      "target_id": "harmonized_node_1"
+    }
+  },
+  "forest_path": {
+    "id": "forest_path",
+    "text": "You follow the path into the Shadow Forest. The chaotic, emotional energy here is another primary 'voice' in the dream. Unlike the city, it has no structure and offers no clear path to harmonization. It is a beautiful, but dangerous, distraction.",
+    "image_prompt": "Stylized digital illustration of an enchanted, peaceful alien forest with giant, glowing mushrooms and bioluminescent plants. The trees are twisted and otherworldly.",
+    "choices": [
+      {
+        "text": "Venture deeper into the chaotic whispers.",
+        "target_id": "forest_dead_end"
+      }
+    ]
+  },
+  "forest_dead_end": {
+    "id": "forest_dead_end",
+    "text": "You wander for what feels like an eternity, drawn in by the beautiful and terrifying whispers. The world becomes more and more unstable around you, a cacophony of unresolved emotion. You've lost the path. This is a dead end. You must retreat and find a more stable path to bring harmony.",
+    "image_prompt": "Abstract digital art. A surreal image of colorful, swirling patterns, representing a sense of being lost.",
+    "choices": [
+      {
+        "text": "Retreat to the crossroads.",
+        "target_id": "alien_world"
+      }
+    ]
+  },
+  "harmonized_node_1": {
+    "id": "harmonized_node_1",
+    "text": "As you focus on the shared feeling of loneliness, the two clashing memories resonate and merge into a single, stable reality. The dissonance fades, replaced by a feeling of peace. You have brought harmony to this small corner of the dream. The path forward is now clear.",
+    "image_prompt": "Stylized digital illustration of a futuristic city gate, now stable and glowing with a soft, welcoming light. The sky is a calm, deep blue. The scene feels peaceful and resolved.",
+    "choices": [
+      {
+        "text": "Continue deeper into the city.",
+        "target_id": "start"
+      }
+    ]
+  }
+}

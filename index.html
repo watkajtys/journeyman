@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative Adventure</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="image-container">
+            <img id="scene-image" src="" alt="Current game scene">
+            <div id="loading-spinner" class="hidden"></div>
+        </div>
+        <div id="narrative-container">
+            <p id="story-text"></p>
+            <div id="choices-container"></div>
+            <button id="stop-button" class="stop-button hidden">Stop Generation</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

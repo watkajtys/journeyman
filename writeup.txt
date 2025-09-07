@@ -1,0 +1,9 @@
+**Project Title:** Generative Adventure
+
+**Gemini Integration Write-up (148 words):**
+
+Our project, Generative Adventure, is a 'Choose Your Own Adventure' game engine that showcases the dynamic Text-to-Image capabilities of the Gemini 2.5 Flash Image model. The application's core is a narrative engine that reads a story graph from a JSON file. Each node in the story contains a descriptive text prompt.
+
+When a player makes a choice, the corresponding prompt is sent to the Gemini API to generate a unique visual for that specific moment, in real-time. This makes the game world feel alive and directly responsive to the player's actions, creating a magical user experience that would be impossible with pre-made static image assets.
+
+To ensure visual cohesion, we implemented a "prompt style guide," prepending specific artistic keywords to every prompt. This technique leverages Gemini's deep language understanding to produce a stylistically consistent world, demonstrating fine-tuned control over the generative process.
