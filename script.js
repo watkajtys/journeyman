@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const choicesContainerElement = document.getElementById('choices-container');
     const imageContainerElement = document.getElementById('image-container');
     const narrativeContainerElement = document.getElementById('narrative-container');
+    const modalContainerElement = document.getElementById('modal-container');
     const imageElements = [document.getElementById('scene-image-1'), document.getElementById('scene-image-2')];
     let activeImageIndex = 0;
     const loadingSpinnerElement = document.getElementById('loading-spinner');
@@ -38,9 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
             currentNodeId = 'opening_scene'; // Set the starting node
             await showNode(currentNodeId);
         } catch (error) {
-            narrativeContainerElement.classList.remove('hidden');
-            narrativeContainerElement.classList.add('visible');
             storyTextContainerElement.innerHTML = `<p>Error loading story: ${error}. Please check that story.json is available.</p>`;
+            modalContainerElement.classList.remove('hidden');
             console.error("Failed to load story.json:", error);
         }
     }
@@ -81,19 +81,22 @@ document.addEventListener('DOMContentLoaded', () => {
             isDisplayingText = false;
 
             // --- Handle Automatic Post-Text Actions ---
-            // A node can either trigger a flashback or auto-transition, but not both.
-            // Flashback takes precedence.
-            if (node.auto_flashback) {
+            const isTitleCard = !node.choices || node.choices.length === 0;
+
+            if (isTitleCard && node.auto_transition_delay) {
+                 setTimeout(() => {
+                    modalContainerElement.classList.add('hidden');
+                    // Wait for the modal to fade out before transitioning
+                    setTimeout(() => handleChoice(node.choices[0]), 500);
+                }, node.auto_transition_delay);
+                 resolve();
+            } else if (node.auto_flashback) {
                 setChoicesEnabled(false);
-                // After a short delay, trigger the flashback
                 setTimeout(() => enterFlashback(node.auto_flashback), 800);
             } else if (node.auto_transition && node.choices && node.choices.length > 0) {
                 setChoicesEnabled(false);
-                // After a short delay, transition to the next node
                 setTimeout(() => handleChoice(node.choices[0]), 800);
             } else {
-                // If it's a standard node, resolve the promise to allow
-                // the calling function to proceed and render choices.
                 resolve();
             }
         });
@@ -181,8 +184,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 1. Hide old narrative and clear choices
-        narrativeContainerElement.classList.remove('visible');
+        // 1. Hide modal, clear choices
+        modalContainerElement.classList.add('hidden');
         clearChoices();
         setChoicesEnabled(false);
 
@@ -192,14 +195,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3. Preload next images in the background
         preloadChoiceImages(node);
 
-        // 4. Show the narrative container and animate text
-        narrativeContainerElement.classList.remove('hidden');
-        narrativeContainerElement.classList.add('visible');
-        // Pass the whole node to displayText to handle transitions there
+        // 4. Show the modal and animate text
+        modalContainerElement.classList.remove('hidden');
         await displayText(node);
 
-        // 5. Render choices (if it's not an auto-transitioning node)
-        if (!node.auto_transition) {
+        // 5. Render choices (if it's not an auto-transitioning or title card node)
+        const isTitleCard = !node.choices || node.choices.length === 0;
+        if (!node.auto_transition && !isTitleCard) {
             renderChoiceNode(node);
             setChoicesEnabled(true);
         }
@@ -299,6 +301,12 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleChoice(choice) {
         // Prevent new choices while one is being processed
         setChoicesEnabled(false);
+
+        // Hide the modal before starting the transition
+        modalContainerElement.classList.add('hidden');
+
+        // Wait for modal to fade out before proceeding
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // --- Handle Flashback Logic ---
         // A choice can either trigger a flashback or end one.
