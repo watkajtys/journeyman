@@ -203,6 +203,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // After the main image is loaded and displayed, kick off preloading for the next choices
         if (imageAvailable) {
             preloadChoiceImages(node);
+            // --- NEW: Handle auto-transitioning nodes ---
+            if (node.auto_transition && node.choices && node.choices.length > 0) {
+                console.log(`Auto-transitioning from "${nodeId}"...`);
+                // Disable choices to prevent user interaction during the brief pause
+                setChoicesEnabled(false);
+                // Wait a very short moment to ensure the image is visible, then proceed.
+                setTimeout(() => {
+                    // Automatically trigger the first (and only) choice
+                    handleChoice(node.choices[0]);
+                }, 500); // A brief 500ms pause for the user to see the transition image/text
+            }
         }
     }
 

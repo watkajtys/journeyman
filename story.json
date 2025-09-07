@@ -6,13 +6,35 @@
     "choices": [
       {
         "text": "Head towards the Bridge.",
-        "target_id": "bridge_path",
-        "transition_prompt": "First-person view from inside an astronaut's helmet, walking down a dark, metallic corridor. The only light source is the astronaut's headlamp illuminating the path towards a sign that reads 'BRIDGE'."
+        "target_id": "go_to_bridge"
       },
       {
         "text": "Investigate the Crew Quarters.",
-        "target_id": "crew_quarters_path",
-        "transition_prompt": "First-person view from inside an astronaut's helmet, walking down a dark, narrow corridor. The walls are covered in a strange, organic residue. A sign for 'CREW QUARTERS' is barely visible."
+        "target_id": "go_to_crew_quarters"
+      }
+    ]
+  },
+  "go_to_bridge": {
+    "id": "go_to_bridge",
+    "text": "You head towards the bridge...",
+    "image_prompt": "First-person view from inside an astronaut's helmet, walking down a dark, metallic corridor. The only light source is the astronaut's headlamp illuminating the path towards a sign that reads 'BRIDGE'.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "bridge_path"
+      }
+    ]
+  },
+  "go_to_crew_quarters": {
+    "id": "go_to_crew_quarters",
+    "text": "You head towards the crew quarters...",
+    "image_prompt": "First-person view from inside an astronaut's helmet, walking down a dark, narrow corridor. The walls are covered in a strange, organic residue. A sign for 'CREW QUARTERS' is barely visible.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "crew_quarters_path"
       }
     ]
   },
@@ -23,8 +45,19 @@
     "choices": [
       {
         "text": "Access the holographic log.",
-        "target_id": "log_entry",
-        "transition_prompt": "First-person view of an astronaut's gloved hand reaching out and touching a holographic console. The hologram glitches and resolves into a clear image of a frantic alien."
+        "target_id": "access_log"
+      }
+    ]
+  },
+  "access_log": {
+    "id": "access_log",
+    "text": "You access the holographic log...",
+    "image_prompt": "First-person view of an astronaut's gloved hand reaching out and touching a holographic console. The hologram glitches and resolves into a clear image of a frantic alien.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "log_entry"
       }
     ]
   },
@@ -35,13 +68,35 @@
     "choices": [
       {
         "text": "Get a closer look at the strange plant.",
-        "target_id": "hypnotic_plant_failure",
-        "transition_prompt": "First-person view of an astronaut cautiously approaching a strange, glowing alien plant. The view is getting slightly blurry and distorted at the edges, with psychedelic colors."
+        "target_id": "touch_plant"
       },
       {
         "text": "This place gives you the creeps. Go to the Bridge instead.",
-        "target_id": "bridge_path",
-        "transition_prompt": "First-person view of an astronaut turning their back on the creepy crew quarters and walking purposefully down a corridor towards a sign that reads 'BRIDGE'."
+        "target_id": "go_to_bridge_from_quarters"
+      }
+    ]
+  },
+  "go_to_bridge_from_quarters": {
+    "id": "go_to_bridge_from_quarters",
+    "text": "You turn your back on the creepy crew quarters and head towards the bridge.",
+    "image_prompt": "First-person view of an astronaut turning their back on the creepy crew quarters and walking purposefully down a corridor towards a sign that reads 'BRIDGE'.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "bridge_path"
+      }
+    ]
+  },
+  "touch_plant": {
+    "id": "touch_plant",
+    "text": "You reach out and your glove makes contact with the plant's pulsating surface. A low hum vibrates through your suit, and the hypnotic melody intensifies, echoing directly inside your mind.",
+    "image_prompt": "First-person view from inside an astronaut's helmet. A gloved hand is touching the surface of a strange, glowing, bioluminescent alien plant. The point of contact is glowing brightly.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "hypnotic_plant_failure"
       }
     ]
   },
@@ -63,8 +118,19 @@
     "choices": [
       {
         "text": "Go to Life Support.",
-        "target_id": "life_support",
-        "transition_prompt": "First-person view of an astronaut running down a long, metallic corridor. Red alert lights are flashing. The corridor is labeled 'LIFE SUPPORT' in a glowing alien script."
+        "target_id": "go_to_life_support"
+      }
+    ]
+  },
+  "go_to_life_support": {
+    "id": "go_to_life_support",
+    "text": "You rush towards the Life Support chamber.",
+    "image_prompt": "First-person view of an astronaut running down a long, metallic corridor. Red alert lights are flashing. The corridor is labeled 'LIFE SUPPORT' in a glowing alien script.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "life_support"
       }
     ]
   },
@@ -75,8 +141,19 @@
     "choices": [
       {
         "text": "Try to purge the parasite from the system.",
-        "target_id": "end_win",
-        "transition_prompt": "First-person view of an astronaut's gloved hands holding a plasma cutter, firing a bright beam of energy at a pulsating, crystalline alien parasite on a machine. Electrical sparks fly everywhere."
+        "target_id": "purge_parasite"
+      }
+    ]
+  },
+  "purge_parasite": {
+    "id": "purge_parasite",
+    "text": "You prepare to purge the parasite from the system.",
+    "image_prompt": "First-person view of an astronaut's gloved hands holding a plasma cutter, firing a bright beam of energy at a pulsating, crystalline alien parasite on a machine. Electrical sparks fly everywhere.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "end_win"
       }
     ]
   },
