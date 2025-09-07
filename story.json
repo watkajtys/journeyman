@@ -67,7 +67,7 @@
     "choices": [
       {
         "text": "Continue...",
-        "target_id": "transition_boarding"
+        "target_id": "hallway_flash"
       }
     ]
   },
@@ -369,8 +369,8 @@
   },
   "access_sensor_logs_3": {
     "id": "access_sensor_logs_3",
-    "text": "The log displays the crew's biometric data. As the wave hits, every single crew member's brain activity spirals into instantaneous, violent chaos. You see security footage: the crew, screaming, turning on each other, tearing at their own faces.",
-    "image_prompt": "A split-screen view. On the left, dozens of synced biometric displays simultaneously flatline after showing a burst of chaotic, peaked brain activity. On the right, a grainy security camera view shows blurred figures in a corridor, frozen in postures of violence and madness.",
+    "text": "The log displays the crew's biometric data. As the wave hits, every single crew member's biometric signature vanishes. Simultaneously. You see security footage: the crew, looking up as if they hear something, and then, one by one, they become translucent and fade away into nothing.",
+    "image_prompt": "A split-screen view. On the left, dozens of synced biometric displays simultaneously go blank, showing 'SIGNAL LOST'. On the right, a grainy security camera view shows the crew in a corridor suddenly looking up, then becoming translucent and fading away into nothingness.",
     "auto_transition": true,
     "choices": [
       {
@@ -551,8 +551,8 @@
   },
   "check_autopsy": {
     "id": "check_autopsy",
-    "text": "You find the autopsy report for the first crew member who died. The cause of death is listed as 'Self-inflicted cerebral hemorrhage.' The notes are terrifying. 'Subject claimed something was trying to 'get out'. Subject proceeded to repeatedly and violently strike their own head against a bulkhead.' A security image shows the bloody aftermath.",
-    "image_prompt": "Psychological horror art. A sterile, scientific autopsy report is displayed on a screen. The text is clinical, but a single, redacted security photo attached to the file is visible. The photo is mostly blacked out, but shows a dark, gruesome bloodstain on a white wall.",
+    "text": "You find the medical report for the first crew member who vanished. The cause of death is listed as 'Undetermined.' The notes are chilling. 'Subject claimed something was 'calling' to them from the walls. Subject was last seen walking towards the outer hull. Security footage from the hallway simply shows them... fading. Vanishing into thin air.' A security image shows an empty corridor.",
+    "image_prompt": "Psychological horror art. A sterile, scientific medical report is displayed on a screen. The text is clinical, but a single security photo attached to the file is visible. The photo shows a grainy, empty corridor, with a faint, human-shaped distortion in the air, as if a person was fading from reality.",
     "choices": [
       {
         "text": "This is too much. Leave the Med Bay.",
