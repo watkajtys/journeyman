@@ -174,9 +174,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const data = await response.json();
-        const imageData = data.candidates[0]?.content?.parts[0]?.inline_data?.data;
+
+        // The API can return multiple parts, find the one with the image data.
+        const imagePart = data.candidates[0]?.content?.parts.find(part => part.inlineData);
+        const imageData = imagePart?.inlineData?.data;
+
         if (!imageData) {
-            throw new Error("Could not find image data in API response.");
+            // If no image is found, check if it was blocked for safety reasons.
+            if (data.candidates[0]?.finishReason === 'SAFETY') {
+                const safetyText = data.candidates[0]?.content?.parts.map(p => p.text).join('') || 'No details provided.';
+                throw new Error(`Image generation failed due to safety settings. Response: ${safetyText}`);
+            }
+            throw new Error("Could not find image data in API response. The response might have changed or an error occurred.");
         }
         return imageData;
     }
