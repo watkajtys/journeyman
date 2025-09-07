@@ -57,11 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Text Display Logic ---
-    async function displayText(fullText) {
+    async function displayText(node) {
         return new Promise(async (resolve) => {
             isDisplayingText = true;
             storyTextContainerElement.innerHTML = ''; // Clear previous content
-            const chunks = fullText.split('||').map(s => s.trim()).filter(s => s.length > 0);
+            const chunks = node.text.split('||').map(s => s.trim()).filter(s => s.length > 0);
 
             for (let i = 0; i < chunks.length; i++) {
                 const chunk = chunks[i];
@@ -72,16 +72,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Start typewriter for the current chunk
                 await typeWriterChunk(p, chunk);
 
-                // Keep the chunk visible for a moment before fading
-                await new Promise(res => setTimeout(res, 1000));
-
-                // Fade out this chunk before showing the next one or the choices
-                p.classList.add('fade-out');
-                // Wait for fade out to complete
-                await new Promise(res => setTimeout(res, 800));
+                // Wait a short moment before typing the next chunk.
+                await new Promise(res => setTimeout(res, 350));
             }
             isDisplayingText = false;
-            resolve();
+
+            // Handle auto-transition right after text is displayed
+            if (node.auto_transition && node.choices && node.choices.length > 0) {
+                setChoicesEnabled(false);
+                // The setTimeout will trigger the next node, so we don't resolve the promise here.
+                // This stops the current `showNode` execution path.
+                setTimeout(() => handleChoice(node.choices[0]), 800);
+            } else {
+                // If it's not an auto-transition node, resolve the promise to allow
+                // the calling function to proceed and render choices.
+                resolve();
+            }
         });
     }
 
@@ -175,20 +181,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // 4. Show the narrative container and animate text
         narrativeContainerElement.classList.remove('hidden');
         narrativeContainerElement.classList.add('visible');
-        await displayText(node.text);
+        // Pass the whole node to displayText to handle transitions there
+        await displayText(node);
 
-        // 5. Render choices
-        if (node.type === 'exploration') {
-            renderExplorationNode(node);
-        } else {
-            renderChoiceNode(node);
-        }
-        setChoicesEnabled(true);
-
-        // 6. Handle auto-transition
-        if (node.auto_transition && node.choices && node.choices.length > 0) {
-            setChoicesEnabled(false);
-            setTimeout(() => handleChoice(node.choices[0]), 1000); // Brief delay for readability
+        // 5. Render choices (if it's not an auto-transitioning node)
+        if (!node.auto_transition) {
+            if (node.type === 'exploration') {
+                renderExplorationNode(node);
+            } else {
+                renderChoiceNode(node);
+            }
+            setChoicesEnabled(true);
         }
     }
 

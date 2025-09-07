@@ -1,8 +1,32 @@
 {
   "start": {
     "id": "start",
-    "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls. || The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back. || The comm crackles with the voice of the recovery captain—a man who clearly despises you. \"She's all yours, Thorne. Find something to justify this circus.\"",
+    "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls.",
     "image_prompt": "Sci-fi horror concept art. A middle-aged man, his face etched with a decade of failure and obsession, looks out the viewport of a cramped, utilitarian shuttle. Reflected in the glass, the immense, silent hull of the derelict starship 'SS Erebus' fills the view, eclipsing the distant stars.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "start_2"
+      }
+    ]
+  },
+  "start_2": {
+    "id": "start_2",
+    "text": "The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
+    "image_prompt": "Continue the previous shot, but zoom in slightly on the man's face, emphasizing the grim determination in his eyes. The reflection of the derelict ship remains dominant.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "start_3"
+      }
+    ]
+  },
+  "start_3": {
+    "id": "start_3",
+    "text": "The comm crackles with the voice of the recovery captain—a man who clearly despises you. \"She's all yours, Thorne. Find something to justify this circus.\"",
+    "image_prompt": "First-person view from the protagonist's perspective. A hand rests near the airlock controls. A small, crackling speaker grille is visible on the console, perhaps with a blinking light indicating an incoming transmission.",
     "choices": [
       {
         "text": "Cycle the airlock. Go aboard.",
@@ -56,7 +80,7 @@
   "transition_to_bridge": {
     "id": "transition_to_bridge",
     "text": "You head towards the command center, taking a lift upwards through the ship's spine.",
-    "image_prompt": "Sci-fi concept art. Interior of a futuristic, cylindrical glass elevator ascending. Through the glass, the vast, complex inner structures of the starship can be seen. The lighting is sterile and cold.",
+    "image_prompt": "Sci-fi concept art. Interior of a futuristic, cylindrical glass elevator ascending. Through the glass, the vast, complex inner structures of the starship can be seen. The lighting is sterile and cold, and for a moment, a fleeting, distorted shadow seems to move in the periphery.",
     "auto_transition": true,
     "choices": [
       {
@@ -68,7 +92,7 @@
   "transition_to_server_room": {
     "id": "transition_to_server_room",
     "text": "You take a lift down into the guts of the ship, the temperature dropping with each level you descend.",
-    "image_prompt": "Sci-fi concept art. Interior of a futuristic, industrial-style freight elevator descending into darkness. The walls are heavy, riveted metal. The only light comes from a dim, caged bulb overhead.",
+    "image_prompt": "Sci-fi concept art. Interior of a futuristic, industrial-style freight elevator descending into darkness. The walls are heavy, riveted metal. The only light comes from a dim, caged bulb overhead, casting long, dancing shadows that play tricks on the eyes.",
     "auto_transition": true,
     "choices": [
       {
@@ -80,7 +104,7 @@
   "transition_to_med_bay": {
     "id": "transition_to_med_bay",
     "text": "You follow the signs on the wall, your footsteps echoing in the unnervingly quiet corridors.",
-    "image_prompt": "Sci-fi horror concept art. A long, sterile, white corridor on a starship. The corridor is empty and eerily silent. A sign on the wall, written in a clean, sans-serif font, points ahead with an arrow and the word 'MED BAY'.",
+    "image_prompt": "Sci-fi horror concept art. A long, sterile, white corridor on a starship. The corridor is empty and eerily silent. A sign on the wall, written in a clean, sans-serif font, points ahead with an arrow and the word 'MED BAY'. The silence is so profound it feels like a physical presence.",
     "auto_transition": true,
     "choices": [
       {
@@ -171,8 +195,32 @@
   },
   "read_log": {
     "id": "read_log",
-    "text": "You play the file. Captain Eva Rostova's voice, frantic and broken: \"Thorne, if you get this... your machine... it wasn't a failure. It was a success. A horrifying success. We pointed it at the void and the void... answered. It's not a signal, Aris, it's a... presence. It's in the walls. It's in our heads...\" The log dissolves into a string of terrified, incoherent whispers, then a final, sharp scream. As silence falls, a voice—impossibly close—whispers your name in your own ear. \"A...ris...\"",
-    "image_prompt": "Surrealist horror art. A soundwave visualization on a dark computer screen glitches and distorts violently. For a split second, the waveform contorts into the shape of a screaming human skull. The reflection in the screen shows the protagonist recoiling in shock.",
+    "text": "You play the file. Captain Eva Rostova's voice crackles, frantic and broken: \"Thorne, if you get this... your machine... it wasn't a failure. It was a success. A horrifying success. We pointed it at the void and the void... answered.\"",
+    "image_prompt": "A close-up on a computer screen showing an audio file being played. The waveform is erratic and sharp. The reflection on the screen shows the focused, tense face of the protagonist.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "read_log_2"
+      }
+    ]
+  },
+  "read_log_2": {
+    "id": "read_log_2",
+    "text": "\"It's not a signal, Aris, it's a... presence. It's in the walls. It's in our heads...\" The log dissolves into a string of terrified, incoherent whispers, then a final, sharp scream.",
+    "image_prompt": "Surrealist horror art. The soundwave on the screen violently glitches and distorts, for a split second contorting into the shape of a screaming human skull. The protagonist's reflection shows them recoiling in shock.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "read_log_3"
+      }
+    ]
+  },
+  "read_log_3": {
+    "id": "read_log_3",
+    "text": "As silence falls, a voice—impossibly close—whispers your name in your own ear. \"A...ris...\"",
+    "image_prompt": "Extreme close-up on the protagonist's ear and the side of their face. The background is the dark, out-of-focus server room. The expression is one of pure, sudden terror. The lighting is tight and claustrophobic.",
     "choices": [
       {
         "text": "It's an auditory hallucination. Stress-induced psychosis.",
@@ -271,8 +319,32 @@
   },
   "access_sensor_logs_2": {
     "id": "access_sensor_logs_2",
-    "text": "The final layer of encryption falls away. The log is not a diagnostic; it's a recording. It shows the Erebus's sensor array targeting a patch of seemingly empty space. Then, a wave of incandescent, non-Euclidean energy washes over the ship. The log displays the crew's biometric data; as the wave hits, every single crew member's brain activity spirals into instantaneous, violent chaos. You see security footage: the crew, screaming, turning on each other, tearing at their own faces. Your machine didn't fail. It found something. And it has led that something straight to you.",
-    "image_prompt": "Cosmic horror art. A holographic star map displays a wave of impossible, fractal energy washing over a schematic of the starship Erebus. Beside the map, dozens of synced biometric displays simultaneously flatline after showing a burst of chaotic, peaked brain activity.",
+    "text": "The final layer of encryption falls away. The log is not a diagnostic; it's a recording. It shows the Erebus's sensor array targeting a patch of seemingly empty space. Then, a wave of incandescent, non-Euclidean energy washes over the ship.",
+    "image_prompt": "Cosmic horror art. A holographic star map displays a wave of impossible, fractal energy originating from a point in empty space and washing over a schematic of the starship Erebus.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "access_sensor_logs_3"
+      }
+    ]
+  },
+  "access_sensor_logs_3": {
+    "id": "access_sensor_logs_3",
+    "text": "The log displays the crew's biometric data. As the wave hits, every single crew member's brain activity spirals into instantaneous, violent chaos. You see security footage: the crew, screaming, turning on each other, tearing at their own faces.",
+    "image_prompt": "A split-screen view. On the left, dozens of synced biometric displays simultaneously flatline after showing a burst of chaotic, peaked brain activity. On the right, a grainy security camera view shows blurred figures in a corridor, frozen in postures of violence and madness.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "access_sensor_logs_4"
+      }
+    ]
+  },
+  "access_sensor_logs_4": {
+    "id": "access_sensor_logs_4",
+    "text": "Your machine didn't fail. It found something. And it has led that something straight to you.",
+    "image_prompt": "Return to the close-up of the protagonist's face, illuminated by the console screen. Their eyes are wide with dawning horror and comprehension. The reflection in the screen shows the monstrous silhouette standing right behind them, clearer than before.",
     "choices": [
       {
         "text": "My God. It's real. I have to stop it.",
@@ -293,8 +365,20 @@
   },
   "prepare_sacrifice": {
     "id": "prepare_sacrifice",
-    "text": "You throw yourself at the console, fingers flying across the interface, rewriting core functions. The entity knows. The whispers become a psychic roar. The ship groans, metal stressing under an unseen force. Hallucinations bombard you: the desiccated, accusing faces of the crew; the voice of your family, begging you to come home. You grit your teeth, shutting it all out. You are not building a weapon. You are building a cage, and your consciousness will be the bars.",
-    "image_prompt": "Sci-fi horror concept art. The protagonist is a blur of frantic motion, working at a glowing console. The world around them is dissolving into a nightmare landscape, with ghostly, screaming figures made of static and light swirling in the air like a vortex.",
+    "text": "You throw yourself at the console, fingers flying across the interface, rewriting core functions. The entity knows. The whispers become a psychic roar. The ship groans, metal stressing under an unseen force.",
+    "image_prompt": "The protagonist is a blur of frantic motion, working at a glowing console. The bridge around them is shaking violently, with sparks flying from damaged consoles. The main screen shows complex code being rewritten at an impossible speed.",
+    "auto_transition": true,
+    "choices": [
+      {
+        "text": "Continue...",
+        "target_id": "prepare_sacrifice_2"
+      }
+    ]
+  },
+  "prepare_sacrifice_2": {
+    "id": "prepare_sacrifice_2",
+    "text": "Hallucinations bombard you: the desiccated, accusing faces of the crew; the voice of your family, begging you to come home. You grit your teeth, shutting it all out. You are not building a weapon. You are building a cage, and your consciousness will be the bars.",
+    "image_prompt": "Psychological horror art. A close up on the protagonist's face, which is a mask of grim, terrible resolve. Their eyes are tightly shut. Superimposed over their face are ghostly, screaming figures made of static and light, representing the hallucinations.",
     "choices": [
       {
         "text": "Initiate the broadcast. This is my final protocol.",

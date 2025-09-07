@@ -98,7 +98,7 @@ body {
 #story-text-container {
     margin: 0 0 20px 0;
     text-align: left;
-    min-height: 10em; /* Reserve space to avoid layout shifts */
+    /* min-height is removed to allow the container to dynamically resize */
 }
 
 .story-text-chunk {
