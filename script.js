@@ -2,11 +2,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const storyTextElement = document.getElementById('story-text');
     const choicesContainerElement = document.getElementById('choices-container');
-    const imageContainerElement = document.getElementById('image-container'); // Get image container
-    const imageElement = document.getElementById('scene-image');
+    const imageContainerElement = document.getElementById('image-container');
+    const imageElements = [document.getElementById('scene-image-1'), document.getElementById('scene-image-2')];
+    let activeImageIndex = 0;
     const loadingSpinnerElement = document.getElementById('loading-spinner');
     const stopButtonElement = document.getElementById('stop-button');
-    let tooltipElement; // Will be created dynamically
+    // let tooltipElement; // No longer needed
 
     // --- Gemini API Configuration ---
     const API_KEY = 'AIzaSyC7puMSiLTOJJAY5Uf90L6MwtwJQwj44dg';
@@ -20,10 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastImageB64 = null;
     let generationController;
     let collectedFragments = new Set();
+    let isPreloading = false; // Flag to prevent multiple preloading processes
 
     // --- Initialization ---
     async function init() {
-        createTooltip();
+        // createTooltip(); // No longer needed
         try {
             const response = await fetch('story.json');
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -35,19 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function createTooltip() {
-        tooltipElement = document.createElement('div');
-        tooltipElement.id = 'tooltip';
-        tooltipElement.classList.add('hidden');
-        document.body.appendChild(tooltipElement); // Append to body to avoid container clipping
-    }
+    // function createTooltip() { ... } // No longer needed
 
     // --- UI State Management ---
     function setChoicesEnabled(enabled) {
-        // For hotspot-based choices
-        document.querySelectorAll('.hotspot').forEach(hotspot => {
-            hotspot.style.pointerEvents = enabled ? 'auto' : 'none';
-        });
+        // Hotspots are removed, so no need to manage them.
 
         // For button-based choices (fallback and exploration)
         choicesContainerElement.querySelectorAll('.choice-button').forEach(button => {
@@ -58,32 +52,73 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- Image Update Logic ---
+    // --- Image Preloading and Update Logic ---
+    function preloadChoiceImages(node) {
+        if (!node.choices || isPreloading) {
+            return;
+        }
+        isPreloading = true;
+        console.log('Starting preload for choices of:', node.id);
+
+        const preloadPromises = node.choices.map(choice => {
+            const nextNodeId = choice.target_id;
+            const nextNode = storyData[nextNodeId];
+            if (nextNode && nextNode.image_prompt && !imageCache[nextNodeId]) {
+                console.log('Preloading image for:', nextNodeId);
+                // Pass true for isPreload to suppress main spinner
+                return getGeneratedImage(nextNode.image_prompt, null, lastImageB64, true)
+                    .then(({ imageData }) => {
+                        const imageSrc = `data:image/png;base64,${imageData}`;
+                        imageCache[nextNodeId] = imageSrc;
+                        console.log('Successfully preloaded and cached image for:', nextNodeId);
+                    })
+                    .catch(error => {
+                        // Don't let a failed preload stop anything, just log it.
+                        console.warn(`Preloading failed for node "${nextNodeId}":`, error);
+                    });
+            }
+            return Promise.resolve(); // Resolve immediately if no image or already cached
+        });
+
+        Promise.all(preloadPromises).then(() => {
+            isPreloading = false;
+            console.log('All preloading tasks finished.');
+        });
+    }
+
     function updateImage(newSrc) {
         return new Promise((resolve) => {
-            // If there's no new source, resolve immediately.
             if (!newSrc) {
+                // Deactivate both images if there's no source
+                imageElements.forEach(img => img.classList.remove('active'));
                 resolve();
                 return;
             }
 
-            // Preload the image in the background
+            const inactiveImageIndex = 1 - activeImageIndex;
+            const activeImage = imageElements[activeImageIndex];
+            const inactiveImage = imageElements[inactiveImageIndex];
+
             const tempImg = new Image();
             tempImg.onload = () => {
-                // Once loaded, set the source of the actual image element
-                imageElement.src = newSrc;
-                // The CSS transition will handle the fade
-                resolve();
+                inactiveImage.src = tempImg.src;
+
+                // Wait a tick for the browser to register the new src
+                setTimeout(() => {
+                    activeImage.classList.remove('active');
+                    inactiveImage.classList.add('active');
+                    activeImageIndex = inactiveImageIndex; // Update the active index
+                    // Resolve after the transition is expected to finish
+                    setTimeout(resolve, 1500); // Match CSS transition duration
+                }, 50);
             };
-            tempImg.onerror = () => {
-                console.error("Failed to load image for preloading:", newSrc);
-                // Even on error, resolve to not block the game flow
-                resolve();
+            tempImg.onerror = (err) => {
+                console.error("Failed to load image for display:", newSrc, err);
+                resolve(); // Resolve anyway to not block the game
             };
             tempImg.src = newSrc;
         });
     }
-
 
     // --- Node Rendering Logic ---
     async function showNode(nodeId) {
@@ -97,8 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         storyTextElement.innerText = node.text;
-
-        // Clear old choices/hotspots before rendering new ones
         clearChoices();
 
         if (node.type === 'exploration') {
@@ -107,48 +140,40 @@ document.addEventListener('DOMContentLoaded', () => {
             renderChoiceNode(node);
         }
 
-        // --- Image Generation ---
+        let imageAvailable = false;
         if (imageCache[nodeId]) {
             await updateImage(imageCache[nodeId]);
-            loadingSpinnerElement.classList.add('hidden');
-            stopButtonElement.classList.add('hidden');
             lastStableNodeId = nodeId;
             setChoicesEnabled(true);
+            imageAvailable = true;
         } else {
             generationController = new AbortController();
             const signal = generationController.signal;
 
+            // Show spinner only for primary, non-preloaded images
             loadingSpinnerElement.classList.remove('hidden');
             stopButtonElement.classList.remove('hidden');
-            // DO NOT HIDE THE IMAGE ANYMORE: imageElement.classList.add('hidden');
             setChoicesEnabled(false);
 
             try {
-                const { imageData } = await getGeneratedImage(node.image_prompt, signal, lastImageB64);
-
+                // Pass false for isPreload
+                const { imageData } = await getGeneratedImage(node.image_prompt, signal, lastImageB64, false);
                 lastImageB64 = imageData;
                 const imageSrc = `data:image/png;base64,${imageData}`;
                 imageCache[nodeId] = imageSrc;
-
-                // Use the new update function
                 await updateImage(imageSrc);
-
                 lastStableNodeId = nodeId;
+                imageAvailable = true;
             } catch (error) {
                 if (error.name === 'AbortError') {
                     console.log('Image generation was stopped. Reverting to last stable state.');
-                    // Don't just call showNode, as it could cause loops. Reset state carefully.
-                    loadingSpinnerElement.classList.add('hidden');
-                    stopButtonElement.classList.add('hidden');
-                    setChoicesEnabled(true);
                     // No need to call showNode again, just stay on the current stable node.
-                    return;
                 } else if (error.message.includes("Could not find image data")) {
                     console.warn(`Soft failure for node "${nodeId}": API did not return image data. Proceeding without an image.`);
                     lastStableNodeId = nodeId; // Treat as stable, just without an image
+                    await updateImage(null); // Clear the image
                 } else {
                     console.error("Error generating image:", error);
-                    imageElement.alt = `Failed to generate image: ${error.message}`;
                     // Don't clear the src, keep the old image
                 }
             } finally {
@@ -157,6 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 setChoicesEnabled(true);
                 generationController = null;
             }
+        }
+        // After the main image is loaded and displayed, kick off preloading for the next choices
+        if (imageAvailable) {
+            preloadChoiceImages(node);
         }
     }
 
@@ -169,40 +198,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderChoiceNode(node) {
+        // Hotspot logic is removed. All choices are rendered as buttons.
         node.choices.forEach(choice => {
-            if (choice.hotspot) {
-                // Create a hotspot
-                const hotspot = document.createElement('div');
-                hotspot.classList.add('hotspot');
-                hotspot.style.left = `${choice.hotspot.x}%`;
-                hotspot.style.top = `${choice.hotspot.y}%`;
-                hotspot.style.width = `${choice.hotspot.width}%`;
-                hotspot.style.height = `${choice.hotspot.height}%`;
-
-                hotspot.addEventListener('click', () => handleChoice(choice));
-
-                // Tooltip events
-                hotspot.addEventListener('mousemove', e => {
-                    tooltipElement.style.left = `${e.clientX}px`;
-                    tooltipElement.style.top = `${e.clientY}px`;
-                });
-                hotspot.addEventListener('mouseover', () => {
-                    tooltipElement.innerText = choice.text;
-                    tooltipElement.classList.remove('hidden');
-                });
-                hotspot.addEventListener('mouseout', () => {
-                    tooltipElement.classList.add('hidden');
-                });
-
-                imageContainerElement.appendChild(hotspot);
-            } else {
-                // Fallback to creating a button
-                const button = document.createElement('button');
-                button.classList.add('choice-button');
-                button.innerText = choice.text;
-                button.addEventListener('click', () => handleChoice(choice));
-                choicesContainerElement.appendChild(button);
-            }
+            const button = document.createElement('button');
+            button.classList.add('choice-button');
+            button.innerText = choice.text;
+            button.addEventListener('click', () => handleChoice(choice));
+            choicesContainerElement.appendChild(button);
         });
     }
 
@@ -239,45 +241,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleChoice(choice) {
-        // Handle legacy calls where only targetId might be passed
         if (typeof choice === 'string') {
             choice = { target_id: choice };
         }
-
         setChoicesEnabled(false);
-        tooltipElement.classList.add('hidden');
+        // tooltipElement.classList.add('hidden'); // No longer needed
 
-        if (choice.transition_prompt) {
-            loadingSpinnerElement.classList.remove('hidden');
-            // DO NOT HIDE IMAGE: imageElement.classList.add('hidden');
-            generationController = new AbortController();
-            stopButtonElement.classList.remove('hidden');
+        // Transition logic is now handled by the new updateImage function.
+        // If a transition prompt existed, it could be used to generate a temporary
+        // image, but for now we simplify and just move to the next node.
+        // The preloading system should make this transition fast if the image is ready.
 
-            try {
-                const { imageData } = await getGeneratedImage(choice.transition_prompt, generationController.signal, lastImageB64);
-                lastImageB64 = imageData;
-
-                // Use the new update function for a seamless transition
-                const imageSrc = `data:image/png;base64,${imageData}`;
-                await updateImage(imageSrc);
-
-                // No need for an artificial delay anymore
-                // await new Promise(resolve => setTimeout(resolve, 500));
-
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    console.log('Transition generation stopped. Reverting.');
-                    // Just re-enable choices, stay on the current node.
-                    setChoicesEnabled(true);
-                    return;
-                }
-                console.error("Error during transition, proceeding to next node but keeping old image.", error);
-            } finally {
-                // Hide spinner and button regardless of outcome
-                loadingSpinnerElement.classList.add('hidden');
-                stopButtonElement.classList.add('hidden');
-            }
-        }
         showNode(choice.target_id);
     }
 
@@ -287,7 +261,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    async function getGeneratedImage(prompt, signal, lastImageB64 = null) {
+    async function getGeneratedImage(prompt, signal, lastImageB64 = null, isPreload = false) {
+        // For preloading, we don't want to use an abort signal from the main controller
+        const effectiveSignal = isPreload ? null : signal;
+
         const parts = [{ text: prompt }];
         if (lastImageB64) {
             parts.unshift({
