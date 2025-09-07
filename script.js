@@ -75,12 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Keep the chunk visible for a moment before fading
                 await new Promise(res => setTimeout(res, 1000));
 
-                // Don't fade out the last chunk
-                if (i < chunks.length - 1) {
-                    p.classList.add('fade-out');
-                    // Wait for fade out to complete before showing the next chunk
-                    await new Promise(res => setTimeout(res, 800));
-                }
+                // Fade out this chunk before showing the next one or the choices
+                p.classList.add('fade-out');
+                // Wait for fade out to complete
+                await new Promise(res => setTimeout(res, 800));
             }
             isDisplayingText = false;
             resolve();
@@ -90,34 +88,26 @@ document.addEventListener('DOMContentLoaded', () => {
     function typeWriterChunk(element, text) {
         return new Promise(resolve => {
             element.innerHTML = ''; // Clear previous text
-            const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
-            let sentenceIndex = 0;
-            let charIndex = 0;
+            const words = text.split(' ');
+            let wordIndex = 0;
             const cursor = document.createElement('span');
             cursor.className = 'typewriter-cursor';
             element.appendChild(cursor);
 
-            function type() {
-                if (sentenceIndex >= sentences.length) {
+            function typeWord() {
+                if (wordIndex < words.length) {
+                    const wordSpan = document.createElement('span');
+                    // Add a space after each word. The final word won't have a trailing space.
+                    wordSpan.textContent = words[wordIndex] + (wordIndex < words.length - 1 ? ' ' : '');
+                    element.insertBefore(wordSpan, cursor);
+                    wordIndex++;
+                    setTimeout(typeWord, 100); // Delay between words
+                } else {
                     cursor.remove();
                     resolve();
-                    return;
-                }
-
-                const sentence = sentences[sentenceIndex];
-                if (charIndex < sentence.length) {
-                    const charSpan = document.createElement('span');
-                    charSpan.textContent = sentence.charAt(charIndex);
-                    element.insertBefore(charSpan, cursor);
-                    charIndex++;
-                    setTimeout(type, 30); // Typing speed
-                } else {
-                    charIndex = 0;
-                    sentenceIndex++;
-                    setTimeout(type, 400); // Pause between sentences
                 }
             }
-            type();
+            typeWord();
         });
     }
 
@@ -166,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!node) {
             console.error(`Node "${nodeId}" not found.`);
-            storyTextElement.innerText = "An error occurred: The story path is broken.";
+            storyTextContainerElement.innerHTML = `<p>An error occurred: The story path is broken for node ID: ${nodeId}</p>`;
             narrativeContainerElement.classList.add('visible');
             return;
         }
@@ -176,38 +166,34 @@ document.addEventListener('DOMContentLoaded', () => {
         clearChoices();
         setChoicesEnabled(false);
 
-        // 2. Load and display the image
-        const imageAvailable = await loadAndDisplayScene(node);
+        // 2. Load and display the image (story continues even if this fails)
+        await loadAndDisplayScene(node);
 
-        // After image transition is done, show the narrative
-        if (imageAvailable) {
-             // Preload next images in the background
-            preloadChoiceImages(node);
+        // 3. Preload next images in the background
+        preloadChoiceImages(node);
 
-            // 3. Show the narrative container and animate text
-            narrativeContainerElement.classList.remove('hidden');
-            narrativeContainerElement.classList.add('visible');
-            await displayText(node.text);
+        // 4. Show the narrative container and animate text
+        narrativeContainerElement.classList.remove('hidden');
+        narrativeContainerElement.classList.add('visible');
+        await displayText(node.text);
 
-            // 4. Render choices
-            if (node.type === 'exploration') {
-                renderExplorationNode(node);
-            } else {
-                renderChoiceNode(node);
-            }
-            setChoicesEnabled(true);
+        // 5. Render choices
+        if (node.type === 'exploration') {
+            renderExplorationNode(node);
+        } else {
+            renderChoiceNode(node);
+        }
+        setChoicesEnabled(true);
 
-            // 5. Handle auto-transition
-            if (node.auto_transition && node.choices && node.choices.length > 0) {
-                setChoicesEnabled(false);
-                setTimeout(() => handleChoice(node.choices[0]), 1000); // Brief delay for readability
-            }
+        // 6. Handle auto-transition
+        if (node.auto_transition && node.choices && node.choices.length > 0) {
+            setChoicesEnabled(false);
+            setTimeout(() => handleChoice(node.choices[0]), 1000); // Brief delay for readability
         }
     }
 
     async function loadAndDisplayScene(node) {
         let imageSrc = imageCache[node.id];
-        let imageAvailable = false;
 
         if (!imageSrc) {
             generationController = new AbortController();
@@ -223,24 +209,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Image generation stopped.');
                 } else {
                     console.error("Error generating image:", error);
-                    // Fallback: proceed without an image
+                    // Fallback: proceed without an image, narrative will still be shown.
                     await updateImage(null);
-                    storyTextElement.innerText = node.text; // Show text immediately if image fails
-                    narrativeContainerElement.classList.add('visible');
                 }
+            } finally {
                 showLoading(false);
                 isGenerating = false;
-                return false;
             }
-            showLoading(false);
-            isGenerating = false;
         }
 
         await updateImage(imageSrc);
         lastStableNodeId = node.id;
-        imageAvailable = true;
-
-        return imageAvailable;
     }
 
     function clearChoices() {
@@ -342,7 +321,27 @@ document.addEventListener('DOMContentLoaded', () => {
             parts.unshift({ inlineData: { mimeType: 'image/png', data: contextImageB64 } });
             parts.unshift({ text: "Given the previous image, create a new image based on the prompt." });
         }
-        const payload = { contents: [{ parts: parts }] };
+        const payload = {
+            contents: [{ parts: parts }],
+            safetySettings: [
+                {
+                    category: "HARM_CATEGORY_HATE_SPEECH",
+                    threshold: "BLOCK_NONE"
+                },
+                {
+                    category: "HARM_CATEGORY_HARASSMENT",
+                    threshold: "BLOCK_NONE"
+                },
+                {
+                    category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    threshold: "BLOCK_NONE"
+                },
+                {
+                    category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    threshold: "BLOCK_NONE"
+                }
+            ]
+        };
         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
