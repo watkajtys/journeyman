@@ -209,6 +209,14 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadAndDisplayScene(node) {
         let imageSrc = imageCache[node.id];
 
+        // --- Use Pre-rendered Image if available ---
+        if (node.pre_rendered_image) {
+            console.log("Using pre-rendered image for node:", node.id);
+            imageSrc = node.pre_rendered_image;
+            imageCache[node.id] = imageSrc; // Add to cache for consistency
+        }
+        // --- End ---
+
         if (!imageSrc) {
             generationController = new AbortController();
             isGenerating = true;
