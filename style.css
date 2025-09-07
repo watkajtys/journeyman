@@ -196,6 +196,26 @@ body {
     transform: translateY(-2px);
 }
 
+#editor-link {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 15;
+    color: #ecf0f1;
+    text-decoration: none;
+    background-color: rgba(44, 62, 80, 0.8);
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    pointer-events: all;
+    transition: all 0.2s ease-in-out;
+}
+
+#editor-link:hover {
+    background-color: #34495e;
+}
+
+
 /* --- Utility --- */
 .hidden {
     display: none !important;

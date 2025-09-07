@@ -15,8 +15,21 @@
     "opening_scene": {
       "id": "opening_scene",
       "location": "deep_space",
-      "text": "The void of space is vast, cold, and utterly silent. A single point of light resolves into a small, utilitarian shuttle, a lonely traveler in an ocean of black, drifting towards the ghost-like silhouette of the derelict starship, SS Erebus.",
-      "image_prompt": "An extreme wide shot of deep space. The camera is still, and for a moment, there is nothing but the pinpricks of distant stars and the faint swirl of a nebula. A tiny rescue shuttle drifts into the frame, its engines cold, emphasizing the profound emptiness and isolation. The immense, dark, and derelict form of the 'SS Erebus' starship is visible in the distance.",
+      "text": "The void of space is vast, cold, and utterly silent. A single point of light resolves into a small, utilitarian shuttle, a lonely traveler in an ocean of black...",
+      "image_prompt": "An extreme wide shot of deep space. The camera is still, and for a moment, there is nothing but the pinpricks of distant stars and the faint swirl of a nebula. A tiny rescue shuttle drifts into the frame, its engines cold, emphasizing the profound emptiness and isolation.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "opening_approach"
+        }
+      ]
+    },
+    "opening_approach": {
+      "id": "opening_approach",
+      "location": "deep_space",
+      "text": "...drifting towards the ghost-like silhouette of the derelict starship, SS Erebus.",
+      "image_prompt": "A slow, majestic tracking shot. The small shuttle moves across the screen, its tiny scale contrasted with the immense, dark, and derelict form of the 'SS Erebus' starship, which now dominates the background. The starship is silent, with no lights, showing signs of micrometeoroid impacts and neglect.",
       "auto_transition": true,
       "choices": [
         {
@@ -43,7 +56,7 @@
       "location": "shuttle_cockpit",
       "characters_present": ["aris_thorne"],
       "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls. The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
-      "image_prompt": "Dr. Aris Thorne looks out the viewport of a cramped, utilitarian shuttle, his face a mask of grim determination. Reflected in the glass, the immense, silent hull of the derelict starship 'SS Erebus' fills the view, eclipsing the distant stars.",
+      "image_prompt": "Interior shot. Dr. Aris Thorne looks out the viewport of a cramped, utilitarian shuttle, his face a mask of grim determination. Reflected in the glass, the immense, silent hull of the derelict starship 'SS Erebus' fills the view, eclipsing the distant stars.",
       "auto_transition": true,
       "choices": [
         {
@@ -56,7 +69,7 @@
       "id": "protagonist_intro_3",
       "location": "airlock",
       "text": "The comm crackles with the voice of the recovery captain—a man who clearly despises you. \"She's all yours, Thorne. Find something to justify this circus.\"",
-      "image_prompt": "First-person view from the protagonist's perspective. A hand rests near the airlock controls. A small, crackling speaker grille is visible on the console, perhaps with a blinking light indicating an incoming transmission.",
+      "image_prompt": "First-person POV from the protagonist's perspective. A gloved hand rests near the airlock controls. A small, crackling speaker grille is visible on the console, its light blinking with the incoming transmission.",
       "auto_transition": true,
       "choices": [
         {
@@ -95,7 +108,7 @@
       "id": "transition_boarding",
       "location": "airlock",
       "text": "You take a steadying breath. The airlock hisses open, revealing the corridor beyond.",
-      "image_prompt": "First-person view from inside a helmet. Through the thick glass of the now-open inner airlock door, the corridor of the SS Erebus is revealed. It is a wreck. Emergency lights flicker erratically, casting deep shadows. Wires hang from the ceiling like vines, and panels are torn from the walls.",
+      "image_prompt": "First-person POV from inside a helmet. Through the thick, curved glass of the now-open inner airlock door, the corridor of the SS Erebus is revealed. It is a wreck. Emergency lights flicker erratically, casting deep shadows. Wires hang from the ceiling like vines, and panels are torn from the walls.",
       "no_context": true,
       "auto_transition": true,
       "choices": [
@@ -123,7 +136,7 @@
       "id": "board_ship",
       "location": "main_corridor",
       "text": "You step aboard. The silence is the first thing that hits you. It's not just quiet; it's a dead, pressurized absence of sound. The emergency lights cast a sterile, unwavering glow. The ship is pristine, a ghost preserved in a vacuum. Was the damage you saw just a trick of the light? Your datapad pings with the ship's layout, highlighting several key areas: the Bridge, the Server Room, the Med Bay, Engineering, and the Crew Quarters.",
-      "image_prompt": "First-person view. The interior of the SS Erebus is pristine and unnervingly clean. Sterile emergency lights stretch down a long, metallic corridor. The scene is perfectly composed and symmetrical, creating a deep sense of unease. There is no dust. There is no damage. It is perfect.",
+      "image_prompt": "First-person POV. The interior of the SS Erebus is pristine and unnervingly clean. Sterile emergency lights stretch down a long, metallic corridor. The scene is perfectly composed and symmetrical, creating a deep sense of unease. There is no dust. There is no damage. It is perfect.",
       "choices": [
         {
           "text": "Proceed to the Bridge.",
@@ -135,15 +148,15 @@
         },
         {
           "text": "Investigate the Med Bay.",
-          "target_id": "transition_to_med_bay_elevator"
+          "target_id": "transition_to_med_bay"
         },
         {
           "text": "Check the ship's Engineering bay.",
-          "target_id": "transition_to_engineering_elevator"
+          "target_id": "transition_to_engineering"
         },
         {
           "text": "Search the Crew Quarters.",
-          "target_id": "transition_to_crew_quarters_elevator"
+          "target_id": "transition_to_crew_quarters"
         }
       ]
     },
