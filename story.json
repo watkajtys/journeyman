@@ -1,7 +1,7 @@
 {
   "style_guides": {
     "default": "A cinematic sci-fi horror aesthetic, inspired by films like 'Alien' and 'Event Horizon'. Use dark, gritty textures, high-contrast lighting, and a feeling of oppressive isolation.",
-    "flashback_echo": "A distorted, dreamlike, and fragmented memory. The image should feel like an echo of a real event, with visual glitches, blur, and a sense of unreality. Use a muted, almost monochrome color palette with occasional, jarring flashes of color."
+    "flashback_echo": "A ghostly, ethereal memory, steeped in blue and white light. The scene should be overexposed and dreamlike, with figures appearing as semi-translucent, ghostly after-images. Heavy use of light bloom, lens flare, and a subtle, swirling particle effect to create a sense of unreality and a memory that is both beautiful and haunting."
   },
   "characters": {
     "aris_thorne": {
@@ -12,11 +12,24 @@
     }
   },
   "nodes": {
-    "start": {
-      "id": "start",
+    "opening_scene": {
+      "id": "opening_scene",
+      "location": "deep_space",
+      "text": "The void of space is vast, cold, and utterly silent. A single point of light resolves into a small, utilitarian shuttle, a lonely traveler in an ocean of black.",
+      "image_prompt": "An extreme wide shot of deep space. The camera is still, and for a moment, there is nothing but the pinpricks of distant stars and the faint swirl of a nebula. A tiny rescue shuttle drifts into the frame, its engines cold, emphasizing the profound emptiness and isolation.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "approach_ship"
+        }
+      ]
+    },
+    "approach_ship": {
+      "id": "approach_ship",
       "location": "erebus_exterior",
-      "text": "In the cold, silent expanse of deep space, a lone rescue shuttle drifts towards the ghost-like silhouette of the derelict starship, SS Erebus.",
-      "image_prompt": "A vast, cinematic shot of deep space. A small, rugged, utilitarian rescue shuttle is dwarfed by the immense, dark, and derelict form of the 'SS Erebus' starship. The starship is silent, with no lights, showing signs of damage and neglect. The shuttle is approaching it cautiously. The mood is tense and isolated.",
+      "text": "The lone rescue shuttle drifts towards the ghost-like silhouette of the derelict starship, SS Erebus.",
+      "image_prompt": "A vast, cinematic shot of deep space. The small, rugged, utilitarian rescue shuttle is dwarfed by the immense, dark, and derelict form of the 'SS Erebus' starship. The starship is silent, with no lights, showing signs of damage and neglect. The shuttle is approaching it cautiously. The mood is tense and isolated.",
       "auto_transition": true,
       "choices": [
         {
@@ -42,22 +55,8 @@
       "id": "opening_cockpit",
       "location": "shuttle_cockpit",
       "characters_present": ["aris_thorne"],
-      "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls.",
-      "image_prompt": "Dr. Aris Thorne looks out the viewport of a cramped, utilitarian shuttle. Reflected in the glass, the immense, silent hull of the derelict starship 'SS Erebus' fills the view, eclipsing the distant stars.",
-      "auto_transition": true,
-      "choices": [
-        {
-          "text": "Continue...",
-          "target_id": "protagonist_intro_2"
-        }
-      ]
-    },
-    "protagonist_intro_2": {
-      "id": "protagonist_intro_2",
-      "location": "shuttle_cockpit",
-      "characters_present": ["aris_thorne"],
-      "text": "The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
-      "image_prompt": "Continue the previous shot, but zoom in slightly on Dr. Aris Thorne's face, emphasizing the grim determination in his eyes. The reflection of the derelict ship remains dominant.",
+      "text": "The shuttle docks with the 'SS Erebus' with a percussive jolt that feels final. For ten years, you have been Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls. The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
+      "image_prompt": "Dr. Aris Thorne looks out the viewport of a cramped, utilitarian shuttle, his face a mask of grim determination. Reflected in the glass, the immense, silent hull of the derelict starship 'SS Erebus' fills the view, eclipsing the distant stars.",
       "auto_transition": true,
       "choices": [
         {
@@ -75,7 +74,7 @@
       "choices": [
         {
           "text": "Continue...",
-          "target_id": "transition_boarding"
+          "target_id": "title_card"
         }
       ]
     },
@@ -88,7 +87,20 @@
       "choices": [
         {
           "text": "Continue...",
-          "target_id": "title_card"
+          "target_id": "title_card_2"
+        }
+      ]
+    },
+    "title_card_2": {
+      "id": "title_card_2",
+      "location": "title_card_style",
+      "text": "An Althea Corporation Production",
+      "image_prompt": "A simple, clean title card. The text 'An Althea Corporation Production' is displayed in a corporate, sans-serif font. The Althea Corporation logo (a stylized atom) is subtly visible in the background.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "transition_boarding"
         }
       ]
     },
@@ -152,7 +164,7 @@
       "id": "transition_to_bridge",
       "location": "elevator",
       "text": "You head towards the command center, taking a lift upwards through the ship's spine.",
-      "image_prompt": "Interior of a futuristic, cylindrical glass elevator ascending. Through the glass, the vast, complex inner structures of the starship can be seen. The lighting is sterile and cold, and for a moment, a fleeting, distorted shadow seems to move in the periphery.",
+      "image_prompt": "Interior of a futuristic, cylindrical glass elevator ascending. Through the glass, the vast, complex inner structures of the starship can be seen. The lighting is sterile and cold.",
       "auto_transition": true,
       "choices": [
         {
@@ -216,31 +228,31 @@
         },
         {
           "text": "Just start pushing buttons. See what happens.",
-          "target_id": "failure_vent_atmosphere_1"
+          "target_id": "failure_power_surge_1"
         }
       ]
     },
-    "failure_vent_atmosphere_1": {
-      "id": "failure_vent_atmosphere_1",
+    "failure_power_surge_1": {
+      "id": "failure_power_surge_1",
       "location": "bridge",
-      "text": "Patience was never your strong suit. You stride over to a secondary console, its screen dark, and jab a promising-looking illuminated button labeled 'MANUAL OVERRIDE'. A klaxon suddenly blares, and the main screen flashes a new, terrifying message: 'EMERGENCY ATMOSPHERIC VENTING INITIATED: BRIDGE'.",
-      "image_prompt": "A close-up on a hand slamming a large, red, illuminated button on a dark console. The main viewscreen on the bridge in the background is now flashing with a huge, red warning symbol and the text 'WARNING: ATMOSPHERIC VENTING IN PROGRESS'. Red klaxon lights are flashing.",
+      "text": "Patience was never your strong suit. You stride over to a secondary console, its screen dark, and jab a promising-looking illuminated button labeled 'MANUAL OVERRIDE'. The console sparks violently. All the lights on the bridge die, plunging you into absolute darkness. A high-pitched whine fills the air.",
+      "image_prompt": "A close-up on a hand slamming a large, red, illuminated button on a dark console. The button sparks with a brilliant, blue electrical discharge. The rest of the bridge is instantly plunged into pitch darkness.",
       "auto_transition": true,
       "choices": [
         {
           "text": "Continue...",
-          "target_id": "failure_vent_atmosphere_2"
+          "target_id": "failure_power_surge_2"
         }
       ]
     },
-    "failure_vent_atmosphere_2": {
-      "id": "failure_vent_atmosphere_2",
+    "failure_power_surge_2": {
+      "id": "failure_power_surge_2",
       "location": "bridge",
-      "text": "A violent roar fills the bridge as the air is ripped from the room. Loose items are torn from the consoles and sucked towards a newly opened vent in the ceiling. The pressure in your suit spikes, and your vision tunnels as you are thrown against the console. Your last, desperate thought is of your own foolishness.",
-      "image_prompt": "First-person view of being violently thrown against a console on the bridge. The world is tilted and blurry. Debris and papers are flying through the air towards a vent in the ceiling. A spiderweb of cracks appears on the player's helmet visor.",
+      "text": "The emergency lights flicker back on, casting the bridge in a blood-red glow. The central console, the one for your array, is no longer displaying its hypnotic pattern. Instead, it shows a single, static-laced image: a screaming face, half-hidden in shadow, its eyes wide with terror. The image vanishes as quickly as it appeared, replaced by the familiar, swirling data. But the afterimage is burned into your mind.",
+      "image_prompt": "The bridge is bathed in the eerie, crimson light of the emergency backup power. The main console screen, which was previously dark, now shows a horrifying, static-filled image of a screaming face, distorted and glitching. The image is caught mid-flicker, about to disappear.",
       "choices": [
         {
-          "text": "Gasp for a breath that will never come...",
+          "text": "Shake it off. It was just a glitch...",
           "target_id": "go_to_bridge_2"
         }
       ]
@@ -285,7 +297,7 @@
       "choices": [
         {
           "text": "Become one with the void...",
-          "target_id": "start"
+          "target_id": "opening_scene"
         }
       ]
     },
@@ -609,7 +621,7 @@
       "choices": [
         {
           "text": "Start Again?",
-          "target_id": "start"
+          "target_id": "opening_scene"
         }
       ]
     },
@@ -831,7 +843,7 @@
       "style_override": "flashback_echo",
       "characters_present": ["captain_eva_rostova"],
       "text": "The glowing panel... the fractal pattern... it triggers something in your memory. A fragment of a moment you weren't there for, but you feel as if you were...",
-      "image_prompt": "A distorted, dreamlike view of the Engineering bay, but it is bustling with activity. Engineers in jumpsuits are shouting, pointing at the same diagnostic screen you were just looking at. The image is blurry and overlaid with static.",
+      "image_prompt": "A ghostly memory of the Engineering bay, bathed in an ethereal, blue-white light. The figures of the engineers are translucent and overexposed, their movements leaving faint trails of light. The diagnostic screen they are gathered around glows with a blinding, beautiful light that bleeds into the scene.",
       "auto_transition": true,
       "choices": [
         {
@@ -846,7 +858,7 @@
       "style_override": "flashback_echo",
       "characters_present": ["captain_eva_rostova"],
       "text": "You hear Captain Rostova's voice over an intercom, sharp and clear through the memory-haze. 'Thorne was right. The array is working. What are we looking at, people?' An engineer replies, his voice full of awe. 'I don't know, Captain. It's... beautiful.'",
-      "image_prompt": "The same blurry, dreamlike scene, but now the focus is on the diagnostic screen. The 'UNKNOWN SOURCE' is not red and flashing, but a brilliant, beautiful, and hypnotic blue. The engineers are gathered around it, mesmerized. The ghost of Captain Rostova is faintly visible, looking on with a mix of triumph and concern.",
+      "image_prompt": "The ghostly memory continues. The focus is on the diagnostic screen, which pulses with a brilliant, hypnotic blue light that casts long, ethereal shadows. The translucent figures of the engineers are mesmerized. The ghostly after-image of Captain Rostova is more defined, her face a mixture of triumph and dawning horror, her form shimmering with light.",
       "choices": [
         {
           "text": "The memory fades...",
@@ -943,7 +955,7 @@
       "location": "crew_quarters_flashback",
       "style_override": "flashback_echo",
       "text": "As you read the words 'My dearest Elara', the datapad screen seems to dissolve into light, pulling you into another memory...",
-      "image_prompt": "A distorted, dreamlike view of the same crew quarters, but the room is personalized. There are photos on the desk, clothes strewn on a chair. A man is sitting on the bunk, smiling as he talks to someone off-screen. The image is warm and happy, but hazy and ephemeral.",
+      "image_prompt": "A ghostly memory of the crew quarters, washed out with a soft, ethereal light. The room is personalized, but the objects are semi-translucent and shimmering. The figure of a man on the bunk is a bright, overexposed silhouette, his smile a ghostly after-image. The air is thick with swirling motes of light.",
       "auto_transition": true,
       "choices": [
         {
@@ -957,7 +969,7 @@
       "location": "crew_quarters_flashback",
       "style_override": "flashback_echo",
       "text": "A woman's voice, warm and full of laughter, says 'Tell Elara her papa is a hero. The whole universe is going to know his name.' The man on the bunk laughs. 'Let's not get ahead of ourselves. But this discovery... it's going to change everything.' The scene shimmers and fades, a ghostly echo of laughter in the silence.",
-      "image_prompt": "The same hazy, dreamlike room. The man is looking at a photo on his desk - a picture of a young girl. The scene is tinged with a deep, tragic sadness, as if the memory itself is aware of what is to come. The edges of the image are dissolving into white light.",
+      "image_prompt": "The ghostly memory continues. The overexposed silhouette of the man picks up a shimmering, translucent photograph. The image on the photograph is a searingly bright portrait of a young girl. The edges of the memory are dissolving into a brilliant, beautiful, and terrifying white light that seems to be consuming the scene.",
       "choices": [
         {
           "text": "The memory recedes...",
