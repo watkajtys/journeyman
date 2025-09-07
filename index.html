@@ -15,13 +15,15 @@
             <!-- We need two image elements for smooth cross-fading -->
             <img id="scene-image-1" class="scene-image" src="" alt="Current game scene">
             <img id="scene-image-2" class="scene-image" src="" alt="Next game scene">
+        </div>
+        <div id="overlay-container">
             <div id="loading-spinner" class="hidden"></div>
+            <div id="narrative-container" class="hidden">
+                <p id="story-text"></p>
+                <div id="choices-container"></div>
+            </div>
+             <button id="stop-button" class="hidden">Stop Generation</button>
         </div>
-        <div id="narrative-container">
-            <p id="story-text"></p>
-            <div id="choices-container"></div>
-        </div>
-        <button id="stop-button" class="hidden">Stop Generation</button>
     </div>
     <script src="script.js"></script>
 </body>
