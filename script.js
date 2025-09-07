@@ -178,8 +178,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // The API can return multiple parts, find the one with the image data.
         const imagePart = data.candidates[0]?.content?.parts.find(part => part.inlineData);
 
-    // If no image is found, or if the found part doesn't have data, handle error cases.
-    if (!imagePart?.inlineData?.data) {
+        // If no image is found, or if the found part doesn't have data, handle error cases.
+        if (!imagePart?.inlineData?.data) {
             if (data.candidates[0]?.finishReason === 'SAFETY') {
                 const safetyText = data.candidates[0]?.content?.parts.map(p => p.text).join('') || 'No details provided.';
                 throw new Error(`Image generation failed due to safety settings. Response: ${safetyText}`);
@@ -187,11 +187,11 @@ document.addEventListener('DOMContentLoaded', () => {
             throw new Error("Could not find image data in API response. The response might have changed or an error occurred.");
         }
 
-    // Return both the image data and its mime type.
-    return {
-        data: imagePart.inlineData.data,
-        mimeType: imagePart.inlineData.mimeType
-    };
+        // Return both the image data and its mime type.
+        return {
+            data: imagePart.inlineData.data,
+            mimeType: imagePart.inlineData.mimeType
+        };
     }
 
     init();
