@@ -1,29 +1,27 @@
 /* --- Global Styles & Font --- */
 body {
     font-family: 'Lora', serif;
-    background-color: #121212; /* Dark background for the page */
-    color: #333; /* Darker text for better readability on light backgrounds */
+    background-color: #000; /* Black background for the page */
+    color: #f0f0f0; /* Light text for readability on dark backgrounds */
     margin: 0;
     overflow: hidden; /* Prevent scrollbars on the body */
 }
 
-/* --- Game Container - FLEXBOX LAYOUT --- */
+/* --- Game & Image Containers --- */
 #game-container {
-    display: flex;
+    position: relative;
     width: 100vw;
     height: 100vh;
-    background: #000; /* Black background for the container */
+    background: #000;
 }
 
-/* --- Image & Loading --- */
 #image-container {
-    flex: 3; /* Takes up 3 parts of the space */
-    position: relative; /* For positioning hotspots and spinner */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden; /* Hide anything that spills out */
-    height: 100%; /* Full height of the container */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
 .scene-image {
@@ -34,28 +32,43 @@ body {
     top: 0;
     left: 0;
     opacity: 0;
-    transform: scale(1.05); /* Start slightly zoomed in for the effect */
+    transform: scale(1.05);
     transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
 }
 
 .scene-image.active {
     opacity: 1;
-    transform: scale(1); /* Zoom out to normal scale */
+    transform: scale(1);
+}
+
+/* --- Overlay Container & Content --- */
+#overlay-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Align content to the bottom */
+    align-items: center;
+    pointer-events: none; /* Allow clicks to pass through to elements behind it */
+    z-index: 10;
 }
 
 #loading-spinner {
+    /* Centered loading spinner */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     border: 8px solid #444;
     border-top: 8px solid #8e44ad; /* Purple accent */
     border-radius: 50%;
     width: 80px;
     height: 80px;
     animation: spin 1.5s linear infinite;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 5;
-    transition: opacity 0.5s ease-in-out;
+    z-index: 20; /* High z-index to be on top */
 }
 
 @keyframes spin {
@@ -63,40 +76,42 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* --- Narrative & Choices (The "Page") --- */
 #narrative-container {
-    flex: 2; /* Takes up 2 parts of the space */
-    z-index: 10;
-    background: #f5f5dc; /* Beige, parchment-like color */
-    padding: 30px 40px;
-    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.75);
+    padding: 20px 25px;
+    margin: 20px;
+    border-radius: 10px;
+    max-width: 800px;
+    width: calc(100% - 40px); /* Full width minus margins */
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Vertically center content */
-    height: 100%; /* Full height of the container */
-    border-left: 2px solid #3a3a3a; /* A "spine" for the book */
-    box-shadow: -10px 0px 20px rgba(0,0,0,0.5); /* Shadow for depth */
+    pointer-events: all; /* Re-enable pointer events for the narrative block */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+#narrative-container.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 #story-text {
     font-size: 1.2em;
     line-height: 1.7;
-    margin-bottom: 25px;
-    font-style: italic;
-    color: #4a4a4a; /* Dark grey text */
-    text-align: center; /* Center the text */
+    margin: 0 0 20px 0;
+    font-style: normal;
+    color: #f5f5f5;
+    text-align: left;
 }
 
 #choices-container {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    /* margin-top: auto; /* Removed to allow vertical centering */
 }
 
 .choice-button {
-    background-color: #2c3e50; /* Dark blue-grey */
+    background-color: #2c3e50;
     color: #ecf0f1;
     padding: 15px 20px;
     border: 1px solid #34495e;
@@ -104,21 +119,27 @@ body {
     cursor: pointer;
     font-family: 'Lora', serif;
     font-size: 1.1em;
-    text-align: center; /* Center button text */
+    text-align: center;
     transition: all 0.2s ease-in-out;
+    opacity: 0;
+    animation: fadeInChoice 0.5s ease-out forwards;
 }
 
 .choice-button:hover {
     background-color: #34495e;
     border-color: #8e44ad;
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
-.choice-button.toggled {
-    background-color: #8e44ad;
-    border-color: #ecf0f1;
-    cursor: default;
+/* Staggered fade-in animation for choices */
+.choice-button:nth-child(1) { animation-delay: 0.5s; }
+.choice-button:nth-child(2) { animation-delay: 0.7s; }
+.choice-button:nth-child(3) { animation-delay: 0.9s; }
+
+
+@keyframes fadeInChoice {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- Stop Button --- */
@@ -126,23 +147,22 @@ body {
     position: absolute;
     top: 20px;
     right: 20px;
-    z-index: 15; /* High z-index to be on top of everything */
-    background-color: #c0392b; /* Red */
+    z-index: 15;
+    background-color: #c0392b;
     color: #ecf0f1;
-    padding: 15px 20px;
+    padding: 12px 18px;
     border: 1px solid #a93226;
     border-radius: 8px;
     cursor: pointer;
     font-family: 'Lora', serif;
-    font-size: 1.1em;
+    font-size: 1em;
+    pointer-events: all;
     transition: all 0.2s ease-in-out;
 }
 
 #stop-button:hover {
     background-color: #e74c3c;
-    border-color: #c0392b;
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
 /* --- Utility --- */
@@ -150,39 +170,17 @@ body {
     display: none !important;
 }
 
-/* --- Hotspot & Tooltip Styles (REMOVED) --- */
+/* --- Typewriter Effect --- */
+.typewriter-cursor {
+  display: inline-block;
+  background-color: #f5f5f5;
+  width: 10px;
+  height: 1.2em;
+  animation: blink 1s step-end infinite;
+  vertical-align: bottom;
+}
 
-/* --- RESPONSIVE DESIGN FOR MOBILE --- */
-@media (max-width: 800px) {
-    #game-container {
-        flex-direction: column; /* Stack image and text vertically */
-    }
-
-    #image-container {
-        flex: 1; /* Takes up 1 part of vertical space */
-        height: 50vh; /* Explicitly 50% of the viewport height */
-        width: 100%;
-    }
-
-    #narrative-container {
-        flex: 1; /* Takes up 1 part of vertical space */
-        height: 50vh; /* Explicitly 50% of the viewport height */
-        width: 100%;
-        border-left: none; /* Remove the "spine" on mobile */
-        border-top: 2px solid #3a3a3a; /* Add a separator on top */
-    }
-
-    #story-text {
-        font-size: 1.1em; /* Slightly smaller text for mobile */
-        line-height: 1.6;
-    }
-
-    #choices-container {
-        gap: 10px;
-    }
-
-    .choice-button {
-        padding: 12px 15px;
-        font-size: 1em;
-    }
+@keyframes blink {
+  from, to { background-color: transparent }
+  50% { background-color: #f5f5f5; }
 }

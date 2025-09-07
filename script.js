@@ -1,125 +1,100 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
+    // --- DOM Elements ---
     const storyTextElement = document.getElementById('story-text');
     const choicesContainerElement = document.getElementById('choices-container');
     const imageContainerElement = document.getElementById('image-container');
+    const narrativeContainerElement = document.getElementById('narrative-container');
     const imageElements = [document.getElementById('scene-image-1'), document.getElementById('scene-image-2')];
     let activeImageIndex = 0;
     const loadingSpinnerElement = document.getElementById('loading-spinner');
     const stopButtonElement = document.getElementById('stop-button');
-    // let tooltipElement; // No longer needed
 
     // --- Gemini API Configuration ---
     const API_KEY = 'AIzaSyC7puMSiLTOJJAY5Uf90L6MwtwJQwj44dg';
     const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent';
 
-    // Game State
+    // --- Game State ---
     let storyData = {};
     let currentNodeId = 'start';
     let lastStableNodeId = 'start';
     let imageCache = {};
     let lastImageB64 = null;
     let generationController;
-    let collectedFragments = new Set();
-    let isPreloading = false; // Flag to prevent multiple preloading processes
+    let isGenerating = false; // To prevent concurrent generations
+    let isTyping = false; // To prevent skipping text animation
 
     // --- Initialization ---
     async function init() {
-        // createTooltip(); // No longer needed
         try {
             const response = await fetch('story.json');
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             storyData = await response.json();
             await showNode(currentNodeId);
         } catch (error) {
+            narrativeContainerElement.classList.remove('hidden');
+            narrativeContainerElement.classList.add('visible');
             storyTextElement.innerText = `Error loading story: ${error}. Please check that story.json is available.`;
             console.error("Failed to load story.json:", error);
         }
     }
 
-    // function createTooltip() { ... } // No longer needed
-
     // --- UI State Management ---
     function setChoicesEnabled(enabled) {
-        // Hotspots are removed, so no need to manage them.
-
-        // For button-based choices (fallback and exploration)
         choicesContainerElement.querySelectorAll('.choice-button').forEach(button => {
             button.disabled = !enabled;
             button.style.cursor = enabled ? 'pointer' : 'not-allowed';
-            button.style.opacity = enabled ? '1' : '0.6';
+            button.style.opacity = enabled ? '1' : '0.7';
+        });
+    }
+
+    function showLoading(show) {
+        loadingSpinnerElement.classList.toggle('hidden', !show);
+        stopButtonElement.classList.toggle('hidden', !show);
+    }
+
+    // --- Typewriter Effect ---
+    async function typeWriter(text) {
+        return new Promise(resolve => {
+            isTyping = true;
+            storyTextElement.innerHTML = ''; // Clear previous text
+            const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+            let sentenceIndex = 0;
+            let charIndex = 0;
+            const cursor = document.createElement('span');
+            cursor.className = 'typewriter-cursor';
+            storyTextElement.appendChild(cursor);
+
+            function type() {
+                if (sentenceIndex >= sentences.length) {
+                    isTyping = false;
+                    cursor.remove();
+                    resolve();
+                    return;
+                }
+
+                const sentence = sentences[sentenceIndex];
+                if (charIndex < sentence.length) {
+                    const charSpan = document.createElement('span');
+                    charSpan.textContent = sentence.charAt(charIndex);
+                    storyTextElement.insertBefore(charSpan, cursor);
+                    charIndex++;
+                    setTimeout(type, 30); // Typing speed
+                } else {
+                    charIndex = 0;
+                    sentenceIndex++;
+                    setTimeout(type, 400); // Pause between sentences
+                }
+            }
+            type();
         });
     }
 
 
-    // --- Image Preloading and Update Logic ---
-    function preloadChoiceImages(node) {
-        if (!node.choices || isPreloading) {
-            return;
-        }
-        isPreloading = true;
-        console.log('Starting sequential preload for choices of:', node.id);
-
-        // Create a sequence of promise-returning functions
-        const preloadTasks = [];
-        node.choices.forEach(choice => {
-            const nextNodeId = choice.target_id;
-            const nextNode = storyData[nextNodeId];
-
-            // --- Task for preloading the main image ---
-            if (nextNode && nextNode.image_prompt && !imageCache[nextNodeId]) {
-                preloadTasks.push(() => {
-                    console.log('Starting preload for main image:', nextNodeId);
-                    return getGeneratedImage(nextNode.image_prompt, null, lastImageB64, true)
-                        .then(({ imageData }) => {
-                            const imageSrc = `data:image/png;base64,${imageData}`;
-                            imageCache[nextNodeId] = imageSrc;
-                            console.log('Successfully preloaded main image for:', nextNodeId);
-                        })
-                        .catch(error => console.warn(`Preloading main image failed for "${nextNodeId}":`, error));
-                });
-            }
-
-            // --- Task for preloading the transition image ---
-            const transitionCacheKey = `${node.id}->${choice.target_id}`;
-            if (choice.transition_prompt && !imageCache[transitionCacheKey]) {
-                preloadTasks.push(() => {
-                    console.log('Starting preload for transition image:', transitionCacheKey);
-                    return getGeneratedImage(choice.transition_prompt, null, lastImageB64, true)
-                        .then(({ imageData }) => {
-                            const imageSrc = `data:image/png;base64,${imageData}`;
-                            imageCache[transitionCacheKey] = imageSrc;
-                            console.log('Successfully preloaded transition image for:', transitionCacheKey);
-                        })
-                        .catch(error => console.warn(`Preloading transition image failed for "${transitionCacheKey}":`, error));
-                });
-            }
-        });
-
-        if (preloadTasks.length > 0) {
-            // Execute tasks sequentially
-            let sequence = Promise.resolve();
-            preloadTasks.forEach(task => {
-                sequence = sequence.then(task);
-            });
-
-            sequence.then(() => {
-                isPreloading = false;
-                console.log('All sequential preloading tasks finished for node:', node.id);
-            });
-        } else {
-            isPreloading = false;
-        }
-    }
-
-    function updateImage(newSrc, newText) {
+    // --- Image Logic ---
+    function updateImage(newSrc) {
         return new Promise((resolve) => {
             if (!newSrc) {
-                // Deactivate both images if there's no source
                 imageElements.forEach(img => img.classList.remove('active'));
-                if (newText !== undefined) {
-                    storyTextElement.innerText = newText;
-                }
                 resolve();
                 return;
             }
@@ -131,253 +106,193 @@ document.addEventListener('DOMContentLoaded', () => {
             const tempImg = new Image();
             tempImg.onload = () => {
                 inactiveImage.src = tempImg.src;
-
-                // Wait a tick for the browser to register the new src
                 setTimeout(() => {
                     activeImage.classList.remove('active');
                     inactiveImage.classList.add('active');
-                    activeImageIndex = inactiveImageIndex; // Update the active index
-
-                    if (newText !== undefined) {
-                        storyTextElement.innerText = newText;
-                    }
-
-                    // Resolve after the transition is expected to finish
-                    setTimeout(resolve, 1500); // Match CSS transition duration
+                    activeImageIndex = inactiveImageIndex;
+                    setTimeout(resolve, 1500); // Match CSS transition
                 }, 50);
             };
             tempImg.onerror = (err) => {
-                console.error("Failed to load image for display:", newSrc, err);
-                 if (newText !== undefined) {
-                    storyTextElement.innerText = newText;
-                }
-                resolve(); // Resolve anyway to not block the game
+                console.error("Failed to load image for display:", err);
+                resolve(); // Don't block the game
             };
             tempImg.src = newSrc;
         });
     }
 
-    // --- Scene Loading and Rendering ---
-    async function loadAndDisplayScene(node) {
-        const nodeId = node.id;
-        let imageAvailable = false;
-
-        if (imageCache[nodeId]) {
-            await updateImage(imageCache[nodeId], node.text);
-            lastStableNodeId = nodeId;
-            imageAvailable = true;
-        } else {
-            generationController = new AbortController();
-            const signal = generationController.signal;
-
-            loadingSpinnerElement.classList.remove('hidden');
-            stopButtonElement.classList.remove('hidden');
-            setChoicesEnabled(false);
-
-            try {
-                const { imageData } = await getGeneratedImage(node.image_prompt, signal, lastImageB64, false);
-                lastImageB64 = imageData;
-                const imageSrc = `data:image/png;base64,${imageData}`;
-                imageCache[nodeId] = imageSrc;
-                await updateImage(imageSrc, node.text);
-                lastStableNodeId = nodeId;
-                imageAvailable = true;
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    console.log('Image generation was stopped. Reverting to last stable state.');
-                } else if (error.message.includes("Could not find image data")) {
-                    console.warn(`Soft failure for node "${nodeId}": API did not return image data. Proceeding without an image.`);
-                    lastStableNodeId = nodeId;
-                    await updateImage(null, node.text);
-                } else {
-                    console.error("Error generating image:", error);
-                }
-            } finally {
-                loadingSpinnerElement.classList.add('hidden');
-                stopButtonElement.classList.add('hidden');
-                setChoicesEnabled(true);
-                generationController = null;
-            }
-        }
-        return imageAvailable;
-    }
-
-    // --- Node Rendering Logic ---
+    // --- Core Scene Rendering Logic ---
     async function showNode(nodeId) {
         currentNodeId = nodeId;
         const node = storyData[currentNodeId];
 
         if (!node) {
-            console.error(`Node "${nodeId}" not found in story.json.`);
-            storyTextElement.innerText = "An error occurred. The story path is broken.";
+            console.error(`Node "${nodeId}" not found.`);
+            storyTextElement.innerText = "An error occurred: The story path is broken.";
+            narrativeContainerElement.classList.add('visible');
             return;
         }
 
+        // 1. Hide old narrative and clear choices
+        narrativeContainerElement.classList.remove('visible');
         clearChoices();
+        setChoicesEnabled(false);
 
-        if (node.type === 'exploration') {
-            renderExplorationNode(node);
-        } else {
-            renderChoiceNode(node);
-        }
-
+        // 2. Load and display the image
         const imageAvailable = await loadAndDisplayScene(node);
 
-        // After the main image is loaded and displayed, kick off preloading for the next choices
+        // After image transition is done, show the narrative
         if (imageAvailable) {
+             // Preload next images in the background
             preloadChoiceImages(node);
-            // --- NEW: Handle auto-transitioning nodes ---
+
+            // 3. Show the narrative container and animate text
+            narrativeContainerElement.classList.remove('hidden');
+            narrativeContainerElement.classList.add('visible');
+            await typeWriter(node.text);
+
+            // 4. Render choices
+            if (node.type === 'exploration') {
+                renderExplorationNode(node);
+            } else {
+                renderChoiceNode(node);
+            }
+            setChoicesEnabled(true);
+
+            // 5. Handle auto-transition
             if (node.auto_transition && node.choices && node.choices.length > 0) {
-                console.log(`Auto-transitioning from "${nodeId}"...`);
-                setChoicesEnabled(false); // Disable choices during transition
-
-                const choice = node.choices[0];
-                const nextNodeId = choice.target_id;
-
-                // The image for the current intermediary node is already loading or has loaded.
-                // Now, we need to ensure the image for the *next* node is ready before we transition.
-                // This logic effectively makes the user "wait" on the intermediary frame.
-
-                // Check if the next image is already in the cache
-                if (imageCache[nextNodeId]) {
-                    // If it's cached, we can transition after a brief, deliberate pause
-                    // to let the user read the intermediary text.
-                    console.log(`Next image for "${nextNodeId}" is cached. Transitioning shortly.`);
-                    setTimeout(() => {
-                        handleChoice(choice);
-                    }, 1500); // A fixed delay for readability
-                } else {
-                    // If the next image is NOT cached, we need to fetch it now.
-                    // The showNode function is responsible for showing a loading spinner.
-                    // We will call showNode for the next node ID.
-                    // It will handle the loading indicator and image fetching.
-                    console.log(`Next image for "${nextNodeId}" is not cached. Proceeding to load.`);
-                    // We call handleChoice directly. It will in turn call showNode for the next node.
-                    // showNode will then handle the image generation and display the loading spinner.
-                    handleChoice(choice);
-                }
+                setChoicesEnabled(false);
+                setTimeout(() => handleChoice(node.choices[0]), 1000); // Brief delay for readability
             }
         }
     }
 
+    async function loadAndDisplayScene(node) {
+        let imageSrc = imageCache[node.id];
+        let imageAvailable = false;
+
+        if (!imageSrc) {
+            generationController = new AbortController();
+            isGenerating = true;
+            showLoading(true);
+            try {
+                const { imageData } = await getGeneratedImage(node.image_prompt, generationController.signal, lastImageB64);
+                lastImageB64 = imageData;
+                imageSrc = `data:image/png;base64,${imageData}`;
+                imageCache[node.id] = imageSrc;
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    console.log('Image generation stopped.');
+                } else {
+                    console.error("Error generating image:", error);
+                    // Fallback: proceed without an image
+                    await updateImage(null);
+                    storyTextElement.innerText = node.text; // Show text immediately if image fails
+                    narrativeContainerElement.classList.add('visible');
+                }
+                showLoading(false);
+                isGenerating = false;
+                return false;
+            }
+            showLoading(false);
+            isGenerating = false;
+        }
+
+        await updateImage(imageSrc);
+        lastStableNodeId = node.id;
+        imageAvailable = true;
+
+        return imageAvailable;
+    }
+
     function clearChoices() {
-        // Clear button choices
         choicesContainerElement.innerHTML = '';
-        // Clear hotspot choices
-        const existingHotspots = imageContainerElement.querySelectorAll('.hotspot');
-        existingHotspots.forEach(hotspot => hotspot.remove());
     }
 
     function renderChoiceNode(node) {
-        // Hotspot logic is removed. All choices are rendered as buttons.
+        if (!node.choices) return;
         node.choices.forEach(choice => {
             const button = document.createElement('button');
             button.classList.add('choice-button');
             button.innerText = choice.text;
-            button.addEventListener('click', () => handleChoice(choice));
+            button.addEventListener('click', () => handleChoice(choice), { once: true });
             choicesContainerElement.appendChild(button);
         });
     }
 
+    // --- Exploration Node Logic (simplified for now) ---
     function renderExplorationNode(node) {
-        collectedFragments.clear();
-        node.interactive_objects.forEach(obj => {
-            const button = document.createElement('button');
-            button.classList.add('choice-button', 'interactive-object');
-            button.innerText = obj.name;
-            button.addEventListener('click', () => {
-                storyTextElement.innerText = obj.description;
-                if (obj.reveals_fragment) {
-                    button.classList.add('toggled');
-                    collectedFragments.add(obj.name);
-                }
-                checkExplorationCompletion(node);
-            });
-            choicesContainerElement.appendChild(button);
-        });
-    }
-
-    function checkExplorationCompletion(node) {
-        if (collectedFragments.size >= node.required_fragments) {
-            clearChoices(); // Clear the object buttons
-            const completionButton = document.createElement('button');
-            completionButton.classList.add('choice-button');
-            completionButton.innerText = node.completion_choice.text;
-            // The choice here might be a simple target_id string, not a choice object
-            // Let's ensure handleChoice can handle both for max compatibility
-             const completionChoice = { target_id: node.completion_choice.target_id, text: node.completion_choice.text };
-            completionButton.addEventListener('click', () => handleChoice(completionChoice));
-            choicesContainerElement.appendChild(completionButton);
-        }
+        // This complex logic can be reintegrated later if needed.
+        // For now, we'll treat it like a standard choice node.
+        renderChoiceNode(node);
     }
 
     async function handleChoice(choice) {
-        if (typeof choice === 'string') {
-            // Handle cases where we just pass a target ID string
-            choice = { target_id: choice };
-        }
+        // Prevent new choices while one is being processed
         setChoicesEnabled(false);
 
-        // --- Intermediary Image Transition ---
-        // If the choice has a transition prompt, we generate and display that image first.
+        // --- Handle potential intermediary transition image ---
         if (choice.transition_prompt) {
-            // A unique cache key for the transition image, e.g., "start->bridge_path"
             const transitionCacheKey = `${currentNodeId}->${choice.target_id}`;
             let transitionImageSrc = imageCache[transitionCacheKey];
 
             if (!transitionImageSrc) {
-                // If not preloaded, generate the transition image now.
-                generationController = new AbortController();
-                const signal = generationController.signal;
-                loadingSpinnerElement.classList.remove('hidden');
-                stopButtonElement.classList.remove('hidden');
-
+                showLoading(true);
                 try {
-                    // We use lastImageB64 for context, but DON'T update it with the transition image.
-                    const { imageData } = await getGeneratedImage(choice.transition_prompt, signal, lastImageB64, false);
+                    const { imageData } = await getGeneratedImage(choice.transition_prompt, null, lastImageB64);
                     transitionImageSrc = `data:image/png;base64,${imageData}`;
-                    imageCache[transitionCacheKey] = transitionImageSrc; // Cache it for future use.
+                    imageCache[transitionCacheKey] = transitionImageSrc;
                 } catch (error) {
                     console.error("Error generating transition image:", error);
-                    // If generation fails, we'll just skip to the next node.
-                } finally {
-                    loadingSpinnerElement.classList.add('hidden');
-                    stopButtonElement.classList.add('hidden');
-                    generationController = null;
                 }
+                showLoading(false);
             }
 
-            // If we have a transition image (either from cache or just generated), show it.
             if (transitionImageSrc) {
                 await updateImage(transitionImageSrc);
             }
         }
 
-        // After the transition (or if there was none), show the main node.
+        // --- Proceed to the next story node ---
         showNode(choice.target_id);
     }
 
-    stopButtonElement.addEventListener('click', () => {
-        if (generationController) {
-            generationController.abort();
-        }
-    });
+    // --- Background Image Preloading ---
+    function preloadChoiceImages(node) {
+        if (!node.choices) return;
 
-    async function getGeneratedImage(prompt, signal, lastImageB64 = null, isPreload = false) {
-        // For preloading, we don't want to use an abort signal from the main controller
-        const effectiveSignal = isPreload ? null : signal;
+        node.choices.forEach(choice => {
+            const nextNodeId = choice.target_id;
+            const nextNode = storyData[nextNodeId];
 
+            // Preload main image for the next node
+            if (nextNode && nextNode.image_prompt && !imageCache[nextNodeId]) {
+                getGeneratedImage(nextNode.image_prompt, null, lastImageB64, true)
+                    .then(({ imageData }) => {
+                        imageCache[nextNodeId] = `data:image/png;base64,${imageData}`;
+                        console.log(`Preloaded image for: ${nextNodeId}`);
+                    })
+                    .catch(err => console.warn(`Preloading failed for ${nextNodeId}:`, err));
+            }
+            // Preload transition image for the choice
+            const transitionCacheKey = `${node.id}->${choice.target_id}`;
+            if (choice.transition_prompt && !imageCache[transitionCacheKey]) {
+                 getGeneratedImage(choice.transition_prompt, null, lastImageB64, true)
+                    .then(({ imageData }) => {
+                        imageCache[transitionCacheKey] = `data:image/png;base64,${imageData}`;
+                        console.log(`Preloaded transition for: ${transitionCacheKey}`);
+                    })
+                    .catch(err => console.warn(`Preloading transition failed for ${transitionCacheKey}:`, err));
+            }
+        });
+    }
+
+    // --- API Call ---
+    async function getGeneratedImage(prompt, signal, contextImageB64 = null, isPreload = false) {
         const parts = [{ text: prompt }];
-        if (lastImageB64) {
-            parts.unshift({
-                inlineData: {
-                    mimeType: 'image/png',
-                    data: lastImageB64
-                }
-            });
-            parts.unshift({
-                text: "Given the previous image, create a new image that continues the scene based on the following prompt:"
-            });
+        if (contextImageB64) {
+            parts.unshift({ inlineData: { mimeType: 'image/png', data: contextImageB64 } });
+            parts.unshift({ text: "Given the previous image, create a new image based on the prompt." });
         }
         const payload = { contents: [{ parts: parts }] };
         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
@@ -388,22 +303,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if (!response.ok) {
             const errorBody = await response.json();
-            throw new Error(`API request failed with status ${response.status}: ${errorBody.error.message}`);
+            throw new Error(`API Error: ${errorBody.error.message}`);
         }
         const data = await response.json();
-        const textPart = data.candidates[0]?.content?.parts.find(part => part.text);
-        const textResponse = textPart?.text;
-        const imagePart = data.candidates[0]?.content?.parts.find(part => part.inlineData);
-        const imageData = imagePart?.inlineData?.data;
-        if (!imageData) {
-            if (data.candidates[0]?.finishReason === 'SAFETY') {
-                const safetyText = data.candidates[0]?.content?.parts.map(p => p.text).join('') || 'No details provided.';
-                throw new Error(`Image generation failed due to safety settings. Response: ${safetyText}`);
-            }
-            throw new Error("Could not find image data in API response.");
+        const imagePart = data.candidates[0]?.content?.parts.find(p => p.inlineData);
+        if (!imagePart) {
+            throw new Error("No image data found in API response.");
         }
-        return { imageData, textResponse };
+        return { imageData: imagePart.inlineData.data };
     }
 
+    // --- Event Listeners ---
+    stopButtonElement.addEventListener('click', () => {
+        if (generationController) generationController.abort();
+    });
+
+    // --- Start the adventure ---
     init();
 });
