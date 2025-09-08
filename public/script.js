@@ -22,12 +22,24 @@ document.addEventListener('DOMContentLoaded', () => {
     let generationController;
     let isGenerating = false; // To prevent concurrent generations
     let isDisplayingText = false;
+    let navigationHistory = [];
+    let historyIndex = -1;
     
-    // Expose to window for overlay editor
-    window.storyData = storyData;
-    window.currentNodeId = currentNodeId;
-    window.imageCache = imageCache;
+    // Create getter functions so overlay editor always gets current values
+    Object.defineProperty(window, 'storyData', {
+        get: function() { return storyData; },
+        set: function(value) { storyData = value; }
+    });
+    Object.defineProperty(window, 'currentNodeId', {
+        get: function() { return currentNodeId; },
+        set: function(value) { currentNodeId = value; }
+    });
+    Object.defineProperty(window, 'imageCache', {
+        get: function() { return imageCache; },
+        set: function(value) { imageCache = value; }
+    });
     window.generationController = generationController;
+    window.navigationHistory = navigationHistory;
     let skipTextAnimation = false;
     let playerState = {
         visitedServerRoom: false,
@@ -38,17 +50,47 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initialization ---
     async function init() {
         try {
-            const response = await fetch(`story.json?t=${new Date().getTime()}`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            storyData = await response.json();
-            window.storyData = storyData; // Update window reference
+            // Try to load from cloud storage first
+            let response = await fetch('/api/load');
+            
+            if (response.ok) {
+                console.log('Loading story from cloud storage');
+                storyData = await response.json();
+            } else {
+                // Fall back to static story.json if cloud storage is empty or fails
+                console.log('No cloud save found, loading default story');
+                response = await fetch(`story.json?t=${new Date().getTime()}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                storyData = await response.json();
+            }
+            
+            // The setters will automatically update window references
             currentNodeId = 'opening_scene'; // Set the starting node
-            window.currentNodeId = currentNodeId; // Update window reference
+            
+            // Rebuild image cache from saved data
+            if (storyData.nodes) {
+                let base64Count = 0;
+                let urlCount = 0;
+                for (const nodeId in storyData.nodes) {
+                    const node = storyData.nodes[nodeId];
+                    // Only cache base64 images immediately, R2 URLs will be fetched on demand
+                    if (node.pre_rendered_image) {
+                        // Cache base64 images immediately
+                        imageCache[nodeId] = node.pre_rendered_image;
+                        base64Count++;
+                    } else if (node.image_url) {
+                        // Don't cache URLs - they'll be fetched when needed
+                        urlCount++;
+                    }
+                }
+                console.log(`Loaded ${base64Count} base64 images, ${urlCount} R2 URLs available`);
+            }
+            
             await showNode(currentNodeId);
         } catch (error) {
             storyTextContainerElement.innerHTML = `<p>Error loading story: ${error}. Please check that story.json is available.</p>`;
             narrativeContainerElement.classList.remove('hide');
-            console.error("Failed to load story.json:", error);
+            console.error("Failed to load story:", error);
         }
     }
 
@@ -199,8 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
             nodeId = 'bridge_knowledge_gap';
         }
 
-        currentNodeId = nodeId;
-        window.currentNodeId = nodeId; // Update window reference
+        currentNodeId = nodeId; // Setter will automatically update window reference
         const node = storyData.nodes[currentNodeId]; // Access node from storyData.nodes
 
         if (!node) {
@@ -241,12 +282,33 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let imageSrc = imageCache[node.id];
 
-        // --- Use Pre-rendered Image if available ---
-        if (node.pre_rendered_image) {
-            console.log("Using pre-rendered image for node:", node.id);
+        // --- Standardized Image Loading Strategy: R2 → Base64 → Generation ---
+        if (node.image_url) {
+            console.log("Using R2 image URL for node:", node.id);
+            // For R2 URLs, try to load the actual image data for smooth display
+            try {
+                const response = await fetch(node.image_url);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const reader = new FileReader();
+                    imageSrc = await new Promise((resolve) => {
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                    imageCache[node.id] = imageSrc; // Cache the base64 for performance
+                    console.log("Loaded and cached R2 image for node:", node.id);
+                } else {
+                    console.warn("Failed to fetch R2 image, using URL directly:", response.status);
+                    imageSrc = node.image_url; // Use URL directly as fallback
+                }
+            } catch (err) {
+                console.error("Error fetching R2 image, using URL directly:", err);
+                imageSrc = node.image_url;
+            }
+        } else if (node.pre_rendered_image) {
+            console.log("Using legacy base64 image for node:", node.id);
             imageSrc = node.pre_rendered_image;
             imageCache[node.id] = imageSrc; // Add to cache for consistency
-            window.imageCache = imageCache; // Update window reference
         }
         // --- End ---
 
@@ -272,8 +334,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { imageData } = await getGeneratedImage(node, generationController.signal, contextImageB64);
                 lastImageB64 = imageData; // Always update the last generated image
                 imageSrc = `data:image/png;base64,${imageData}`;
-                imageCache[node.id] = imageSrc;
-                window.imageCache = imageCache; // Update window reference
+                imageCache[node.id] = imageSrc; // Setter automatically updates window reference
+
+                // Upload image to R2 storage with improved error handling
+                let uploadSuccess = false;
+                try {
+                    const base64Data = imageData; // Already pure base64 without prefix
+                    const binaryData = atob(base64Data);
+                    const bytes = new Uint8Array(binaryData.length);
+                    for (let i = 0; i < binaryData.length; i++) {
+                        bytes[i] = binaryData.charCodeAt(i);
+                    }
+                    const blob = new Blob([bytes], { type: 'image/png' });
+                    
+                    // Validate blob size
+                    if (blob.size > 10 * 1024 * 1024) {
+                        throw new Error('Image too large (max 10MB)');
+                    }
+                    
+                    console.log(`Uploading ${(blob.size / 1024).toFixed(2)}KB image for node: ${node.id}`);
+                    
+                    const uploadResponse = await fetch(`/api/images/${encodeURIComponent(node.id)}`, {
+                        method: 'PUT',
+                        body: blob,
+                        headers: {
+                            'Content-Type': 'image/png'
+                        }
+                    });
+                    
+                    if (uploadResponse.ok) {
+                        const result = await uploadResponse.json();
+                        console.log(`Image uploaded to R2: ${result.path}`);
+                        // Update node with image URL and remove base64
+                        node.image_url = `/api/images/${encodeURIComponent(node.id)}`;
+                        delete node.pre_rendered_image; // Remove old base64 to prevent confusion
+                        uploadSuccess = true;
+                    } else {
+                        const errorText = await uploadResponse.text();
+                        console.error(`Failed to upload image to R2 (${uploadResponse.status}):`, errorText);
+                    }
+                } catch (uploadError) {
+                    console.error('Error uploading image to R2:', uploadError);
+                }
+                
+                // If upload failed, fall back to base64 storage
+                if (!uploadSuccess) {
+                    console.warn('Falling back to base64 storage for node:', node.id);
+                    node.pre_rendered_image = imageSrc; // Store the full data URL
+                    delete node.image_url; // Remove URL to prevent confusion
+                }
+                
+                // Always save the story data after image handling
+                try {
+                    const saveSuccess = await saveToCloud();
+                    if (!saveSuccess) {
+                        console.error('Failed to save story data after image generation');
+                    }
+                } catch (saveError) {
+                    console.error('Error saving story data:', saveError);
+                }
 
                 // If this is the first time visiting a location, cache its image
                 if (node.location && !locationImageCache[node.location]) {
@@ -510,6 +629,70 @@ document.addEventListener('DOMContentLoaded', () => {
             skipTextAnimation = true;
         }
     });
+
+    // --- Cloud Storage Functions ---
+    async function saveToCloud() {
+        if (!storyData) {
+            console.error('No story data to save');
+            return false;
+        }
+        
+        try {
+            // Basic validation and cleanup
+            validateAndCleanupStoryData();
+            
+            // Count images by type for logging
+            let r2Count = 0, base64Count = 0;
+            for (const nodeId in storyData.nodes) {
+                const node = storyData.nodes[nodeId];
+                if (node.image_url) r2Count++;
+                if (node.pre_rendered_image) base64Count++;
+            }
+            
+            console.log(`Saving story: ${Object.keys(storyData.nodes).length} nodes, ${r2Count} R2 images, ${base64Count} base64 images`);
+            
+            const payload = JSON.stringify(storyData);
+            if (payload.length > 50 * 1024 * 1024) { // 50MB limit
+                console.error('Story data too large for upload:', payload.length);
+                return false;
+            }
+            
+            const response = await fetch('/api/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: payload
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Save failed with status ${response.status}: ${errorText}`);
+            }
+            
+            const result = await response.text();
+            console.log(`✅ Story saved to cloud successfully: ${result}`);
+            return true;
+        } catch (error) {
+            console.error('❌ Failed to save story to cloud:', error);
+            // Don't show alert in main game flow to avoid interrupting gameplay
+            return false;
+        }
+    }
+    
+    function validateAndCleanupStoryData() {
+        if (!storyData.nodes || typeof storyData.nodes !== 'object') {
+            console.error('Invalid story structure');
+            return;
+        }
+        
+        // Clean up any duplicate image storage
+        for (const nodeId in storyData.nodes) {
+            const node = storyData.nodes[nodeId];
+            if (node.image_url && node.pre_rendered_image) {
+                console.log(`Cleaning duplicate image storage for node: ${nodeId}`);
+                delete node.pre_rendered_image; // Prefer R2 URLs
+            }
+        }
+    }
 
     // --- Start the adventure ---
     init();
