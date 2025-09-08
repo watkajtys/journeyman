@@ -58,7 +58,16 @@ export default function ElementsPanel({
   };
 
   return (
-    <div style={{ width: '300px', borderRight: '1px solid #444', backgroundColor: '#2a2a2a', overflowY: 'auto' }}>
+    <div style={{ 
+      width: '280px', 
+      minWidth: '250px',
+      maxWidth: '350px',
+      borderRight: '1px solid #444', 
+      backgroundColor: '#2a2a2a', 
+      overflowY: 'auto',
+      height: '100%',
+      flexShrink: 0
+    }}>
       <h2 style={{ padding: '10px', margin: 0 }}>Consistent Elements</h2>
       {Object.entries(categories).map(([key, title]) => (
         <AccordionItem

@@ -58,7 +58,8 @@ h2 {
 .panels-container {
   display: flex;
   flex-grow: 1;
-  height: 0; /* Fix for flex-grow in a flex-column */
+  height: calc(100vh - 60px); /* Account for top bar */
+  overflow: hidden;
 }
 
 /* --- Choice Editor Styles --- */

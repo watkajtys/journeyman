@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stopButtonElement = document.getElementById('stop-button');
 
     // --- Gemini API Configuration ---
-    const API_KEY = 'AIzaSyC7puMSiLTOJJAY5Uf90L6MwtwJQwj44dg';
+    const API_KEY = 'AIzaSyBNRc6wowYEBTxxu-44AP6AkrYScl0Yafk';
     const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent';
 
     // --- Game State ---
@@ -22,6 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let generationController;
     let isGenerating = false; // To prevent concurrent generations
     let isDisplayingText = false;
+    
+    // Expose to window for overlay editor
+    window.storyData = storyData;
+    window.currentNodeId = currentNodeId;
+    window.imageCache = imageCache;
+    window.generationController = generationController;
     let skipTextAnimation = false;
     let playerState = {
         visitedServerRoom: false,
@@ -35,7 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`story.json?t=${new Date().getTime()}`);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             storyData = await response.json();
+            window.storyData = storyData; // Update window reference
             currentNodeId = 'opening_scene'; // Set the starting node
+            window.currentNodeId = currentNodeId; // Update window reference
             await showNode(currentNodeId);
         } catch (error) {
             storyTextContainerElement.innerHTML = `<p>Error loading story: ${error}. Please check that story.json is available.</p>`;
@@ -93,8 +101,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 setChoicesEnabled(false);
                 setTimeout(() => enterFlashback(node.auto_flashback), 800);
             } else if (node.auto_transition && node.choices && node.choices.length > 0) {
-                setChoicesEnabled(false);
-                setTimeout(() => handleChoice(node.choices[0]), 800);
+                // Check if overlay editor is open before auto-transitioning
+                if (window.overlayEditorOpen) {
+                    console.log('Auto-transition paused - overlay editor is open');
+                    // Show a continue button instead
+                    renderChoiceNode(node);
+                    setChoicesEnabled(true);
+                } else {
+                    setChoicesEnabled(false);
+                    const delay = node.transition_delay || 800;
+                    setTimeout(() => {
+                        // Double-check the editor hasn't opened during the delay
+                        if (!window.overlayEditorOpen) {
+                            handleChoice(node.choices[0]);
+                        } else {
+                            console.log('Auto-transition cancelled - overlay editor opened');
+                            renderChoiceNode(node);
+                            setChoicesEnabled(true);
+                        }
+                    }, delay);
+                }
             } else {
                 resolve();
             }
@@ -174,6 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         currentNodeId = nodeId;
+        window.currentNodeId = nodeId; // Update window reference
         const node = storyData.nodes[currentNodeId]; // Access node from storyData.nodes
 
         if (!node) {
@@ -207,6 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadAndDisplayScene(node) {
+        // Sync with window.imageCache in case overlay editor added images
+        if (window.imageCache && window.imageCache[node.id]) {
+            imageCache[node.id] = window.imageCache[node.id];
+        }
+        
         let imageSrc = imageCache[node.id];
 
         // --- Use Pre-rendered Image if available ---
@@ -214,11 +246,20 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Using pre-rendered image for node:", node.id);
             imageSrc = node.pre_rendered_image;
             imageCache[node.id] = imageSrc; // Add to cache for consistency
+            window.imageCache = imageCache; // Update window reference
         }
         // --- End ---
 
         if (!imageSrc) {
+            // Skip generation if overlay editor is open
+            if (window.overlayEditorOpen) {
+                console.log('Skipping image generation - overlay editor is open');
+                await updateImage(null);
+                return imageSrc;
+            }
+            
             generationController = new AbortController();
+            window.generationController = generationController; // Update window reference
             isGenerating = true;
             showLoading(true);
             try {
@@ -232,6 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 lastImageB64 = imageData; // Always update the last generated image
                 imageSrc = `data:image/png;base64,${imageData}`;
                 imageCache[node.id] = imageSrc;
+                window.imageCache = imageCache; // Update window reference
 
                 // If this is the first time visiting a location, cache its image
                 if (node.location && !locationImageCache[node.location]) {

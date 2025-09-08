@@ -3,7 +3,7 @@ import { constructFinalPrompt } from '../utils/prompt-builder.js';
 
 // This should be stored securely in a real app, e.g., in environment variables.
 // We get this from the old script for now. A future step could be to get this from the worker env.
-const API_KEY = 'AIzaSyC7puMSiLTOJJAY5Uf90L6MwtwJQwj44dg';
+const API_KEY = 'AIzaSyBNRc6wowYEBTxxu-44AP6AkrYScl0Yafk';
 const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent';
 
 
@@ -98,7 +98,17 @@ export default function NodeEditorPanel({
 
 
   return (
-    <div style={{ width: '350px', borderLeft: '1px solid #555', padding: '10px', backgroundColor: '#2a2a2a', overflowY: 'auto' }}>
+    <div style={{ 
+      width: '320px',
+      minWidth: '280px',
+      maxWidth: '400px',
+      borderLeft: '1px solid #555', 
+      padding: '10px', 
+      backgroundColor: '#2a2a2a', 
+      overflowY: 'auto',
+      height: '100%',
+      flexShrink: 0
+    }}>
       <h2 style={{marginTop: 0}}>Edit Node: {selectedNode.id}</h2>
       <form onSubmit={(e) => e.preventDefault()}>
         {/* Text and Image Prompt Textareas */}

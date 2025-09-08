@@ -189,6 +189,7 @@ function App() {
           <FlowPanel
             nodes={storyData.nodes}
             onNodeClick={(event, node) => setSelectedNodeId(node.id)}
+            selectedNodeId={selectedNodeId}
           />
           <NodeEditorPanel
             key={selectedNodeId}

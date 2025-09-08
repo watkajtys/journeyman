@@ -39,8 +39,8 @@ export default {
       }
     }
 
-    // For any other route, wrangler will automatically try to serve a static asset
-    // from the './public' directory. This is a fallback for unhandled API routes.
+    // For any other route, return a 404 response
+    // The assets will be served automatically by the assets configuration
     return new Response('Not Found', { status: 404 });
   },
 };
