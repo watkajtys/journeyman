@@ -7,6 +7,19 @@ const API_KEY = 'AIzaSyC7puMSiLTOJJAY5Uf90L6MwtwJQwj44dg';
 const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent';
 
 
+/**
+ * A panel for editing the properties of a selected node.
+ * It includes fields for the node's text, image prompt, choices, and an image generation feature.
+ * @param {object} props - The component props.
+ * @param {object} props.storyData - The main story data object.
+ * @param {object} props.selectedNode - The currently selected node to be edited.
+ * @param {function} props.onNodeChange - Function to handle changes to the node's properties.
+ * @param {function} props.onChoiceChange - Function to handle changes to a choice.
+ * @param {function} props.onAddChoice - Function to add a new choice to the node.
+ * @param {function} props.onDeleteChoice - Function to delete a choice from the node.
+ * @param {function} props.onDeleteNode - Function to delete the entire node.
+ * @returns {JSX.Element} The rendered NodeEditorPanel component.
+ */
 export default function NodeEditorPanel({
   storyData,
   selectedNode,
