@@ -1,3 +1,10 @@
+/**
+ * Converts story data into a format compatible with ReactFlow.
+ * It creates a graph of nodes and edges from the story's structure.
+ *
+ * @param {object} storyNodes - An object containing all the nodes of the story.
+ * @returns {{initialNodes: Array<object>, initialEdges: Array<object>}} An object containing arrays of nodes and edges for ReactFlow.
+ */
 export const convertStoryToFlow = (storyNodes) => {
   const initialNodes = [];
   const initialEdges = [];

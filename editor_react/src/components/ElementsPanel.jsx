@@ -1,5 +1,19 @@
 import { useState } from 'react';
 
+/**
+ * A reusable accordion item component.
+ * It displays a category title and a collapsible content area with elements.
+ * @param {object} props - The component props.
+ * @param {string} props.categoryKey - The key for the category (e.g., 'style_guides').
+ * @param {string} props.title - The display title for the accordion item.
+ * @param {object} props.elements - The elements to display within the accordion.
+ * @param {boolean} props.isOpen - Whether the accordion item is currently open.
+ * @param {function} props.onToggle - The function to call when the item is toggled.
+ * @param {function} props.onElementChange - The function to call when an element's value changes.
+ * @param {function} props.onAddElement - The function to call to add a new element.
+ * @param {function} props.onDeleteElement - The function to call to delete an element.
+ * @returns {JSX.Element} The rendered AccordionItem component.
+ */
 function AccordionItem({
   categoryKey,
   title,
@@ -38,7 +52,16 @@ function AccordionItem({
   );
 }
 
-
+/**
+ * A panel that displays the consistent elements of the story (Style Guides, Characters, Locations).
+ * It uses an accordion interface to organize the different categories of elements.
+ * @param {object} props - The component props.
+ * @param {object} props.storyData - The main story data object.
+ * @param {function} props.onElementChange - The function to call when an element's value changes.
+ * @param {function} props.onAddElement - The function to call to add a new element.
+ * @param {function} props.onDeleteElement - The function to call to delete an element.
+ * @returns {JSX.Element} The rendered ElementsPanel component.
+ */
 export default function ElementsPanel({
   storyData,
   onElementChange,

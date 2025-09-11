@@ -5,6 +5,12 @@ import NodeEditorPanel from './components/NodeEditorPanel';
 import ElementsPanel from './components/ElementsPanel';
 import './App.css';
 
+/**
+ * The main application component.
+ * It manages the entire state of the story editor, including fetching data,
+ * handling user interactions, and rendering the main layout with all its panels.
+ * @returns {JSX.Element} The rendered App component.
+ */
 function App() {
   const [storyData, setStoryData] = useState(null);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
@@ -42,6 +48,12 @@ function App() {
 
   // --- State Update Handlers ---
 
+  /**
+   * Updates a specific field of a node.
+   * @param {string} nodeId - The ID of the node to update.
+   * @param {string} field - The name of the field to update.
+   * @param {*} value - The new value for the field.
+   */
   const handleNodeChange = useCallback((nodeId, field, value) => {
     setStoryData(currentData => {
       const newNode = { ...currentData.nodes[nodeId], [field]: value };
@@ -50,6 +62,13 @@ function App() {
     });
   }, []);
 
+  /**
+   * Updates a specific field of a choice within a node.
+   * @param {string} nodeId - The ID of the node containing the choice.
+   * @param {number} choiceIndex - The index of the choice to update.
+   * @param {string} field - The name of the field to update.
+   * @param {*} value - The new value for the field.
+   */
   const handleChoiceChange = useCallback((nodeId, choiceIndex, field, value) => {
     setStoryData(currentData => {
       const newChoices = [...currentData.nodes[nodeId].choices];
@@ -60,6 +79,10 @@ function App() {
     });
   }, []);
 
+  /**
+   * Adds a new choice to a node.
+   * @param {string} nodeId - The ID of the node to add a choice to.
+   */
   const handleAddChoice = useCallback((nodeId) => {
     setStoryData(currentData => {
       const currentChoices = currentData.nodes[nodeId].choices || [];
@@ -70,6 +93,11 @@ function App() {
     });
   }, []);
 
+  /**
+   * Deletes a choice from a node.
+   * @param {string} nodeId - The ID of the node containing the choice.
+   * @param {number} choiceIndex - The index of the choice to delete.
+   */
   const handleDeleteChoice = useCallback((nodeId, choiceIndex) => {
     setStoryData(currentData => {
       const newChoices = [...currentData.nodes[nodeId].choices];
@@ -80,6 +108,9 @@ function App() {
     });
   }, []);
 
+  /**
+   * Adds a new node to the story.
+   */
   const handleAddNode = useCallback(() => {
     const newNodeId = prompt("Enter a unique ID for the new node:");
     if (!newNodeId) return;
@@ -97,6 +128,10 @@ function App() {
     setSelectedNodeId(newNodeId);
   }, [storyData]);
 
+  /**
+   * Deletes a node from the story and removes any choices pointing to it.
+   * @param {string} nodeId - The ID of the node to delete.
+   */
   const handleDeleteNode = useCallback((nodeId) => {
     if (!nodeId || !confirm(`Are you sure you want to delete node "${nodeId}"? This cannot be undone.`)) {
       return;
@@ -104,6 +139,7 @@ function App() {
     setStoryData(currentData => {
       const newNodes = { ...currentData.nodes };
       delete newNodes[nodeId];
+      // Also remove choices pointing to the deleted node
       Object.values(newNodes).forEach(node => {
         if (node.choices) {
           node.choices = node.choices.filter(c => c.target_id !== nodeId);
@@ -114,9 +150,16 @@ function App() {
     setSelectedNodeId(null);
   }, []);
 
+  /**
+   * Updates the value of a consistent element (style guide, character, or location).
+   * @param {string} category - The category of the element (e.g., 'style_guides').
+   * @param {string} elementId - The ID of the element to update.
+   * @param {string} value - The new description or value for the element.
+   */
   const handleElementChange = useCallback((category, elementId, value) => {
     setStoryData(currentData => {
       const newCategory = { ...currentData[category] };
+      // Handle both simple string values and object values with a description
       if (typeof newCategory[elementId] === 'object') {
         newCategory[elementId] = { ...newCategory[elementId], description: value };
       } else {
@@ -126,6 +169,10 @@ function App() {
     });
   }, []);
 
+  /**
+   * Adds a new consistent element to a category.
+   * @param {string} category - The category to add the element to (e.g., 'characters').
+   */
   const handleAddElement = useCallback((category) => {
     const elementId = prompt(`Enter new ID for ${category.replace('_', ' ')}:`);
     if (!elementId || storyData[category]?.[elementId]) {
@@ -139,6 +186,11 @@ function App() {
     });
   }, [storyData]);
 
+  /**
+   * Deletes a consistent element from a category.
+   * @param {string} category - The category of the element.
+   * @param {string} elementId - The ID of the element to delete.
+   */
   const handleDeleteElement = useCallback((category, elementId) => {
     if (!confirm(`Are you sure you want to delete ${elementId} from ${category}?`)) return;
     setStoryData(currentData => {
@@ -148,6 +200,9 @@ function App() {
     });
   }, []);
 
+  /**
+   * Saves the current story data to the cloud via an API call.
+   */
   const handleSave = async () => {
     try {
       const response = await fetch('/api/save', {

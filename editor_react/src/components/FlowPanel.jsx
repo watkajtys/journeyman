@@ -8,6 +8,14 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { convertStoryToFlow } from '../utils/story-converter';
 
+/**
+ * A panel that displays the story graph using ReactFlow.
+ * It converts the story data into nodes and edges and renders them in a flow chart.
+ * @param {object} props - The component props.
+ * @param {object} props.nodes - The story nodes from the main story data.
+ * @param {function} props.onNodeClick - The function to call when a node is clicked.
+ * @returns {JSX.Element} The rendered FlowPanel component.
+ */
 export default function FlowPanel({ nodes: storyNodes, onNodeClick }) {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
