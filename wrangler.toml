@@ -10,7 +10,7 @@ preview_bucket_name = "generative-adventure-storage-preview"
 
 [[kv_namespaces]]
 binding = "ADMIN_SESSIONS"
-id = "your-kv-namespace-id" # You need to create this in your Cloudflare dashboard and paste the ID here
+id = "0f9cde57eb4344d499f226bb8996c9a4"
 
 
 [vars]

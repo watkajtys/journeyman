@@ -164,16 +164,7 @@ export default {
               temperature: 0.9,
               topK: 32,
               topP: 1,
-              maxOutputTokens: 8192,
-              responseMimeType: "application/json",
-              responseSchema: {
-                type: "object",
-                properties: {
-                  image: {
-                    type: "string"
-                  }
-                }
-              }
+              maxOutputTokens: 8192
             }
           })
         });
