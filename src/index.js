@@ -145,7 +145,7 @@ export default {
         const { prompt, contextImage } = requestData;
 
         // Build the API request to Gemini
-        const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
+        const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent';
         
         const parts = [{
           text: prompt
@@ -307,6 +307,44 @@ export default {
       }
     }
     
+    // Handle image retrieval
+    if (url.pathname.startsWith('/api/images/') && request.method === 'DELETE') {
+      try {
+        // Check for admin authorization
+        const token = request.headers.get('X-Admin-Token') || request.headers.get('X-Admin-Key');
+        if (!verifyAdminToken(token)) {
+          return new Response('Unauthorized', { 
+            status: 403,
+            headers: { 'Access-Control-Allow-Origin': '*' }
+          });
+        }
+        
+        const nodeId = decodeURIComponent(url.pathname.split('/').pop());
+        const imagePath = `images/${encodeURIComponent(nodeId)}.png`;
+        await env.STORY_STORAGE.delete(imagePath);
+        
+        return new Response(JSON.stringify({ success: true, path: imagePath }), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      } catch (err) {
+        console.error('Image delete error:', err);
+        return new Response(JSON.stringify({ 
+          error: 'Delete failed', 
+          message: err.message 
+        }), { 
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      }
+    }
+
     // Handle image retrieval
     if (url.pathname.startsWith('/api/images/') && request.method === 'GET') {
       try {

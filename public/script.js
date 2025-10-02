@@ -644,12 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
             promptParts.push(styleGuide);
         }
 
-        // Inject aspect ratio for mobile
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('portrait') === 'true') {
-            promptParts.push("Use a portrait aspect ratio (9:16) for the image.");
-        }
-
+        promptParts.push("Use a landscape aspect ratio (16:9) for the image.");
         // Add character descriptions
         if (node.characters_present && storyData.characters) {
             const characterDescriptions = node.characters_present.map(charId => {

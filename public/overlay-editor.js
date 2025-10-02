@@ -113,6 +113,12 @@ class OverlayEditor {
               <p>No image generated yet</p>
             </div>
           </div>
+          <div class="current-image-container" id="current-image-container-mobile">
+            <div class="no-image-placeholder">
+              <i>📱</i>
+              <p>No mobile image generated yet</p>
+            </div>
+          </div>
           
           <!-- Loading Spinner -->
           <div class="generating-spinner" id="generating-spinner">
@@ -144,6 +150,17 @@ class OverlayEditor {
           ></textarea>
         </div>
         
+        <!-- Aspect Ratio -->
+        <div class="aspect-ratio-section">
+          <h3>Aspect Ratio</h3>
+          <select id="editor-aspect-ratio" class="dropdown">
+            <option value="9:16">Portrait (9:16)</option>
+            <option value="16:9">Landscape (16:9)</option>
+            <option value="1:1">Square (1:1)</option>
+            <option value="4:3">Standard (4:3)</option>
+          </select>
+        </div>
+        
         <!-- Action Buttons -->
         <div class="action-buttons">
           <button class="btn-generate" id="btn-generate">
@@ -160,6 +177,12 @@ class OverlayEditor {
           </button>
           <button class="btn-clear" id="btn-clear">
             Clear Image
+          </button>
+          <button class="btn-generate-mobile" id="btn-generate-mobile" title="Generate a 9:16 mobile version of the current image">
+            Generate Mobile
+          </button>
+          <button class="btn-clear-mobile" id="btn-clear-mobile" title="Clear the 9:16 mobile version of the image">
+            Clear Mobile Image
           </button>
         </div>
         
@@ -206,6 +229,14 @@ class OverlayEditor {
     // Clear button
     document.getElementById('btn-clear').addEventListener('click', () => {
       this.clearImage();
+    });
+    
+    document.getElementById('btn-generate-mobile').addEventListener('click', () => {
+      this.generateImage('mobile');
+    });
+
+    document.getElementById('btn-clear-mobile').addEventListener('click', () => {
+      this.clearMobileImage();
     });
     
     // Save prompt changes
@@ -394,6 +425,7 @@ class OverlayEditor {
   
   async updateImageDisplay() {
     const container = document.getElementById('current-image-container');
+    const mobileContainer = document.getElementById('current-image-container-mobile');
     const node = window.storyData.nodes[this.currentNode];
     
     // Standardized retrieval: Cache → R2 → Base64 → None
@@ -448,6 +480,18 @@ class OverlayEditor {
         <div class="no-image-placeholder">
           <i>🖼️</i>
           <p>No image generated yet</p>
+        </div>
+      `;
+    }
+
+    const mobileImage = node?.pre_rendered_image_mobile || node?.image_url_mobile;
+    if (mobileImage) {
+      mobileContainer.innerHTML = `<img src="${mobileImage}" alt="Mobile scene image" onload="console.log('Mobile image loaded successfully')">`;
+    } else {
+      mobileContainer.innerHTML = `
+        <div class="no-image-placeholder">
+          <i>📱</i>
+          <p>No mobile image generated yet</p>
         </div>
       `;
     }
@@ -558,9 +602,9 @@ class OverlayEditor {
       }
       
       // Inject aspect ratio for mobile (same as main game)
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('portrait') === 'true') {
-        promptParts.push("Use a portrait aspect ratio (9:16) for the image.");
+      const selectedAspectRatio = document.getElementById('editor-aspect-ratio').value;
+      if (selectedAspectRatio) {
+        promptParts.push(`Use an aspect ratio of ${selectedAspectRatio} for the image.`);
       }
       
       // Add character descriptions (same as main game)
@@ -719,6 +763,16 @@ class OverlayEditor {
           this.setGeneratingState(false);
           return;
         }
+      } else if (mode === 'mobile') {
+        let currentImage = window.imageCache?.[this.currentNode] || node.pre_rendered_image;
+        if (currentImage && currentImage.startsWith('data:image')) {
+          const base64Data = currentImage.split(',')[1];
+          if (base64Data) {
+            parts.unshift({ inlineData: { mimeType: 'image/png', data: base64Data } });
+            parts.unshift({ text: "Use the previous image as a strong reference for the environment, characters, and art style. Then, create a new image that follows the new prompt:" });
+            promptParts.push("Use a portrait aspect ratio (9:16) for the image.");
+          }
+        }
       } else if (mode === 'retry') {
         // Use previous node's image as context (like normal game flow)
         const previousNodeId = this.findPreviousNode();
@@ -834,26 +888,24 @@ class OverlayEditor {
       // Sanitize node ID for use in URLs
       const sanitizedNodeId = encodeURIComponent(this.currentNode);
       
-      // Upload image to R2 with unified error handling
-      const imageUploaded = await this.uploadImageToR2(sanitizedNodeId, base64ImageData);
-      
-      // Update cache with base64 data for immediate display
-      if (!window.imageCache) {
-        window.imageCache = {};
-      }
-      window.imageCache[this.currentNode] = imageData; // Store base64 in cache
-      
-      if (imageUploaded) {
-        // Store the R2 URL in the story and remove base64
-        const imageUrl = `/api/images/${sanitizedNodeId}`;
-        node.image_url = imageUrl;
-        delete node.pre_rendered_image; // Remove old base64 to prevent confusion
-        console.log(`Successfully stored image as R2 URL for node: ${this.currentNode}`);
+      if (mode === 'mobile') {
+        const imageUploaded = await this.uploadImageToR2(sanitizedNodeId, base64ImageData, '-mobile');
+        if (imageUploaded) {
+          node.image_url_mobile = `/api/images/${sanitizedNodeId}-mobile`;
+          delete node.pre_rendered_image_mobile;
+        } else {
+          node.pre_rendered_image_mobile = imageData;
+        }
       } else {
-        // Upload failed - fallback to base64 storage
-        console.warn(`R2 upload failed for node: ${this.currentNode}, using base64 fallback`);
-        node.pre_rendered_image = imageData; // Store the full data URL
-        delete node.image_url; // Remove URL to prevent confusion
+        const imageUploaded = await this.uploadImageToR2(sanitizedNodeId, base64ImageData);
+        if (imageUploaded) {
+          const imageUrl = `/api/images/${sanitizedNodeId}`;
+          node.image_url = imageUrl;
+          delete node.pre_rendered_image;
+        } else {
+          node.pre_rendered_image = imageData;
+          delete node.image_url;
+        }
       }
       
       // Always save the story data
@@ -910,14 +962,21 @@ class OverlayEditor {
     }
   }
   
-  clearImage() {
+  async clearImage() {
     if (!this.currentNode || !confirm('Are you sure you want to clear this image?')) {
       return;
     }
     
     const node = window.storyData.nodes[this.currentNode];
     if (node) {
-      // Clear both storage methods
+      const sanitizedNodeId = encodeURIComponent(this.currentNode);
+      if (node.image_url) {
+        try {
+          await fetch(`/api/images/${sanitizedNodeId}`, { method: 'DELETE' });
+        } catch (err) {
+          console.error('Failed to delete R2 image:', err);
+        }
+      }
       delete node.pre_rendered_image;
       delete node.image_url;
       console.log(`Cleared image data for node: ${this.currentNode}`);
@@ -942,6 +1001,33 @@ class OverlayEditor {
     this.saveToCloud().catch(err => {
       console.error('Failed to save after clearing image:', err);
       alert('Warning: Image cleared but save failed. Changes may not persist.');
+    });
+  }
+
+  async clearMobileImage() {
+    if (!this.currentNode || !confirm('Are you sure you want to clear the mobile image?')) {
+      return;
+    }
+    
+    const node = window.storyData.nodes[this.currentNode];
+    if (node) {
+      const sanitizedNodeId = encodeURIComponent(this.currentNode);
+      if (node.image_url_mobile) {
+        try {
+          await fetch(`/api/images/${sanitizedNodeId}-mobile`, { method: 'DELETE' });
+        } catch (err) {
+          console.error('Failed to delete mobile R2 image:', err);
+        }
+      }
+      delete node.pre_rendered_image_mobile;
+      delete node.image_url_mobile;
+      console.log(`Cleared mobile image data for node: ${this.currentNode}`);
+    }
+    
+    this.updateImageDisplay();
+    this.saveToCloud().catch(err => {
+      console.error('Failed to save after clearing mobile image:', err);
+      alert('Warning: Mobile image cleared but save failed. Changes may not persist.');
     });
   }
   
@@ -1335,7 +1421,7 @@ class OverlayEditor {
     }
   }
   
-  async uploadImageToR2(nodeId, base64Data) {
+  async uploadImageToR2(nodeId, base64Data, suffix = '') {
     try {
       // Comprehensive validation
       if (!nodeId || typeof nodeId !== 'string') {
@@ -1382,7 +1468,7 @@ class OverlayEditor {
         try {
           console.log(`Upload attempt ${attempt}/2 for node: ${nodeId}`);
           
-          const response = await fetch(`/api/images/${nodeId}`, {
+      const response = await fetch(`/api/images/${nodeId}${suffix}`, {
             method: 'PUT',
             body: blob,
             headers: {
