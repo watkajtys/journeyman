@@ -7,48 +7,15 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-// Hardcoded test nodes for debugging
-const TEST_NODES = [
-  {
-    id: 'node-1',
-    type: 'default',
-    position: { x: 100, y: 100 },
-    data: { label: 'Test Node 1' },
-    style: {
-      backgroundColor: '#4ade80',
-      width: 150,
-      height: 50,
-      fontSize: '12px',
-      border: '2px solid #000',
-    }
-  },
-  {
-    id: 'node-2', 
-    type: 'default',
-    position: { x: 300, y: 100 },
-    data: { label: 'Test Node 2' },
-    style: {
-      backgroundColor: '#60a5fa',
-      width: 150,
-      height: 50,
-      fontSize: '12px',
-      border: '2px solid #000',
-    }
-  },
-  {
-    id: 'node-3',
-    type: 'default',
-    position: { x: 500, y: 100 },
-    data: { label: 'Test Node 3' },
-    style: {
-      backgroundColor: '#f87171',
-      width: 150,
-      height: 50,
-      fontSize: '12px',
-      border: '2px solid #000',
-    }
-  }
-];
+/**
+ * A panel that displays the story graph using ReactFlow.
+ * It converts the story data into nodes and edges and renders them in a flow chart.
+ * @param {object} props - The component props.
+ * @param {object} props.nodes - The story nodes from the main story data.
+ * @param {function} props.onNodeClick - The function to call when a node is clicked.
+ * @returns {JSX.Element} The rendered FlowPanel component.
+ */
+
 
 const TEST_EDGES = [
   {

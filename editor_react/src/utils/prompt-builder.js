@@ -1,3 +1,12 @@
+/**
+ * Constructs a detailed prompt for the image generation API.
+ * It combines the style guide, character descriptions, and the node's specific image prompt,
+ * resolving any template variables found in the prompt text.
+ *
+ * @param {object} node - The story node for which to generate the prompt.
+ * @param {object} storyData - The main story data object, containing style guides, characters, etc.
+ * @returns {string} The final, combined prompt string.
+ */
 export function constructFinalPrompt(node, storyData) {
     if (!node || !storyData) return "";
 

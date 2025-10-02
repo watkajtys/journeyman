@@ -8,7 +8,20 @@ function generateToken() {
 // Store active admin sessions (in production, use KV or Durable Objects)
 const adminSessions = new Map();
 
+/**
+ * Default export for the Cloudflare Worker.
+ * This worker handles API requests for loading and saving story data.
+ */
 export default {
+  /**
+   * Handles incoming requests to the Cloudflare Worker.
+   * It routes requests to either load or save story data based on the URL path and HTTP method.
+   *
+   * @param {Request} request - The incoming HTTP request.
+   * @param {object} env - The environment variables, including the STORY_STORAGE KV namespace.
+   * @param {object} ctx - The execution context of the request.
+   * @returns {Response} The response to the request.
+   */
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     
