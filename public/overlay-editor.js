@@ -972,9 +972,13 @@ class OverlayEditor {
       const sanitizedNodeId = encodeURIComponent(this.currentNode);
       if (node.image_url) {
         try {
-          await fetch(`/api/images/${sanitizedNodeId}`, { method: 'DELETE' });
+          const response = await fetch(`/api/images/${sanitizedNodeId}`, { method: 'DELETE' });
+          if (!response.ok) {
+            throw new Error('Failed to delete R2 image');
+          }
         } catch (err) {
           console.error('Failed to delete R2 image:', err);
+          alert('Failed to delete image from cloud storage. Please try again.');
         }
       }
       delete node.pre_rendered_image;
@@ -1014,9 +1018,13 @@ class OverlayEditor {
       const sanitizedNodeId = encodeURIComponent(this.currentNode);
       if (node.image_url_mobile) {
         try {
-          await fetch(`/api/images/${sanitizedNodeId}-mobile`, { method: 'DELETE' });
+          const response = await fetch(`/api/images/${sanitizedNodeId}-mobile`, { method: 'DELETE' });
+          if (!response.ok) {
+            throw new Error('Failed to delete mobile R2 image');
+          }
         } catch (err) {
           console.error('Failed to delete mobile R2 image:', err);
+          alert('Failed to delete mobile image from cloud storage. Please try again.');
         }
       }
       delete node.pre_rendered_image_mobile;

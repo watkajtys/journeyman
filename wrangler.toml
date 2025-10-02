@@ -8,6 +8,11 @@ binding = "STORY_STORAGE"
 bucket_name = "generative-adventure-storage"
 preview_bucket_name = "generative-adventure-storage-preview"
 
+[[kv_namespaces]]
+binding = "ADMIN_SESSIONS"
+id = "your-kv-namespace-id" # You need to create this in your Cloudflare dashboard and paste the ID here
+
+
 [vars]
 # Environment variables (non-sensitive)
 # For the Gemini API key, use: wrangler secret put GEMINI_API_KEY

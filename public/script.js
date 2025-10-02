@@ -385,119 +385,119 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // --- End ---
 
-        if (!imageSrc) {
-            // Skip generation if overlay editor is open
-            if (window.overlayEditorOpen) {
-                console.log('Skipping image generation - overlay editor is open');
-                await updateImage(null);
-                return imageSrc;
-            }
+        // if (!imageSrc) {
+        //     // Skip generation if overlay editor is open
+        //     if (window.overlayEditorOpen) {
+        //         console.log('Skipping image generation - overlay editor is open');
+        //         await updateImage(null);
+        //         return imageSrc;
+        //     }
             
-            generationController = new AbortController();
-            window.generationController = generationController; // Update window reference
-            isGenerating = true;
-            showLoading(true);
-            try {
-                // Determine the correct context image (location master or last image)
-                let contextImageB64 = lastImageB64;
-                if (node.location && locationImageCache[node.location]) {
-                    contextImageB64 = locationImageCache[node.location];
-                }
+        //     generationController = new AbortController();
+        //     window.generationController = generationController; // Update window reference
+        //     isGenerating = true;
+        //     showLoading(true);
+        //     try {
+        //         // Determine the correct context image (location master or last image)
+        //         let contextImageB64 = lastImageB64;
+        //         if (node.location && locationImageCache[node.location]) {
+        //             contextImageB64 = locationImageCache[node.location];
+        //         }
 
-                const { imageData } = await getGeneratedImage(node, generationController.signal, contextImageB64);
-                lastImageB64 = imageData; // Always update the last generated image
-                imageSrc = `data:image/png;base64,${imageData}`;
-                imageCache[node.id] = imageSrc; // Setter automatically updates window reference
+        //         const { imageData } = await getGeneratedImage(node, generationController.signal, contextImageB64);
+        //         lastImageB64 = imageData; // Always update the last generated image
+        //         imageSrc = `data:image/png;base64,${imageData}`;
+        //         imageCache[node.id] = imageSrc; // Setter automatically updates window reference
 
-                // Upload image to R2 storage with improved error handling
-                let uploadSuccess = false;
-                try {
-                    const base64Data = imageData; // Already pure base64 without prefix
-                    const binaryData = atob(base64Data);
-                    const bytes = new Uint8Array(binaryData.length);
-                    for (let i = 0; i < binaryData.length; i++) {
-                        bytes[i] = binaryData.charCodeAt(i);
-                    }
-                    const blob = new Blob([bytes], { type: 'image/png' });
+        //         // Upload image to R2 storage with improved error handling
+        //         let uploadSuccess = false;
+        //         try {
+        //             const base64Data = imageData; // Already pure base64 without prefix
+        //             const binaryData = atob(base64Data);
+        //             const bytes = new Uint8Array(binaryData.length);
+        //             for (let i = 0; i < binaryData.length; i++) {
+        //                 bytes[i] = binaryData.charCodeAt(i);
+        //             }
+        //             const blob = new Blob([bytes], { type: 'image/png' });
                     
-                    // Validate blob size
-                    if (blob.size > 10 * 1024 * 1024) {
-                        throw new Error('Image too large (max 10MB)');
-                    }
+        //             // Validate blob size
+        //             if (blob.size > 10 * 1024 * 1024) {
+        //                 throw new Error('Image too large (max 10MB)');
+        //             }
                     
-                    console.log(`Uploading ${(blob.size / 1024).toFixed(2)}KB image for node: ${node.id}`);
+        //             console.log(`Uploading ${(blob.size / 1024).toFixed(2)}KB image for node: ${node.id}`);
                     
-                    const uploadResponse = await fetch(`/api/images/${encodeURIComponent(node.id)}`, {
-                        method: 'PUT',
-                        body: blob,
-                        headers: {
-                            'Content-Type': 'image/png'
-                        }
-                    });
+        //             const uploadResponse = await fetch(`/api/images/${encodeURIComponent(node.id)}`, {
+        //                 method: 'PUT',
+        //                 body: blob,
+        //                 headers: {
+        //                     'Content-Type': 'image/png'
+        //                 }
+        //             });
                     
-                    if (uploadResponse.ok) {
-                        const result = await uploadResponse.json();
-                        console.log(`Image uploaded to R2: ${result.path}`);
-                        // Update node with image URL and remove base64
-                        node.image_url = `/api/images/${encodeURIComponent(node.id)}`;
-                        delete node.pre_rendered_image; // Remove old base64 to prevent confusion
-                        uploadSuccess = true;
-                    } else {
-                        const errorText = await uploadResponse.text();
-                        console.error(`Failed to upload image to R2 (${uploadResponse.status}):`, errorText);
-                    }
-                } catch (uploadError) {
-                    console.error('Error uploading image to R2:', uploadError);
-                }
+        //             if (uploadResponse.ok) {
+        //                 const result = await uploadResponse.json();
+        //                 console.log(`Image uploaded to R2: ${result.path}`);
+        //                 // Update node with image URL and remove base64
+        //                 node.image_url = `/api/images/${encodeURIComponent(node.id)}`;
+        //                 delete node.pre_rendered_image; // Remove old base64 to prevent confusion
+        //                 uploadSuccess = true;
+        //             } else {
+        //                 const errorText = await uploadResponse.text();
+        //                 console.error(`Failed to upload image to R2 (${uploadResponse.status}):`, errorText);
+        //             }
+        //         } catch (uploadError) {
+        //             console.error('Error uploading image to R2:', uploadError);
+        //         }
                 
-                // If upload failed, fall back to base64 storage
-                if (!uploadSuccess) {
-                    console.warn('Falling back to base64 storage for node:', node.id);
-                    node.pre_rendered_image = imageSrc; // Store the full data URL
-                    delete node.image_url; // Remove URL to prevent confusion
-                }
+        //         // If upload failed, fall back to base64 storage
+        //         if (!uploadSuccess) {
+        //             console.warn('Falling back to base64 storage for node:', node.id);
+        //             node.pre_rendered_image = imageSrc; // Store the full data URL
+        //             delete node.image_url; // Remove URL to prevent confusion
+        //         }
                 
-                // Always save the story data after image handling
-                try {
-                    const saveSuccess = await saveToCloud();
-                    if (!saveSuccess) {
-                        console.error('Failed to save story data after image generation');
-                    }
-                } catch (saveError) {
-                    console.error('Error saving story data:', saveError);
-                }
+        //         // Always save the story data after image handling
+        //         try {
+        //             const saveSuccess = await saveToCloud();
+        //             if (!saveSuccess) {
+        //                 console.error('Failed to save story data after image generation');
+        //             }
+        //         } catch (saveError) {
+        //             console.error('Error saving story data:', saveError);
+        //         }
 
-                // If this is the first time visiting a location, cache its image
-                if (node.location && !locationImageCache[node.location]) {
-                    locationImageCache[node.location] = imageData;
-                }
+        //         // If this is the first time visiting a location, cache its image
+        //         if (node.location && !locationImageCache[node.location]) {
+        //             locationImageCache[node.location] = imageData;
+        //         }
 
-            } catch (error) {
-                if (error.name === 'AbortError') {
-                    console.log('Image generation stopped.');
-                } else {
-                    console.error("Error generating image:", error);
+        //     } catch (error) {
+        //         if (error.name === 'AbortError') {
+        //             console.log('Image generation stopped.');
+        //         } else {
+        //             console.error("Error generating image:", error);
                     
-                    // Check if this is the "end of narrative" message
-                    if (error.message && error.message.includes('currently rendered narrative')) {
-                        // Show a special end-of-content message with placeholder image
-                        await showEndOfNarrativeMessage();
-                        // Disable further navigation
-                        const choicesContainer = document.getElementById('choices-container');
-                        if (choicesContainer) {
-                            choicesContainer.innerHTML = '<p style="color: #8a2be2; font-style: italic; text-align: center; margin-top: 20px;">You\'ve reached the end of the available content.</p>';
-                        }
-                        return; // Stop execution here
-                    } else {
-                        // Fallback: proceed without an image, narrative will still be shown.
-                        await updateImage(null);
-                    }
-                }
-            } finally {
-                showLoading(false);
-                isGenerating = false;
-            }
-        }
+        //             // Check if this is the "end of narrative" message
+        //             if (error.message && error.message.includes('currently rendered narrative')) {
+        //                 // Show a special end-of-content message with placeholder image
+        //                 await showEndOfNarrativeMessage();
+        //                 // Disable further navigation
+        //                 const choicesContainer = document.getElementById('choices-container');
+        //                 if (choicesContainer) {
+        //                     choicesContainer.innerHTML = '<p style="color: #8a2be2; font-style: italic; text-align: center; margin-top: 20px;">You\'ve reached the end of the available content.</p>';
+        //                 }
+        //                 return; // Stop execution here
+        //             } else {
+        //                 // Fallback: proceed without an image, narrative will still be shown.
+        //                 await updateImage(null);
+        //             }
+        //         }
+        //     } finally {
+        //         showLoading(false);
+        //         isGenerating = false;
+        //     }
+        // }
 
         await updateImage(imageSrc);
     }

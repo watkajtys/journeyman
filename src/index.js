@@ -5,8 +5,7 @@ function generateToken() {
   return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-// Store active admin sessions (in production, use KV or Durable Objects)
-const adminSessions = new Map();
+
 
 /**
  * Default export for the Cloudflare Worker.
@@ -26,14 +25,14 @@ export default {
     const url = new URL(request.url);
     
     // Verify admin token helper
-    const verifyAdminToken = (token) => {
+    const verifyAdminToken = async (token) => {
       if (!token) return false;
       // Also check against env secret for backwards compatibility
       if (token === env.ADMIN_KEY) return true;
-      const session = adminSessions.get(token);
+      const session = await env.ADMIN_SESSIONS.get(token, { type: "json" });
       if (!session) return false;
       if (session.expiresAt < Date.now()) {
-        adminSessions.delete(token);
+        await env.ADMIN_SESSIONS.delete(token);
         return false;
       }
       return true;
@@ -49,15 +48,8 @@ export default {
           const token = generateToken();
           const expiresAt = Date.now() + (2 * 60 * 60 * 1000); // 2 hours
           
-          // Store session
-          adminSessions.set(token, { expiresAt });
-          
-          // Clean up expired sessions
-          for (const [key, value] of adminSessions.entries()) {
-            if (value.expiresAt < Date.now()) {
-              adminSessions.delete(key);
-            }
-          }
+          // Store session in KV
+          await env.ADMIN_SESSIONS.put(token, JSON.stringify({ expiresAt }));
           
           return new Response(JSON.stringify({ 
             success: true, 
@@ -103,7 +95,7 @@ export default {
                     url.searchParams.get('phoenixadmin'); // Legacy support
       
       // Check token or legacy access code
-      const isValid = verifyAdminToken(token) || 
+      const isValid = await verifyAdminToken(token) || 
                       (url.searchParams.get('phoenixadmin') === env.ADMIN_ACCESS_CODE);
       
       if (!isValid) {
@@ -115,21 +107,20 @@ export default {
     // Handle image generation requests (admin only)
     if (url.pathname === '/api/generate-image' && request.method === 'POST') {
       try {
-        // Check for admin authorization using secure token
-        const token = request.headers.get('X-Admin-Token') || request.headers.get('X-Admin-Key');
-        if (!verifyAdminToken(token)) {
-          return new Response(JSON.stringify({ 
-            error: 'Image generation not available',
-            message: 'This is the end of the currently rendered narrative. More content coming soon!'
-          }), { 
-            status: 403,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*'
-            }
-          });
-        }
-
+                // Check for admin authorization using secure token
+                const token = request.headers.get('X-Admin-Token') || request.headers.get('X-Admin-Key');
+                if (!await verifyAdminToken(token)) {
+                  return new Response(JSON.stringify({
+                    error: 'Image generation not available',
+                    message: 'This is the end of the currently rendered narrative. More content coming soon!'
+                  }), {
+                    status: 403,
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Access-Control-Allow-Origin': '*'
+                    }
+                  });
+                }
         // Admin is authorized, proceed with generation
         if (!env.GEMINI_API_KEY) {
           return new Response(JSON.stringify({ error: 'API key not configured' }), { 
@@ -256,7 +247,7 @@ export default {
       try {
         // Check for admin authorization
         const token = request.headers.get('X-Admin-Token') || request.headers.get('X-Admin-Key');
-        if (!verifyAdminToken(token)) {
+        if (!await verifyAdminToken(token)) {
           return new Response('Unauthorized', { 
             status: 403,
             headers: { 'Access-Control-Allow-Origin': '*' }
@@ -312,7 +303,7 @@ export default {
       try {
         // Check for admin authorization
         const token = request.headers.get('X-Admin-Token') || request.headers.get('X-Admin-Key');
-        if (!verifyAdminToken(token)) {
+        if (!await verifyAdminToken(token)) {
           return new Response('Unauthorized', { 
             status: 403,
             headers: { 'Access-Control-Allow-Origin': '*' }
@@ -382,7 +373,7 @@ export default {
       try {
         // Check for admin authorization using secure token
         const token = request.headers.get('X-Admin-Token') || request.headers.get('X-Admin-Key');
-        if (!verifyAdminToken(token)) {
+        if (!await verifyAdminToken(token)) {
           return new Response('Unauthorized', { 
             status: 403,
             headers: {
