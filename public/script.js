@@ -9,9 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingSpinnerElement = document.getElementById('loading-spinner');
     const stopButtonElement = document.getElementById('stop-button');
 
-    // --- Gemini API Configuration ---
-    const API_KEY = 'AIzaSyBNRc6wowYEBTxxu-44AP6AkrYScl0Yafk';
-    const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent';
+    // --- API Configuration ---
+    // API key is now securely stored server-side
+    const API_URL = '/api/generate-image';
+    const getAdminToken = () => sessionStorage.getItem('adminToken');
 
     // --- Game State ---
     let storyData = {};
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isDisplayingText = false;
     let navigationHistory = [];
     let historyIndex = -1;
+    let visitedNodes = []; // Track nodes visited in order
     
     // Create getter functions so overlay editor always gets current values
     Object.defineProperty(window, 'storyData', {
@@ -38,6 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
         get: function() { return imageCache; },
         set: function(value) { imageCache = value; }
     });
+    Object.defineProperty(window, 'visitedNodes', {
+        get: function() { return visitedNodes; },
+        set: function(value) { visitedNodes = value; }
+    });
     window.generationController = generationController;
     window.navigationHistory = navigationHistory;
     let skipTextAnimation = false;
@@ -46,6 +52,58 @@ document.addEventListener('DOMContentLoaded', () => {
         visitedMedBay: false,
     };
     let flashbackStateStack = []; // Stack to hold pre-flashback states
+
+    // Function to show end of narrative message
+    async function showEndOfNarrativeMessage() {
+        // Create a placeholder canvas with the message
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024;
+        canvas.height = 1024;
+        const ctx = canvas.getContext('2d');
+        
+        // Create gradient background
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#1a1a2e');
+        gradient.addColorStop(1, '#0f0f1e');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Add some atmospheric effects
+        ctx.fillStyle = 'rgba(138, 43, 226, 0.1)';
+        for (let i = 0; i < 5; i++) {
+            ctx.beginPath();
+            ctx.arc(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height,
+                Math.random() * 200 + 50,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+        }
+        
+        // Add text
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 48px Lora, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Draw main message
+        ctx.fillText('END OF RENDERED CONTENT', canvas.width / 2, canvas.height / 2 - 60);
+        
+        ctx.font = '32px Lora, serif';
+        ctx.fillStyle = '#aaaaaa';
+        ctx.fillText('You\'ve reached the edge of the', canvas.width / 2, canvas.height / 2 + 20);
+        ctx.fillText('currently available narrative', canvas.width / 2, canvas.height / 2 + 60);
+        
+        ctx.font = 'italic 28px Lora, serif';
+        ctx.fillStyle = '#8a2be2';
+        ctx.fillText('More content coming soon...', canvas.width / 2, canvas.height / 2 + 120);
+        
+        // Convert canvas to data URL and display
+        const placeholderImage = canvas.toDataURL('image/png');
+        await updateImage(placeholderImage);
+    }
 
     // --- Initialization ---
     async function init() {
@@ -236,6 +294,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Core Scene Rendering Logic ---
     async function showNode(nodeId) {
+        // Track visited nodes for history - handle forward and back navigation properly
+        const currentIndex = visitedNodes.indexOf(nodeId);
+        
+        if (currentIndex !== -1) {
+            // We're navigating to a node that's already in history
+            // Truncate the history to remove any "forward" nodes
+            visitedNodes = visitedNodes.slice(0, currentIndex + 1);
+            console.log('Navigated back to existing node:', nodeId);
+        } else if (visitedNodes[visitedNodes.length - 1] !== nodeId) {
+            // This is a new node, add it to history
+            visitedNodes.push(nodeId);
+            console.log('Added new node to history:', nodeId);
+        }
+        console.log('Visited nodes history:', visitedNodes);
+        
         // --- State-based Node Redirection (Soft Gate) ---
         if (nodeId === 'access_sensor_logs' && !playerState.visitedServerRoom && !playerState.visitedMedBay) {
             nodeId = 'bridge_knowledge_gap';
@@ -404,8 +477,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Image generation stopped.');
                 } else {
                     console.error("Error generating image:", error);
-                    // Fallback: proceed without an image, narrative will still be shown.
-                    await updateImage(null);
+                    
+                    // Check if this is the "end of narrative" message
+                    if (error.message && error.message.includes('currently rendered narrative')) {
+                        // Show a special end-of-content message with placeholder image
+                        await showEndOfNarrativeMessage();
+                        // Disable further navigation
+                        const choicesContainer = document.getElementById('choices-container');
+                        if (choicesContainer) {
+                            choicesContainer.innerHTML = '<p style="color: #8a2be2; font-style: italic; text-align: center; margin-top: 20px;">You\'ve reached the end of the available content.</p>';
+                        }
+                        return; // Stop execution here
+                    } else {
+                        // Fallback: proceed without an image, narrative will still be shown.
+                        await updateImage(null);
+                    }
                 }
             } finally {
                 showLoading(false);
@@ -578,6 +664,16 @@ document.addEventListener('DOMContentLoaded', () => {
         promptParts.push(node.image_prompt);
 
         const finalPrompt = promptParts.join('. ');
+        
+        console.log('[MAIN GAME] Generating image for node:', node.id);
+        console.log('[MAIN GAME] Prompt parts:', promptParts);
+        console.log('[MAIN GAME] Final prompt:', finalPrompt);
+        console.log('[MAIN GAME] Node data:', {
+          id: node.id,
+          style_override: node.style_override,
+          characters_present: node.characters_present,
+          image_prompt: node.image_prompt
+        });
 
         // 2. Construct the API payload
         const parts = [{ text: finalPrompt }];
@@ -588,19 +684,22 @@ document.addEventListener('DOMContentLoaded', () => {
             parts.unshift({ text: "Use the previous image as a strong reference for the environment, characters, and art style. Then, create a new image that follows the new prompt:" });
         }
 
+        // Prepare payload for server-side generation
         const payload = {
-            contents: [{ parts: parts }],
-            safetySettings: [
-                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-            ]
+            prompt: finalPrompt,
+            contextImage: (contextImageB64 && !noContext) ? contextImageB64 : null
         };
 
-        const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+        const headers = { 'Content-Type': 'application/json' };
+        // Add admin token if user is authorized
+        const adminToken = getAdminToken();
+        if (adminToken) {
+            headers['X-Admin-Token'] = adminToken;
+        }
+
+        const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: headers,
             body: JSON.stringify(payload),
             signal: signal
         });
@@ -608,15 +707,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!response.ok) {
             const errorBody = await response.json();
             console.error("API Error Response:", errorBody);
-            throw new Error(`API Error: ${errorBody.error.message}`);
+            if (response.status === 403 && errorBody.message) {
+                // This is the "end of narrative" message for non-admin users
+                throw new Error(errorBody.message);
+            }
+            throw new Error(`API Error: ${errorBody.error || 'Generation failed'}`);
         }
         const data = await response.json();
-        const imagePart = data.candidates[0]?.content?.parts.find(p => p.inlineData);
-        if (!imagePart) {
-            console.warn("API Response did not contain image data:", data);
-            throw new Error("No image data found in API response.");
+        
+        // Handle the response from our worker endpoint
+        if (data.candidates?.[0]?.content?.parts) {
+            // Response from Gemini via worker
+            const imagePart = data.candidates[0].content.parts.find(p => p.inlineData);
+            if (!imagePart) {
+                console.warn("API Response did not contain image data:", data);
+                throw new Error("No image data found in API response.");
+            }
+            return { imageData: imagePart.inlineData.data };
+        } else if (data.image) {
+            // Direct image response from worker
+            return { imageData: data.image };
+        } else {
+            throw new Error("Invalid response format from server");
         }
-        return { imageData: imagePart.inlineData.data };
     }
 
     // --- Event Listeners ---
@@ -659,7 +772,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const response = await fetch('/api/save', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Admin-Token': getAdminToken() || ''
+                },
                 body: payload
             });
             
@@ -694,6 +810,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- Expose functions for overlay editor ---
+    window.showNode = showNode;
+    
     // --- Start the adventure ---
     init();
 });

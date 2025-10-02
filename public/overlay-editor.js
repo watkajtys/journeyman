@@ -7,22 +7,54 @@ class OverlayEditor {
     this.refinementNotes = {};
     this.isGenerating = false;
     
-    // API configuration (uses same key as main game)
-    this.API_KEY = 'AIzaSyBNRc6wowYEBTxxu-44AP6AkrYScl0Yafk';
-    this.API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent';
+    // API configuration - now uses secure server-side endpoint
+    // API key is stored securely on the server
+    this.API_URL = '/api/generate-image';
     
     this.init();
   }
   
   init() {
+    // Add secret keyboard shortcut (Ctrl+Shift+E) to enable editor
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'E') {
+        e.preventDefault();
+        sessionStorage.setItem('editorEnabled', 'true');
+        window.location.reload();
+      }
+    });
+    
+    // Add console command to enable editor
+    window.enableEditor = () => {
+      sessionStorage.setItem('editorEnabled', 'true');
+      window.location.reload();
+      console.log('Editor enabled! Refreshing page...');
+    };
+    
     this.createElements();
     this.attachEventListeners();
     this.startSyncInterval();
+    
+    // Restore generation history from saved data if available
+    if (window.storyData && window.storyData.generation_history) {
+      this.generationHistory = window.storyData.generation_history;
+      console.log('Restored generation history from saved data:', Object.keys(this.generationHistory).length, 'nodes with history');
+    }
+    
     console.log('Overlay Editor initialized');
   }
   
   createElements() {
-    // Create toggle button
+    // Check for admin access via session storage token
+    const adminToken = sessionStorage.getItem('adminToken');
+    const isAdmin = !!adminToken;
+    
+    if (!isAdmin) {
+      // Editor not available for public
+      return;
+    }
+    
+    // Create toggle button only for admin
     const toggleBtn = document.createElement('button');
     toggleBtn.className = 'overlay-editor-toggle';
     toggleBtn.innerHTML = '🎨';
@@ -38,6 +70,10 @@ class OverlayEditor {
         <div class="scene-info">
           <span class="scene-id">Scene: <span id="editor-scene-id">-</span></span>
           <span class="scene-location">Location: <span id="editor-scene-location">-</span></span>
+          <div class="scene-navigation" style="margin-top: 10px;">
+            <button id="btn-prev-node" style="padding: 5px 10px; margin-right: 5px; background: #444; color: white; border: 1px solid #666; border-radius: 4px; cursor: pointer;">← Previous</button>
+            <button id="btn-next-node" style="padding: 5px 10px; background: #444; color: white; border: 1px solid #666; border-radius: 4px; cursor: pointer;">Next →</button>
+          </div>
         </div>
       </div>
       
@@ -56,10 +92,16 @@ class OverlayEditor {
         
         <!-- Scene Text -->
         <div class="scene-text-section">
-          <h3>Scene Text</h3>
-          <div class="scene-text" id="editor-scene-text">
-            No scene loaded
-          </div>
+          <h3>Scene Text <span id="text-status" style="font-size: 0.8em; color: #888;"></span></h3>
+          <textarea 
+            class="scene-text-editor" 
+            id="editor-scene-text"
+            placeholder="Scene narrative text..."
+            style="width: 100%; min-height: 100px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; color: #fff; padding: 8px; resize: vertical; font-family: inherit; font-size: 0.9em;"
+          >No scene loaded</textarea>
+          <button class="btn-reset-text" id="btn-reset-text" style="margin-top: 5px; font-size: 0.9em; display: none;">
+            Reset Text to Original
+          </button>
         </div>
         
         <!-- Current Image -->
@@ -81,12 +123,15 @@ class OverlayEditor {
         
         <!-- Image Prompt -->
         <div class="prompt-section">
-          <h3>Image Prompt</h3>
+          <h3>Image Prompt <span id="prompt-status" style="font-size: 0.8em; color: #888;"></span></h3>
           <textarea 
             class="prompt-textarea" 
             id="editor-image-prompt"
             placeholder="Describe what the image should show..."
           ></textarea>
+          <button class="btn-reset-prompt" id="btn-reset-prompt" style="margin-top: 5px; font-size: 0.9em;">
+            Reset to Original
+          </button>
         </div>
         
         <!-- Refinement Notes -->
@@ -109,6 +154,9 @@ class OverlayEditor {
           </button>
           <button class="btn-regenerate" id="btn-regenerate">
             Regenerate with Notes
+          </button>
+          <button class="btn-retry-next" id="btn-retry-next" title="Use next scene's image to align this one">
+            Align with Next Scene
           </button>
           <button class="btn-clear" id="btn-clear">
             Clear Image
@@ -150,6 +198,11 @@ class OverlayEditor {
       this.generateImage('with-notes');
     });
     
+    // Retry with next frame button (align with next scene)
+    document.getElementById('btn-retry-next').addEventListener('click', () => {
+      this.generateImage('align-with-next');
+    });
+    
     // Clear button
     document.getElementById('btn-clear').addEventListener('click', () => {
       this.clearImage();
@@ -163,6 +216,30 @@ class OverlayEditor {
     // Save notes changes
     document.getElementById('editor-refinement-notes').addEventListener('blur', () => {
       this.saveNotesChanges();
+    });
+    
+    // Reset prompt to original
+    document.getElementById('btn-reset-prompt').addEventListener('click', () => {
+      this.resetPromptToOriginal();
+    });
+    
+    // Save text changes
+    document.getElementById('editor-scene-text').addEventListener('blur', () => {
+      this.saveTextChanges();
+    });
+    
+    // Reset text to original
+    document.getElementById('btn-reset-text').addEventListener('click', () => {
+      this.resetTextToOriginal();
+    });
+    
+    // Navigation buttons
+    document.getElementById('btn-prev-node').addEventListener('click', () => {
+      this.navigateToPreviousNode();
+    });
+    
+    document.getElementById('btn-next-node').addEventListener('click', () => {
+      this.navigateToNextNode();
     });
   }
   
@@ -188,32 +265,18 @@ class OverlayEditor {
       console.log('Stopped ongoing image generation');
     }
     
-    // Set a global flag to pause auto-transitions
+    // Set a global flag to pause auto-transitions only
     window.overlayEditorOpen = true;
     
-    // Disable choice buttons temporarily
-    const choices = document.querySelectorAll('#choices-container button');
-    choices.forEach(btn => {
-      btn.disabled = true;
-      btn.dataset.wasDisabled = btn.dataset.wasDisabled || 'false';
-    });
-    
-    console.log('Game paused for editing');
+    // Don't disable buttons - allow navigation while editor is open
+    console.log('Auto-transitions paused for editing (buttons remain active)');
   }
   
   resumeGame() {
     // Clear the pause flag
     window.overlayEditorOpen = false;
     
-    // Re-enable choice buttons that weren't previously disabled
-    const choices = document.querySelectorAll('#choices-container button');
-    choices.forEach(btn => {
-      if (btn.dataset.wasDisabled !== 'true') {
-        btn.disabled = false;
-      }
-    });
-    
-    console.log('Game resumed');
+    console.log('Auto-transitions resumed');
   }
   
   startSyncInterval() {
@@ -240,6 +303,56 @@ class OverlayEditor {
     this.updateProgress();
   }
   
+  async preserveOriginalImage(node) {
+    // Only preserve if we haven't already captured the original for this node
+    if (!this.generationHistory[this.currentNode]) {
+      this.generationHistory[this.currentNode] = [];
+    }
+    
+    // Check if we already have an "original" entry
+    const hasOriginal = this.generationHistory[this.currentNode].some(item => item.isOriginal);
+    
+    if (!hasOriginal) {
+      // Check for existing image (either in cache, R2, or base64)
+      let originalImage = window.imageCache?.[this.currentNode] || node.pre_rendered_image;
+      
+      // If no base64 but we have an R2 URL, fetch it
+      if (!originalImage && node.image_url) {
+        try {
+          console.log(`[PRESERVE ORIGINAL] Fetching original image from R2 for node: ${this.currentNode}`);
+          const response = await fetch(node.image_url);
+          if (response.ok) {
+            const blob = await response.blob();
+            const reader = new FileReader();
+            originalImage = await new Promise((resolve) => {
+              reader.onloadend = () => resolve(reader.result);
+              reader.readAsDataURL(blob);
+            });
+            // Cache it
+            if (!window.imageCache) window.imageCache = {};
+            window.imageCache[this.currentNode] = originalImage;
+            console.log('[PRESERVE ORIGINAL] Successfully fetched and cached original image');
+          }
+        } catch (err) {
+          console.error('[PRESERVE ORIGINAL] Error fetching original image:', err);
+        }
+      }
+      
+      // If we found an original image, add it to history
+      if (originalImage && originalImage.startsWith('data:image')) {
+        this.generationHistory[this.currentNode].push({
+          image: originalImage,
+          prompt: node.image_prompt || 'Original image',
+          notes: '',
+          timestamp: new Date().toISOString(),
+          isOriginal: true,
+          storage: node.image_url ? 'R2' : 'base64'
+        });
+        console.log(`[PRESERVE ORIGINAL] Preserved original image for node: ${this.currentNode}`);
+      }
+    }
+  }
+  
   loadCurrentScene() {
     if (!this.currentNode || !window.storyData || !window.storyData.nodes) {
       return;
@@ -253,15 +366,24 @@ class OverlayEditor {
     // Update scene info
     document.getElementById('editor-scene-id').textContent = this.currentNode;
     document.getElementById('editor-scene-location').textContent = node.location || 'Unknown';
-    document.getElementById('editor-scene-text').textContent = node.text || 'No text';
+    document.getElementById('editor-scene-text').value = node.text || 'No text';
+    
+    // Update text status (edited/original)
+    this.updateTextStatus();
     
     // Update image prompt
     const promptField = document.getElementById('editor-image-prompt');
     promptField.value = node.image_prompt || '';
     
+    // Update prompt status (edited/original)
+    this.updatePromptStatus();
+    
     // Load refinement notes if any
     const notesField = document.getElementById('editor-refinement-notes');
     notesField.value = this.refinementNotes[this.currentNode] || '';
+    
+    // Preserve original image in history if it exists and we haven't captured it yet
+    this.preserveOriginalImage(node);
     
     // Update current image
     this.updateImageDisplay();
@@ -356,23 +478,49 @@ class OverlayEditor {
     console.log(`Progress: ${nodesWithImages}/${totalNodes} (${percentage.toFixed(1)}%) scenes have images`);
   }
   
-  findPreviousNode() {
-    // Try to find the previous node based on visited history or parent references
-    if (window.visitedNodes && window.visitedNodes.length > 1) {
-      // Get the node before the current one in visited history
+  findNextNode() {
+    // First check visited history
+    if (window.visitedNodes && window.visitedNodes.length > 0) {
       const currentIndex = window.visitedNodes.indexOf(this.currentNode);
-      if (currentIndex > 0) {
-        return window.visitedNodes[currentIndex - 1];
+      if (currentIndex >= 0 && currentIndex < window.visitedNodes.length - 1) {
+        return window.visitedNodes[currentIndex + 1];
       }
     }
     
-    // Fallback: look for any node that has this node as a choice
+    // Otherwise look for the first choice's target
+    const node = window.storyData.nodes[this.currentNode];
+    if (node?.choices && node.choices.length > 0) {
+      return node.choices[0].target_id;
+    }
+    
+    return null;
+  }
+  
+  findPreviousNode() {
+    console.log('[findPreviousNode] Looking for previous node of:', this.currentNode);
+    console.log('[findPreviousNode] Visited nodes:', window.visitedNodes);
+    
+    // Try to find the previous node based on visited history
+    if (window.visitedNodes && window.visitedNodes.length > 1) {
+      // Get the node before the current one in visited history
+      const currentIndex = window.visitedNodes.indexOf(this.currentNode);
+      console.log('[findPreviousNode] Current index in visited:', currentIndex);
+      if (currentIndex > 0) {
+        const prevNodeId = window.visitedNodes[currentIndex - 1];
+        console.log('[findPreviousNode] Found via visited history:', prevNodeId);
+        return prevNodeId;
+      }
+    }
+    
+    // Fallback: look for any node that has this node as a choice target
     if (window.storyData && window.storyData.nodes) {
       for (const nodeId in window.storyData.nodes) {
         const node = window.storyData.nodes[nodeId];
         if (node.choices) {
           for (const choice of node.choices) {
-            if (choice.next === this.currentNode) {
+            // Check both 'target_id' (correct) and 'next' (legacy) fields
+            if (choice.target_id === this.currentNode || choice.next === this.currentNode) {
+              console.log('[findPreviousNode] Found via choice parent:', nodeId);
               return nodeId;
             }
           }
@@ -380,6 +528,7 @@ class OverlayEditor {
       }
     }
     
+    console.log('[findPreviousNode] No previous node found');
     return null;
   }
   
@@ -398,51 +547,200 @@ class OverlayEditor {
     this.setGeneratingState(true);
     
     try {
-      // Build the prompt
-      let prompt = document.getElementById('editor-image-prompt').value || node.image_prompt || '';
+      // Build the prompt matching main game logic
+      let promptParts = [];
       
-      if (mode === 'with-notes') {
-        const notes = document.getElementById('editor-refinement-notes').value;
-        if (notes) {
-          prompt = `${prompt}\n\nAdditional requirements: ${notes}`;
+      // Determine which style guide to use (same as main game)
+      const styleKey = node.style_override || 'default';
+      const styleGuide = window.storyData.style_guides?.[styleKey] || window.storyData.style_guides?.default || '';
+      if (styleGuide) {
+        promptParts.push(styleGuide);
+      }
+      
+      // Inject aspect ratio for mobile (same as main game)
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('portrait') === 'true') {
+        promptParts.push("Use a portrait aspect ratio (9:16) for the image.");
+      }
+      
+      // Add character descriptions (same as main game)
+      if (node.characters_present && window.storyData.characters) {
+        const characterDescriptions = node.characters_present.map(charId => {
+          return window.storyData.characters[charId]?.description || '';
+        }).join(' ');
+        if (characterDescriptions) {
+          promptParts.push(`Character details: ${characterDescriptions}`);
         }
       }
       
-      // Add consistent style guides
-      if (window.storyData.style_guides) {
-        const styleGuides = Object.values(window.storyData.style_guides).join('\n');
-        prompt = `${styleGuides}\n\n${prompt}`;
+      // Add the scene-specific prompt (from editor field or node)
+      const scenePrompt = document.getElementById('editor-image-prompt').value || node.image_prompt || '';
+      promptParts.push(scenePrompt);
+      
+      // Add refinement notes if in with-notes mode
+      if (mode === 'with-notes') {
+        const notes = document.getElementById('editor-refinement-notes').value;
+        if (notes && notes.trim()) {
+          promptParts.push(`Additional requirements: ${notes}`);
+          console.log('[WITH-NOTES MODE] Adding refinement notes:', notes);
+        } else {
+          console.warn('[WITH-NOTES MODE] No refinement notes provided - regeneration may produce similar results');
+        }
       }
       
-      console.log(`Generating image (mode: ${mode}) with prompt:`, prompt);
+      const finalPrompt = promptParts.join('. ');
+      console.log(`[OVERLAY EDITOR] Generating image (mode: ${mode})`);
+      console.log('[OVERLAY EDITOR] Prompt parts:', promptParts);
+      console.log('[OVERLAY EDITOR] Final prompt:', finalPrompt);
+      console.log('[OVERLAY EDITOR] Node data:', {
+        id: this.currentNode,
+        style_override: node.style_override,
+        characters_present: node.characters_present,
+        image_prompt: node.image_prompt
+      });
       
       // Build parts array with prompt
-      const parts = [{ text: prompt }];
+      const parts = [{ text: finalPrompt }];
       
       // Handle different modes for image context
       if (mode === 'with-notes') {
-        // Use current image as base for refinement
-        const currentImage = node.pre_rendered_image || window.imageCache?.[this.currentNode];
+        // Use current image as base for refinement - check cache first, then try to fetch from R2
+        let currentImage = window.imageCache?.[this.currentNode] || node.pre_rendered_image;
+        
+        console.log('[WITH-NOTES MODE] Looking for current image:', {
+          has_cached: !!window.imageCache?.[this.currentNode],
+          has_pre_rendered: !!node.pre_rendered_image,
+          has_image_url: !!node.image_url,
+          image_prefix: currentImage ? currentImage.substring(0, 30) : 'none'
+        });
+        
+        // If no base64 but we have an R2 URL, we need to fetch it
+        if (!currentImage && node.image_url) {
+          try {
+            console.log('[WITH-NOTES MODE] Fetching current image from R2:', node.image_url);
+            const response = await fetch(node.image_url);
+            if (response.ok) {
+              const blob = await response.blob();
+              const reader = new FileReader();
+              currentImage = await new Promise((resolve) => {
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+              });
+              // Cache it for future use
+              if (!window.imageCache) window.imageCache = {};
+              window.imageCache[this.currentNode] = currentImage;
+              console.log('[WITH-NOTES MODE] Successfully fetched and cached current image from R2');
+            } else {
+              console.error('[WITH-NOTES MODE] Failed to fetch from R2:', response.status);
+            }
+          } catch (err) {
+            console.error('[WITH-NOTES MODE] Error fetching current image from R2:', err);
+          }
+        }
+        
         if (currentImage && currentImage.startsWith('data:image')) {
           const base64Data = currentImage.split(',')[1];
           if (base64Data) {
             parts.unshift({ inlineData: { mimeType: 'image/png', data: base64Data } });
-            parts.unshift({ text: "Use the previous image as a strong reference for the environment, characters, and art style. Apply the following refinements to create an improved version:" });
-            console.log('Including current image as context for refinement');
+            parts.unshift({ text: "Use this existing image as a base. Keep the same scene, environment, and characters, but apply the following refinements to create an improved version:" });
+            console.log('[WITH-NOTES MODE] ✓ Including current image as context for refinement');
+            console.log('[WITH-NOTES MODE] Base64 data length:', base64Data.length);
+          } else {
+            console.error('[WITH-NOTES MODE] Failed to extract base64 data from current image');
           }
+        } else {
+          console.warn('[WITH-NOTES MODE] ✗ No current image available for refinement - will generate new image');
+        }
+      } else if (mode === 'align-with-next') {
+        // Use next node's image as reference to align current scene
+        const nextNodeId = this.findNextNode();
+        console.log('[ALIGN-WITH-NEXT MODE] Current node:', this.currentNode);
+        console.log('[ALIGN-WITH-NEXT MODE] Next node found:', nextNodeId);
+        
+        if (nextNodeId) {
+          const nextNode = window.storyData.nodes[nextNodeId];
+          console.log('[ALIGN-WITH-NEXT MODE] Next node data:', {
+            id: nextNodeId,
+            has_pre_rendered: !!nextNode?.pre_rendered_image,
+            has_image_url: !!nextNode?.image_url,
+            has_cached: !!window.imageCache?.[nextNodeId]
+          });
+          
+          // First check cache, then pre_rendered_image
+          let nextImage = window.imageCache?.[nextNodeId] || nextNode?.pre_rendered_image;
+          
+          // If no base64 but we have an R2 URL, we need to fetch it
+          if (!nextImage && nextNode?.image_url) {
+            try {
+              console.log('[ALIGN-WITH-NEXT MODE] Fetching next image from R2:', nextNode.image_url);
+              const response = await fetch(nextNode.image_url);
+              if (response.ok) {
+                const blob = await response.blob();
+                const reader = new FileReader();
+                nextImage = await new Promise((resolve) => {
+                  reader.onloadend = () => resolve(reader.result);
+                  reader.readAsDataURL(blob);
+                });
+                // Cache it for future use
+                if (!window.imageCache) window.imageCache = {};
+                window.imageCache[nextNodeId] = nextImage;
+                console.log('[ALIGN-WITH-NEXT MODE] Successfully fetched and cached next image from R2');
+              } else {
+                console.error('[ALIGN-WITH-NEXT MODE] Failed to fetch from R2:', response.status);
+              }
+            } catch (err) {
+              console.error('[ALIGN-WITH-NEXT MODE] Error fetching next image from R2:', err);
+            }
+          }
+          
+          if (nextImage && nextImage.startsWith('data:image')) {
+            const base64Data = nextImage.split(',')[1];
+            if (base64Data) {
+              parts.unshift({ inlineData: { mimeType: 'image/png', data: base64Data } });
+              parts.unshift({ text: "Use the following image as a strong style and visual reference. Maintain the exact same art style, color palette, lighting, character appearances, and overall aesthetic. However, create a NEW scene that matches this prompt (which takes place BEFORE the reference image in the story):" });
+              console.log('[ALIGN-WITH-NEXT MODE] ✓ INCLUDING next scene image as alignment reference');
+              console.log('[ALIGN-WITH-NEXT MODE] Using current node prompt:', scenePrompt);
+              console.log('[ALIGN-WITH-NEXT MODE] With next node image as style reference');
+              console.log('[ALIGN-WITH-NEXT MODE] Image data length:', base64Data.length);
+            } else {
+              console.error('[ALIGN-WITH-NEXT MODE] Failed to extract base64 from image');
+            }
+          } else {
+            console.warn('[ALIGN-WITH-NEXT MODE] ✗ NO next image available for alignment');
+            alert('No next scene image available to align with. Generate the next scene first.');
+            this.isGenerating = false;
+            this.setGeneratingState(false);
+            return;
+          }
+        } else {
+          console.warn('[ALIGN-WITH-NEXT MODE] ✗ NO next node found');
+          alert('No next scene found to align with.');
+          this.isGenerating = false;
+          this.setGeneratingState(false);
+          return;
         }
       } else if (mode === 'retry') {
         // Use previous node's image as context (like normal game flow)
         const previousNodeId = this.findPreviousNode();
+        console.log('[RETRY MODE] Current node:', this.currentNode);
+        console.log('[RETRY MODE] Previous node found:', previousNodeId);
+        
         if (previousNodeId) {
           const prevNode = window.storyData.nodes[previousNodeId];
+          console.log('[RETRY MODE] Previous node data:', {
+            id: previousNodeId,
+            has_pre_rendered: !!prevNode?.pre_rendered_image,
+            has_image_url: !!prevNode?.image_url,
+            has_cached: !!window.imageCache?.[previousNodeId]
+          });
+          
           // First check cache, then pre_rendered_image
           let prevImage = window.imageCache?.[previousNodeId] || prevNode?.pre_rendered_image;
           
           // If no base64 but we have an R2 URL, we need to fetch it
           if (!prevImage && prevNode?.image_url) {
             try {
-              console.log('Fetching previous image from R2 for retry context...');
+              console.log('[RETRY MODE] Fetching previous image from R2:', `/api/images/${encodeURIComponent(previousNodeId)}`);
               const response = await fetch(`/api/images/${encodeURIComponent(previousNodeId)}`);
               if (response.ok) {
                 const blob = await response.blob();
@@ -454,9 +752,12 @@ class OverlayEditor {
                 // Cache it for future use
                 if (!window.imageCache) window.imageCache = {};
                 window.imageCache[previousNodeId] = prevImage;
+                console.log('[RETRY MODE] Successfully fetched and cached previous image from R2');
+              } else {
+                console.error('[RETRY MODE] Failed to fetch from R2:', response.status);
               }
             } catch (err) {
-              console.error('Failed to fetch previous image from R2:', err);
+              console.error('[RETRY MODE] Error fetching previous image from R2:', err);
             }
           }
           
@@ -464,32 +765,45 @@ class OverlayEditor {
             const base64Data = prevImage.split(',')[1];
             if (base64Data) {
               parts.unshift({ inlineData: { mimeType: 'image/png', data: base64Data } });
-              parts.unshift({ text: "Use the previous image as a reference for the art style and character consistency:" });
-              console.log('Including previous scene image as context for retry');
+              parts.unshift({ text: "Use the previous image as a strong reference for the environment, characters, and art style. Then, create a new image that follows the new prompt:" });
+              console.log('[RETRY MODE] ✓ INCLUDING previous scene image as context');
+              console.log('[RETRY MODE] Image data length:', base64Data.length);
+            } else {
+              console.error('[RETRY MODE] Failed to extract base64 from image');
             }
           } else {
-            console.log('No previous image available for retry context');
+            console.warn('[RETRY MODE] ✗ NO previous image available for context');
+            console.log('[RETRY MODE] prevImage value:', prevImage ? prevImage.substring(0, 50) : 'null');
           }
         } else {
-          console.log('No previous node found for retry context');
+          console.warn('[RETRY MODE] ✗ NO previous node found - cannot use previous context');
         }
       }
       // mode === 'new' doesn't include any previous image
       
-      // Call Gemini API
-      const response = await fetch(`${this.API_URL}?key=${this.API_KEY}`, {
+      // Prepare context image if available
+      let contextImage = null;
+      if (parts.length > 1 && parts[0].inlineData) {
+        // Extract base64 from the context image part
+        contextImage = parts[0].inlineData.data;
+      } else if (parts.length > 2 && parts[1].inlineData) {
+        // Sometimes context is at index 1
+        contextImage = parts[1].inlineData.data;
+      }
+      
+      // Extract prompt text from parts
+      const promptText = parts.filter(p => p.text).map(p => p.text).join('. ');
+      
+      // Call server-side API endpoint
+      const response = await fetch(this.API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Admin-Token': sessionStorage.getItem('adminToken') || '' // Admin key for overlay editor
+        },
         body: JSON.stringify({
-          contents: [{
-            parts: parts
-          }],
-          safetySettings: [
-            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-          ]
+          prompt: promptText,
+          contextImage: contextImage
         })
       });
       
@@ -498,19 +812,30 @@ class OverlayEditor {
       }
       
       const data = await response.json();
-      const imagePart = data.candidates[0]?.content?.parts?.find(p => p.inlineData);
       
-      if (!imagePart) {
-        throw new Error('No image data in response');
+      let base64ImageData;
+      // Handle response from our worker endpoint
+      if (data.candidates?.[0]?.content?.parts) {
+        // Response from Gemini via worker
+        const imagePart = data.candidates[0].content.parts.find(p => p.inlineData);
+        if (!imagePart) {
+          throw new Error('No image data in response');
+        }
+        base64ImageData = imagePart.inlineData.data;
+      } else if (data.image) {
+        // Direct image response from worker
+        base64ImageData = data.image;
+      } else {
+        throw new Error('Invalid response format from server');
       }
       
-      const imageData = `data:image/png;base64,${imagePart.inlineData.data}`;
+      const imageData = `data:image/png;base64,${base64ImageData}`;
       
       // Sanitize node ID for use in URLs
       const sanitizedNodeId = encodeURIComponent(this.currentNode);
       
       // Upload image to R2 with unified error handling
-      const imageUploaded = await this.uploadImageToR2(sanitizedNodeId, imagePart.inlineData.data);
+      const imageUploaded = await this.uploadImageToR2(sanitizedNodeId, base64ImageData);
       
       // Update cache with base64 data for immediate display
       if (!window.imageCache) {
@@ -544,17 +869,29 @@ class OverlayEditor {
       if (!this.generationHistory[this.currentNode]) {
         this.generationHistory[this.currentNode] = [];
       }
-      this.generationHistory[this.currentNode].unshift({
+      
+      // Find and remove any non-original items, but keep the original
+      const original = this.generationHistory[this.currentNode].find(item => item.isOriginal);
+      const nonOriginalHistory = this.generationHistory[this.currentNode].filter(item => !item.isOriginal);
+      
+      // Add new generation at the beginning of non-original items
+      nonOriginalHistory.unshift({
         image: imageData, // Always store base64 for history display
-        prompt: prompt,
+        prompt: finalPrompt,
         notes: mode === 'with-notes' ? document.getElementById('editor-refinement-notes').value : '',
         timestamp: new Date().toISOString(),
         storage: imageUploaded ? 'R2' : 'base64' // Track storage method for debugging
       });
       
-      // Keep only last 5 generations
-      if (this.generationHistory[this.currentNode].length > 5) {
-        this.generationHistory[this.currentNode] = this.generationHistory[this.currentNode].slice(0, 5);
+      // Keep only last 4 non-original generations (to make room for the original)
+      if (nonOriginalHistory.length > 4) {
+        nonOriginalHistory.splice(4);
+      }
+      
+      // Rebuild history with non-original items first, then original at the end
+      this.generationHistory[this.currentNode] = [...nonOriginalHistory];
+      if (original) {
+        this.generationHistory[this.currentNode].push(original);
       }
       
       // Update displays
@@ -613,8 +950,17 @@ class OverlayEditor {
     
     const node = window.storyData.nodes[this.currentNode];
     if (node) {
-      node.image_prompt = document.getElementById('editor-image-prompt').value;
-      this.saveToCloud();
+      const editedPrompt = document.getElementById('editor-image-prompt').value;
+      // Only save if actually changed from original
+      if (editedPrompt !== node.image_prompt) {
+        // Store edited prompt separately to preserve original
+        if (!node.edited_prompt) {
+          node.original_prompt = node.image_prompt; // Backup original first time
+        }
+        node.edited_prompt = editedPrompt;
+        node.image_prompt = editedPrompt; // Update the working prompt
+        this.saveToCloud();
+      }
     }
   }
   
@@ -624,15 +970,149 @@ class OverlayEditor {
     this.refinementNotes[this.currentNode] = document.getElementById('editor-refinement-notes').value;
   }
   
+  resetPromptToOriginal() {
+    if (!this.currentNode) return;
+    
+    const node = window.storyData.nodes[this.currentNode];
+    if (node && node.original_prompt) {
+      // Restore original prompt
+      node.image_prompt = node.original_prompt;
+      delete node.edited_prompt;
+      delete node.original_prompt;
+      
+      // Update UI
+      document.getElementById('editor-image-prompt').value = node.image_prompt;
+      this.updatePromptStatus();
+      
+      // Save changes
+      this.saveToCloud();
+      console.log('Prompt reset to original');
+    }
+  }
+  
+  updatePromptStatus() {
+    const node = window.storyData.nodes[this.currentNode];
+    const statusEl = document.getElementById('prompt-status');
+    if (node && node.edited_prompt) {
+      statusEl.textContent = '(edited)';
+      statusEl.style.color = '#ffa500';
+      document.getElementById('btn-reset-prompt').style.display = 'inline-block';
+    } else {
+      statusEl.textContent = '';
+      document.getElementById('btn-reset-prompt').style.display = 'none';
+    }
+  }
+  
+  updateTextStatus() {
+    const node = window.storyData.nodes[this.currentNode];
+    const statusEl = document.getElementById('text-status');
+    if (node && node.edited_text) {
+      statusEl.textContent = '(edited)';
+      statusEl.style.color = '#ffa500';
+      document.getElementById('btn-reset-text').style.display = 'inline-block';
+    } else {
+      statusEl.textContent = '';
+      document.getElementById('btn-reset-text').style.display = 'none';
+    }
+  }
+  
+  saveTextChanges() {
+    if (!this.currentNode) return;
+    
+    const node = window.storyData.nodes[this.currentNode];
+    if (node) {
+      const editedText = document.getElementById('editor-scene-text').value;
+      // Only save if actually changed from original
+      if (editedText !== node.text) {
+        // Store edited text separately to preserve original
+        if (!node.edited_text) {
+          node.original_text = node.text; // Backup original first time
+        }
+        node.edited_text = editedText;
+        node.text = editedText; // Update the working text
+        this.updateTextStatus();
+        this.saveToCloud();
+      }
+    }
+  }
+  
+  resetTextToOriginal() {
+    if (!this.currentNode) return;
+    
+    const node = window.storyData.nodes[this.currentNode];
+    if (node && node.original_text) {
+      // Restore original text
+      node.text = node.original_text;
+      delete node.edited_text;
+      delete node.original_text;
+      
+      // Update UI
+      document.getElementById('editor-scene-text').value = node.text;
+      this.updateTextStatus();
+      
+      // Save changes
+      this.saveToCloud();
+      console.log('Text reset to original');
+    }
+  }
+  
+  navigateToPreviousNode() {
+    // Use visited nodes history if available
+    if (window.visitedNodes && window.visitedNodes.length > 1) {
+      const currentIndex = window.visitedNodes.indexOf(this.currentNode);
+      if (currentIndex > 0) {
+        const previousNodeId = window.visitedNodes[currentIndex - 1];
+        console.log('Navigating to previous node:', previousNodeId);
+        // Navigate in the main game
+        if (window.showNode) {
+          window.showNode(previousNodeId);
+        }
+        return;
+      }
+    }
+    console.log('No previous node in history');
+  }
+  
+  navigateToNextNode() {
+    // Check if we have a next node in visited history
+    if (window.visitedNodes && window.visitedNodes.length > 0) {
+      const currentIndex = window.visitedNodes.indexOf(this.currentNode);
+      if (currentIndex >= 0 && currentIndex < window.visitedNodes.length - 1) {
+        const nextNodeId = window.visitedNodes[currentIndex + 1];
+        console.log('Navigating to next node (from history):', nextNodeId);
+        if (window.showNode) {
+          window.showNode(nextNodeId);
+        }
+        return;
+      }
+    }
+    
+    // Otherwise, try to find the first available choice
+    const node = window.storyData.nodes[this.currentNode];
+    if (node && node.choices && node.choices.length > 0) {
+      const nextNodeId = node.choices[0].target_id;
+      console.log('Navigating to next node (first choice):', nextNodeId);
+      if (window.showNode) {
+        window.showNode(nextNodeId);
+      }
+    } else {
+      console.log('No next node available');
+    }
+  }
+  
   setGeneratingState(isGenerating) {
     const spinner = document.getElementById('generating-spinner');
     const generateBtn = document.getElementById('btn-generate');
     const regenerateBtn = document.getElementById('btn-regenerate');
+    const retryBtn = document.getElementById('btn-retry');
+    const alignBtn = document.getElementById('btn-retry-next');
     const clearBtn = document.getElementById('btn-clear');
     
     spinner.classList.toggle('active', isGenerating);
     generateBtn.disabled = isGenerating;
     regenerateBtn.disabled = isGenerating;
+    retryBtn.disabled = isGenerating;
+    alignBtn.disabled = isGenerating;
     clearBtn.disabled = isGenerating;
   }
   
@@ -650,16 +1130,30 @@ class OverlayEditor {
     historySection.style.display = 'block';
     historyGrid.innerHTML = '';
     
-    const currentImage = window.storyData.nodes[this.currentNode]?.pre_rendered_image;
+    // Get the current image from cache (which is the actual displayed image)
+    const currentImage = window.imageCache?.[this.currentNode] || 
+                        window.storyData.nodes[this.currentNode]?.pre_rendered_image;
     
     history.forEach((item, index) => {
       const historyItem = document.createElement('div');
       historyItem.className = 'history-item';
+      
+      // Check if this history item matches the current image
       if (item.image === currentImage) {
         historyItem.classList.add('history-item-current');
       }
-      historyItem.innerHTML = `<img src="${item.image}" alt="Generation ${index + 1}">`;
-      historyItem.title = `Generated: ${new Date(item.timestamp).toLocaleString()}`;
+      
+      // Show generation number and special badges
+      const isLatest = index === 0 && !item.isOriginal;
+      const isOriginal = item.isOriginal;
+      historyItem.innerHTML = `
+        <img src="${item.image}" alt="${isOriginal ? 'Original' : `Generation ${history.length - index}`}">
+        ${isOriginal ? '<span class="original-badge">Original</span>' : ''}
+        ${isLatest ? '<span class="latest-badge">Latest</span>' : ''}
+        ${item.image === currentImage ? '<span class="current-badge">Current</span>' : ''}
+      `;
+      
+      historyItem.title = `Generated: ${new Date(item.timestamp).toLocaleString()}${item.notes ? '\nNotes: ' + item.notes : ''}`;
       
       historyItem.addEventListener('click', () => {
         this.revertToHistoryItem(item);
@@ -669,22 +1163,52 @@ class OverlayEditor {
     });
   }
   
-  revertToHistoryItem(item) {
+  async revertToHistoryItem(item) {
     if (!this.currentNode || !confirm('Revert to this version?')) {
       return;
     }
     
     const node = window.storyData.nodes[this.currentNode];
-    if (node) {
-      // For reverting, we need to re-upload the old image
-      // This is a limitation - history items are local only
-      if (window.imageCache) {
-        window.imageCache[this.currentNode] = item.image;
+    if (!node) return;
+    
+    try {
+      // Update cache immediately for display
+      if (!window.imageCache) window.imageCache = {};
+      window.imageCache[this.currentNode] = item.image;
+      
+      // Extract base64 data and re-upload to R2
+      const base64Data = item.image.split(',')[1];
+      if (base64Data) {
+        const sanitizedNodeId = encodeURIComponent(this.currentNode);
+        const imageUploaded = await this.uploadImageToR2(sanitizedNodeId, base64Data);
+        
+        if (imageUploaded) {
+          // Store the R2 URL in the story
+          const imageUrl = `/api/images/${sanitizedNodeId}`;
+          node.image_url = imageUrl;
+          delete node.pre_rendered_image;
+          console.log(`Successfully reverted and stored image in R2 for node: ${this.currentNode}`);
+        } else {
+          // Fallback to base64 storage
+          console.warn(`R2 upload failed for revert, using base64 fallback`);
+          node.pre_rendered_image = item.image;
+          delete node.image_url;
+        }
+        
+        // Save the story data
+        await this.saveToCloud();
+        console.log(`Story saved after reverting to history item`);
       }
       
+      // Update displays
       this.updateImageDisplay();
       this.updateHistoryDisplay();
-      // Note: This doesn't re-upload to R2, just updates local display
+      this.updateProgress();
+      
+      alert('Successfully reverted to selected image version');
+    } catch (error) {
+      console.error('Failed to revert to history item:', error);
+      alert(`Failed to revert: ${error.message}`);
     }
   }
   
@@ -698,10 +1222,26 @@ class OverlayEditor {
       // Validate story data before saving
       await this.validateStoryData();
       
+      // IMPORTANT: Save generation history to story data for persistence
+      if (!window.storyData.generation_history) {
+        window.storyData.generation_history = {};
+      }
+      window.storyData.generation_history = this.generationHistory;
+      
+      // Also save the current image cache references (not the actual base64 data)
+      if (!window.storyData.cached_images) {
+        window.storyData.cached_images = {};
+      }
+      for (const nodeId in window.imageCache || {}) {
+        // Only save that we have a cached image, not the actual data
+        window.storyData.cached_images[nodeId] = true;
+      }
+      
       // Count images by storage type for debugging
       let r2ImageCount = 0;
       let base64ImageCount = 0;
       let totalNodes = 0;
+      let historyCount = 0;
       
       for (const nodeId in window.storyData.nodes) {
         const node = window.storyData.nodes[nodeId];
@@ -712,9 +1252,12 @@ class OverlayEditor {
         if (node.pre_rendered_image) {
           base64ImageCount++;
         }
+        if (this.generationHistory[nodeId]) {
+          historyCount += this.generationHistory[nodeId].length;
+        }
       }
       
-      console.log(`Saving story: ${totalNodes} nodes, ${r2ImageCount} R2 images, ${base64ImageCount} base64 images`);
+      console.log(`Saving story: ${totalNodes} nodes, ${r2ImageCount} R2 images, ${base64ImageCount} base64 images, ${historyCount} history items`);
       
       // Prepare payload with validation
       const payload = JSON.stringify(window.storyData);
@@ -724,7 +1267,10 @@ class OverlayEditor {
       
       const response = await fetch('/api/save', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Admin-Token': sessionStorage.getItem('adminToken') || ''
+        },
         body: payload
       });
       
