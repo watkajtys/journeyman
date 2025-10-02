@@ -1,11 +1,13 @@
 name = "generative-adventure"
 main = "src/index.js"
 compatibility_date = "2023-10-30"
-
-[site]
-bucket = "./public"
+assets = { directory = "./public" }
 
 [[r2_buckets]]
 binding = "STORY_STORAGE"
 bucket_name = "generative-adventure-storage"
 preview_bucket_name = "generative-adventure-storage-preview"
+
+[vars]
+# Environment variables (non-sensitive)
+# For the Gemini API key, use: wrangler secret put GEMINI_API_KEY

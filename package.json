@@ -1,5 +1,16 @@
 {
+  "name": "generative-adventure",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "npm run build:editor && wrangler deploy",
+    "build:editor": "cd editor_react && npm install && npm run build",
+    "preview": "wrangler dev"
+  },
   "devDependencies": {
     "wrangler": "^4.34.0"
+  },
+  "dependencies": {
+    "@cloudflare/kv-asset-handler": "^0.4.0"
   }
 }

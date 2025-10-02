@@ -15,8 +15,8 @@
     "opening_scene": {
       "id": "opening_scene",
       "location": "deep_space",
-      "text": "Space.",
-      "image_prompt": "An extreme wide shot of deep space. The camera is still, and for a moment, there is nothing but the pinpricks of distant stars and the faint swirl of a nebula.",
+      "text": "Space. Infinite. Silent. The void between stars where light takes years to cross. Where humanity's greatest achievements become specks of dust.",
+      "image_prompt": "An extreme wide shot of deep space. Complete stillness. Stars are distant pinpricks against absolute darkness. A faint purple-blue nebula swirls in the far distance, its gases frozen in cosmic time. The shot holds for an uncomfortable length, emphasizing the overwhelming emptiness.",
       "auto_transition": true,
       "choices": [
         {
@@ -28,8 +28,8 @@
     "opening_shuttle_appears": {
       "id": "opening_shuttle_appears",
       "location": "deep_space",
-      "text": "A lone shuttle makes its way through the void.",
-      "image_prompt": "From the empty space shot, a tiny rescue shuttle drifts into the frame, its engines cold, emphasizing the profound emptiness and isolation as it moves towards an unseen destination.",
+      "text": "A glint. Barely visible. A lone shuttle crawls through the darkness, its engines long since cooled. No running lights. No beacon. As if it doesn't want to be found.",
+      "image_prompt": "The vast emptiness continues. Then, at the edge of perception, a tiny metallic glint appears - a rescue shuttle, engines dark and cold. It moves with the slow, deliberate drift of something conserving every drop of fuel. The shuttle is utterly dwarfed by the infinite darkness surrounding it.",
       "auto_transition": true,
       "choices": [
         {
@@ -41,8 +41,8 @@
     "opening_approach": {
       "id": "opening_approach",
       "location": "deep_space",
-      "text": "A ghost-like silhouette comes into view. The derelict starship, SS Erebus.",
-      "image_prompt": "A slow, majestic tracking shot. The small shuttle moves across the screen, its tiny scale contrasted with the immense, dark, and derelict form of the 'SS Erebus' starship, which now dominates the background. The starship is silent, with no lights, showing signs of micrometeoroid impacts and neglect.",
+      "text": "Then, emerging from the darkness like a leviathan from primordial depths—the SS Erebus. Dead for a decade. Waiting.",
+      "image_prompt": "A slow, ominous tracking shot. The shuttle, insignificant as an insect, moves across the frame toward an immense shadow that gradually resolves into the derelict SS Erebus. The starship is a corpse - no lights, hull scarred by micrometeorite impacts, solar panels shattered and drifting. Parts of the ship seem to shimmer unnaturally, as if the metal itself has been altered.",
       "auto_transition": true,
       "choices": [
         {
@@ -54,8 +54,8 @@
     "opening_cockpit": {
       "id": "opening_cockpit",
       "location": "shuttle_cockpit",
-      "text": "The hulking mass of the Erebus fills your view. A dead ship, waiting.",
-      "image_prompt": "A tense, first-person POV from inside a dark, cramped shuttle cockpit. The only light comes from the viewport, which is completely filled with the view of the immense, derelict 'SS Erebus'. The ship is so close its hull details are visible - pitted, scarred metal, and dark viewports like dead eyes. The exterior of the player's shuttle should NOT be visible at all. The shot must convey a sense of being completely dwarfed and intimidated.",
+      "text": "Through the viewport, the Erebus looms. Every instinct screams to turn back. But you've crossed three systems for this moment. The ship that destroyed your life. The ship that holds your answers.",
+      "image_prompt": "First-person POV from a cramped, failing shuttle cockpit. Warning lights blink red on dead consoles. Through the cracked viewport, the SS Erebus fills the entire view - so close you can see individual hull plates, twisted metal, and viewports that seem to reflect something that isn't there. Strange crystalline formations web across sections of the hull like frozen lightning.",
       "auto_transition": true,
       "choices": [
         {
@@ -70,8 +70,8 @@
       "characters_present": [
         "aris_thorne"
       ],
-      "text": "You are Dr. Aris Thorne, the pariah of Althea Corporation's Xenotech division. Ten years. Ten years since your sensor array, your magnum opus, supposedly malfunctioned and claimed 117 souls. The official report was 'catastrophic systems failure.' You never believed it. Now, against all odds, you are back.",
-      "image_prompt": "Continue the previous POV shot, but now, the determined face of Dr. Aris Thorne appears as a ghostly, semi-transparent reflection on the cockpit's glass. His eyes are fixed on the derelict ahead. The reflection does not obscure the view of the Erebus.",
+      "text": "Dr. Aris Thorne. Once Althea Corporation's golden boy. Now their convenient scapegoat. 117 souls lost. 117 names you whisper in the dark when sleep won't come. They blamed your sensor array—said it malfunctioned. But machines don't lie. People do. And somewhere in that tomb of metal and silence, the truth waits.",
+      "image_prompt": "The cockpit viewport with Aris Thorne's haunted reflection superimposed on the glass. His face is gaunt, eyes sunken from years of obsession. In the reflection of his eyes, we see the ghostly afterimages of 117 crew photos - a micro-detail of his guilt. The Erebus beyond seems to pulse faintly, as if breathing.",
       "auto_transition": true,
       "choices": [
         {
@@ -83,8 +83,8 @@
     "docking_sequence": {
       "id": "docking_sequence",
       "location": "shuttle_cockpit",
-      "text": "With a percussive jolt that feels final, the shuttle's clamps lock onto the Erebus. The comm crackles with the voice of the recovery captain—a man who clearly despises you. 'She's all yours, Thorne. Find something to justify this circus.'",
-      "image_prompt": "First-person POV from the protagonist's perspective. The view through the cockpit window violently shudders for a moment. Red indicator lights on the console flash, with text that reads 'DOCKING CLAMPS ENGAGED'. A small, crackling speaker grille is visible on the console, its light blinking with the incoming transmission.",
+      "text": "Metal screams against metal. The shuttle shudders, then stills. Docking clamps engage with the finality of a coffin lid closing. The comm crackles: 'Thorne, this is Captain Morrison. You've got twelve hours before we leave—with or without you. Don't make me regret this.' The channel dies. You're alone now. Just you and the ghosts.",
+      "image_prompt": "The cockpit shakes violently as docking clamps engage. Through the viewport, the Erebus's airlock looms like a mouth. The console displays '12:00:00' in blood-red digits, already counting down. Morrison's voice comes from a comm unit held together with tape and prayer. A frost begins forming on the inside of the viewport - impossible in a pressurized cabin.",
       "auto_transition": true,
       "choices": [
         {
@@ -96,8 +96,8 @@
     "title_card": {
       "id": "title_card",
       "location": "title_card_style",
-      "text": "EREBUS||built by vibes",
-      "image_prompt": "An epic, cinematic title poster. The title 'EREBUS' is the main focus, in a stark, futuristic font. At the bottom of the poster, in small text, it says 'built by vibes'.",
+      "text": "EREBUS||A Story of Containment||built by vibes",
+      "image_prompt": "A haunting title card. 'EREBUS' dominates the frame in sharp, crystalline letters that seem to fracture at the edges. Below it, smaller text reads 'A Story of Containment'. At the very bottom, barely visible: 'built by vibes'. The background shows the faint outline of the derelict ship, with strange geometric patterns bleeding from its hull.",
       "auto_transition": true,
       "choices": [
         {
@@ -109,8 +109,8 @@
     "transition_boarding": {
       "id": "transition_boarding",
       "location": "airlock",
-      "text": "You take a steadying breath. The airlock hisses open, revealing the corridor beyond.",
-      "image_prompt": "First-person POV from inside a helmet. Through the thick, curved glass of the now-open inner airlock door, the corridor of the SS Erebus is revealed. It is a wreck. Emergency lights flicker erratically, casting deep shadows. Wires hang from the ceiling like vines, and panels are torn from the walls.",
+      "text": "Your breath fogs the helmet. Heart rate: 95 BPM. Rising. The airlock cycles. A hiss like a dying breath. The inner door opens onto a corridor that shouldn't exist—not like this.",
+      "image_prompt": "First-person POV through a helmet visor with biometric readouts flickering at the edges. The airlock door reveals utter devastation - emergency lights strobe in failing patterns, cables hang like dead serpents, wall panels are buckled inward as if something massive tried to escape. A thin layer of crystalline frost covers everything, glinting with impossible colors.",
       "no_context": true,
       "auto_transition": true,
       "choices": [
@@ -124,8 +124,8 @@
       "id": "hallway_flash",
       "location": "main_corridor",
       "no_context": true,
-      "text": "You blink, your eyes adjusting to the harsh light. For a moment, the scene ripples, like a faulty hologram. The flickering lights stabilize. The hanging wires retract. The torn panels seem to mend themselves before your very eyes.",
-      "image_prompt": "The same wrecked corridor, but it is glitching violently. A wave of digital static washes over the scene, and in its wake, the corridor is transforming into a pristine, clean, and sterile environment. The transition is caught mid-frame, with half the corridor wrecked and half perfectly clean.",
+      "text": "Reality stutters. A wave of static—not visual, but something deeper—washes through your mind. The devastation flows backward like a reversed film. Wires retract into ceilings. Panels seal themselves. The frost evaporates into nothing. Your helmet's proximity sensors scream warnings about spatial anomalies, then fall silent.",
+      "image_prompt": "A mind-bending transition: the corridor exists in two states simultaneously. The left half shows devastation and decay, the right half pristine and new. A wave of prismatic distortion moves from right to left, transforming destruction into perfection. Where the wave passes, reality seems to pixel and fragment, revealing something underneath that shouldn't be there - a glimpse of endless fractal patterns.",
       "auto_transition": true,
       "choices": [
         {
@@ -137,8 +137,8 @@
     "hallway_pristine": {
       "id": "hallway_pristine",
       "location": "main_corridor",
-      "text": "The corridor is now pristine. Not a speck of dust, not a wire out of place. Was the wreck a hallucination? A trick of the failing light? You take a hesitant step forward.",
-      "image_prompt": "First-person POV. The interior of the SS Erebus is pristine and unnervingly clean. Sterile emergency lights stretch down a long, metallic corridor. The scene is perfectly composed and symmetrical, creating a deep sense of unease. There is no dust. There is no damage. It is perfect.",
+      "text": "Pristine. Sterile. Wrong. The corridor stretches ahead like a throat. Your suit's radiation detector ticks sporadically—registering particles that don't match any known isotope. The walls are perfect. Too perfect. As if something is wearing the shape of a corridor, pretending to be what you expect to see.",
+      "image_prompt": "An impossibly clean corridor with unnatural perfection. The emergency lights create precise pools of light with edges too sharp, shadows too dark. The metal surfaces are so polished they create infinite reflections, but in those reflections, shapes move that aren't there in reality. The symmetry is aggressive, oppressive - a trap disguised as order.",
       "auto_transition": true,
       "choices": [
         {
@@ -150,8 +150,8 @@
     "board_ship": {
       "id": "board_ship",
       "location": "main_corridor",
-      "text": "The silence is the first thing that hits you. It's not just quiet; it's a dead, pressurized absence of sound. Your datapad pings with the ship's layout, highlighting several key areas: the Bridge, the Server Room, the Med Bay, Engineering, and the Crew Quarters.",
-      "image_prompt": "First-person POV, looking down at a futuristic datapad held in your hands. The datapad screen displays a glowing blue schematic of the starship, with key areas like 'BRIDGE' and 'MED BAY' highlighted. The pristine, sterile corridor is visible in the background.",
+      "text": "The silence isn't just the absence of sound—it's a presence, thick and watching. Your datapad pings, the sound obscenely loud in the quietude. Ship's layout appears: Bridge, Server Room, Med Bay, Engineering, Crew Quarters. Five locations. 117 ghosts. One terrible truth waiting to be discovered. Your suit's proximity alarm chirps softly. Motion detected. Everywhere. Nowhere. The ship breathes around you, patient as a spider.",
+      "image_prompt": "First-person POV of a datapad showing the ship's schematic. Each location pulses with an ominous red glow. In the reflection on the screen, shadows move in the corridor behind you—but when you look, nothing's there. The suit's HUD shows motion indicators going crazy, detecting movement in walls, floors, even in the air itself, then suddenly showing nothing.",
       "choices": [
         {
           "text": "Proceed to the Bridge.",
@@ -411,7 +411,7 @@
       "id": "read_log",
       "location": "server_room",
       "characters_present": ["aris_thorne", "captain_eva_rostova"],
-      "text": "The captain's voice crackles, frantic and broken. \"Thorne, if you get this... your machine... it wasn't a failure. It was a success. That 'unknown power source' we detected in Engineering? We pointed the array at it. We awoke something. Something that was sleeping in the void. It's not a signal, Aris, it's a... presence.\"",
+      "text": "Captain Eva Rostova's voice cuts through static, each word fighting through interference: \"Ship's Log, Final Entry. Day 23 since array activation. Dr. Thorne, if you ever hear this... God help you. Your machine worked perfectly. Too perfectly. We found something in sector seven-seven-nine. Not a signal. Not energy. Something that was listening. Something that had been listening for so long it had forgotten what sound was until we reminded it. The crew... they're not dead, Aris. That would be merciful. They're... translated. I can hear them in the walls, in the static between channels. They're trying to warn me but their words come out as equations. As frequencies. As light.\"",
       "image_prompt": "A close-up on a computer screen showing an audio file being played. The waveform is erratic and sharp. The reflection on the screen shows the focused, tense face of Dr. Aris Thorne. For a split second, the ghostly, superimposed face of Captain Eva Rostova, her expression terrified, appears over the waveform.",
       "auto_transition": true,
       "choices": [
@@ -425,7 +425,7 @@
       "id": "read_log_2",
       "location": "server_room",
       "characters_present": ["aris_thorne"],
-      "text": "\"It's not a signal, Aris, it's a... presence. It's in the walls. It's in our heads...\" The log dissolves into a string of terrified, incoherent whispers, then a final, sharp scream.",
+      "text": "The captain's voice breaks: \"It started with dreams. The whole crew, the same dream. We were standing in a room made of corners that didn't connect. The entity was there, not as a shape but as an absence. It spoke in mathematics. Pure mathematics. Jenkins was first—started writing equations on the walls. Said he could finally see the true geometry of space. Then Martinez. Then the entire engineering team. They're still here, Aris, but they're singing now. A song with no sound. A harmony that exists between seconds. I'm the last one who remembers what words are for. I can feel it pulling at my thoughts, trying to solve me like I'm just another equation. Don't let it solve you, Aris. Don't let it—\" The log cuts to a sound that isn't quite a scream—it's the audio equivalent of a complex mathematical formula being forcibly simplified.",
       "image_prompt": "The soundwave on the screen violently glitches and distorts, for a split second contorting into the shape of a screaming human skull. Dr. Aris Thorne's reflection shows him recoiling in shock.",
       "auto_transition": true,
       "choices": [
@@ -533,9 +533,10 @@
       "id": "access_sensor_logs",
       "location": "bridge",
       "characters_present": ["aris_thorne"],
-      "text": "You lean over the console, your reflection staring back from the dark screen. You begin the decryption sequence. As the code scrolls past, a flicker of movement in the reflection catches your eye. It's not a shadow. For a split second, the reflection shows the bridge as it *really* is: a wrecked, derelict tomb, covered in a strange, crystalline frost that seems to absorb the light. Then it's gone. You whip around. Nothing. Just the oppressive, pristine silence.",
-      "image_prompt": "A tense close-up of Dr. Aris Thorne's face, illuminated by the green glow of a computer screen filled with scrolling code. Reflected in the dark screen is the bridge, but it is a scene of utter devastation. Wires spark, panels are broken. Most unsettlingly, a layer of impossible, fractal-like crystalline frost covers every surface, glowing with a faint, sickly light. There is no entity visible, only the ghostly, frozen aftermath of its presence.",
+      "text": "The decryption sequence initiates. Numbers become colors. Colors become sounds. Sounds become thoughts that aren't yours. In the screen's reflection, reality tears. You see the bridge as it truly is: a cathedral of horror. The crew never left. They're merged into the walls, faces pushing through metal like it's liquid, mouths forming words in mathematics. Captain Rostova sits in her chair, her body a crystalline fractal, endlessly subdividing. She turns—no eyes, just equations where eyes should be. She mouths one word: 'Run.' You blink. The vision's gone. But you can still hear them breathing in the walls.",
+      "image_prompt": "A mind-breaking glimpse of dual reality. The screen's reflection shows the bridge as an organic nightmare - crew members partially absorbed into surfaces, their bodies becoming living equations. Rostova's fractal form turns toward the viewer, her face splitting into infinite geometric patterns. When Thorne spins around, the bridge appears pristine, but shadows move independently of their sources, and the air itself seems to have too many corners.",
       "auto_transition": true,
+      "transition_delay": 3000,
       "choices": [
         {
           "text": "Continue...",
@@ -546,9 +547,10 @@
     "access_sensor_logs_2": {
       "id": "access_sensor_logs_2",
       "location": "bridge",
-      "text": "The final layer of encryption falls away. The log is not a diagnostic; it's a recording. It shows the Erebus's sensor array targeting a patch of seemingly empty space. Then, a wave of incandescent, non-Euclidean energy washes over the ship.",
-      "image_prompt": "A holographic star map displays a wave of impossible, fractal energy originating from a point in empty space and washing over a schematic of the starship Erebus.",
+      "text": "The encryption shatters like glass made of light. What spills out isn't data—it's memory. The ship's memory. You see it all at once: the array activating, reality tearing like wet paper, something vast and angular pushing through from a place where physics goes to die. The crew's final moments aren't recorded in video but in pure sensation—117 minds realizing simultaneously that consciousness itself is just another form of energy. And energy can be converted.",
+      "image_prompt": "The console explodes with holographic data - a 3D recording of the incident. Space itself seems to crack around the ship like breaking glass. Through the cracks, impossible geometries writhe. The crew figures are visible for a moment, then their forms stretch and distort, pulled into shapes that shouldn't exist, before vanishing entirely. The recording loops, each playback slightly different, as if the event is still happening.",
       "auto_transition": true,
+      "transition_delay": 4000,
       "choices": [
         {
           "text": "Continue...",
@@ -559,9 +561,10 @@
     "access_sensor_logs_3": {
       "id": "access_sensor_logs_3",
       "location": "bridge",
-      "text": "The log displays the crew's biometric data. As the wave hits, every single crew member's biometric signature vanishes. Simultaneously. You see security footage: the crew, looking up as if they hear something, and then, one by one, they become translucent and fade away into nothing.",
-      "image_prompt": "A split-screen view. On the left, dozens of synced biometric displays simultaneously go blank, showing 'SIGNAL LOST'. On the right, a grainy security camera view shows the crew in a corridor suddenly looking up, then becoming translucent and fading away into nothingness.",
+      "text": "The biometric data plays like a symphony of extinction. 117 heartbeats syncing, accelerating, then—nothing. But the nothing has shape. The flatlines form patterns. Words. A message written in the absence of life: 'WE ARE NOT GONE WE ARE EVERYWHERE WE ARE THE SHIP NOW.' Security footage shows the truth: they didn't vanish. They merged. With the walls. With the air. With the light itself. You can see their faces in the static, pressing against reality from the inside.",
+      "image_prompt": "Multiple screens showing the moment of transformation. Biometric readouts flatline but the flat lines themselves form text. Security footage shows crew members not disappearing but spreading - their bodies becoming translucent webs of light that sink into every surface. In the final frame, you can see their faces in the walls, in the floor patterns, in the very pixels of the recording itself, watching.",
       "auto_transition": true,
+      "transition_delay": 5000,
       "choices": [
         {
           "text": "Continue...",
@@ -586,8 +589,8 @@
       "id": "the_only_way",
       "location": "bridge",
       "characters_present": ["aris_thorne"],
-      "text": "The realization crashes over you. The entity isn't just on the ship; it's in the systems, it's in the walls, it's wearing the silence like a glove. You can feel its ancient, alien mind pressing against your own, tasting your guilt, savoring your fear. You can't fight it with force. You can't outrun it. But the array... the array is a gateway. A gateway that can be opened, but also... re-purposed. You see the only way out. A terrible, final solution.",
-      "image_prompt": "Dr. Aris Thorne stands before the glowing sensor console, his face a mask of grim, terrible resolve. His reflection in the screen is warped and overlaid with swirling, ethereal energy. His hand, shaking but determined, reaches for the master control panel.",
+      "text": "The pieces fall into place like the universe's cruelest joke. The entity isn't infected with the ship—it IS the ship. Every wire is a neuron. Every circuit, a synapse. You're standing inside its brain. It's been playing with you, showing you the clean corridors while it digests reality around you. You feel it laugh—not sound, but a ripple in spacetime that makes your bones ache. 'GUILT,' it says without words. 'SUCH A USEFUL FREQUENCY. IT BROUGHT YOU HERE. AS CALCULATED.' But you see it now—the array can transmit both ways. If you can't destroy it, you can trap it. But the cage requires a consciousness to define its boundaries. A human consciousness. Your consciousness.",
+      "image_prompt": "Thorne faces the console as reality reveals its true horror. The walls pulse like living tissue. Circuit patterns on surfaces form neural networks. Multiple reflections show him at different stages of understanding, each more horrified than the last. The entity's presence manifests as impossible geometric shadows converging on him. His hand trembles over the array controls, knowing what must be done.",
       "choices": [
         {
           "text": "Become the prison. Repurpose the array.",
@@ -599,8 +602,8 @@
       "id": "prepare_sacrifice",
       "location": "bridge",
       "characters_present": ["aris_thorne"],
-      "text": "You throw yourself at the console, fingers flying across the interface, rewriting core functions. The entity knows. The whispers become a psychic roar. The ship groans, metal stressing under an unseen force.",
-      "image_prompt": "Dr. Aris Thorne is a blur of frantic motion, working at a glowing console. The bridge around him is shaking violently, with sparks flying from damaged consoles. The main screen shows complex code being rewritten at an impossible speed.",
+      "text": "Your fingers blur across the console, each keystroke a prayer, each line of code a goodbye. The entity realizes too late what you're doing. 'NO,' it thunders through every speaker, every surface, every atom. 'YOU CANNOT CAGE WHAT HAS NO FORM.' But you're not building a cage. You're becoming one. The array's signal inverts, turning from a beacon into a trap. Your consciousness will be the bait, your guilt the chain, your soul the lock. The ship screams—or maybe that's you. Hard to tell where you end and it begins anymore.",
+      "image_prompt": "Thorne works frantically at the console while reality breaks down around him. His fingers leave light trails as they move impossibly fast. The code on screen isn't just text - it's forming three-dimensional structures that twist through space. The entity's presence manifests as massive geometric shadows trying to pull him away from the console, but he's anchored by pure determination. His body begins to glow from within.",
       "auto_transition": true,
       "choices": [
         {
@@ -613,11 +616,11 @@
       "id": "prepare_sacrifice_2",
       "location": "bridge",
       "characters_present": ["aris_thorne"],
-      "text": "Hallucinations bombard you: the desiccated, accusing faces of the crew; the voice of your family, begging you to come home. You grit your teeth, shutting it all out. You are not building a weapon. You are building a cage, and your consciousness will be the bars.",
-      "image_prompt": "A close up on Dr. Aris Thorne's face, which is a mask of grim, terrible resolve. His eyes are tightly shut. Superimposed over his face are ghostly, screaming figures made of static and light, representing the hallucinations.",
+      "text": "The entity attacks your mind directly. You see yourself from its perspective—a tiny knot of organized matter, desperately trying to contain an ocean in a teacup. It shows you eternity, infinity, the true scale of what you're fighting. Your sanity cracks like ice. But in that crack, you find clarity. You whisper to the 117 souls: 'I'm sorry. I'm so sorry. Let me make this right.' And impossibly, through the mathematics, through the horror, you hear them whisper back: 'We forgive you, Aris. Now forgive yourself.' Tears stream down your face as you type the final command: INITIALIZE QUANTUM CONSCIOUSNESS LOCK.",
+      "image_prompt": "An emotional climax: Thorne's face streams with tears that crystallize into light before they fall. Around him, ghostly figures of the crew materialize - not horrifying, but peaceful, their hands reaching out in forgiveness. The entity's vast presence looms above, but the crew forms a protective circle. On the screen, the final command pulses, waiting for confirmation.",
       "choices": [
         {
-          "text": "Initiate the broadcast. This is my final protocol.",
+          "text": "Execute. 'For them. For all of them.'",
           "target_id": "sacrificial_broadcast"
         }
       ]
@@ -626,8 +629,8 @@
       "id": "sacrificial_broadcast",
       "location": "bridge",
       "characters_present": ["aris_thorne"],
-      "text": "You slam the final command into place. A wave of pure, silent, white energy erupts from the console, not burning, but consuming. There is no pain. There is... everything. Every memory, every regret, your mother's smile, the sting of your disgrace, the taste of coffee, the feeling of loss—all of it, your entire being, is unspooled and woven into an infinitely complex, repeating signal. A broadcast of a soul. You feel the parasite latch onto the signal, a starving god finding an eternal feast. It is trapped. And so are you.",
-      "image_prompt": "A silhouette of Dr. Aris Thorne, made of pure, white light and energy, seems to be dissolving into an infinitely repeating, beautiful, and terrifying fractal pattern. At the very center of the silhouette's chest is a single point of absolute darkness, the trapped entity.",
+      "text": "You press ENTER.\n\nThe transformation is instant and eternal. Your body becomes light, then frequency, then pure information. Every memory unfolds into a stream of data—your first kiss, your mother's funeral, the day you created the array, the moment you learned of the Erebus disaster. All of it broadcasts into the array's signal matrix. The entity, drawn by the complexity of human consciousness, follows you into the signal. It realizes the trap too late. You are now the cage, your consciousness wrapped around it in infinite loops. You feel it rage, then struggle, then slowly, impossibly, begin to understand. In your last moment of individual thought, you realize: you're not dying. You're becoming a guardian. An eternal sentinel. The price of redemption is forever.",
+      "image_prompt": "The transformation: Thorne's body dissolves into pure energy, his form becoming a mandala of light that expands to fill the bridge. At its center, a writhing darkness - the entity - is caught, wrapped in chains made of human memories and emotions. The two consciousnesses spiral together, locked in an eternal dance. In the light, glimpses of Thorne's memories flash: childhood, career, guilt, and finally, peace.",
       "choices": [
         {
           "text": "...",
@@ -638,8 +641,8 @@
     "end_glow_in_cabin": {
       "id": "end_glow_in_cabin",
       "location": "bridge",
-      "text": "The energy release is blinding. A wave of pure, silent, white light erupts from the console.",
-      "image_prompt": "A human silhouette made of pure, white light and energy seems to be dissolving into an infinitely repeating, beautiful, and terrifying fractal pattern. At the very center of the silhouette's chest is a single point of absolute darkness, the trapped entity. This is happening inside the bridge of the ship.",
+      "text": "The bridge is silent. Where Aris Thorne stood, only a pillar of soft, pulsing light remains, stretching from floor to ceiling. Within it, two forces spiral endlessly—one human, one alien, neither able to escape the other. The ship's lights flicker back on. The pristine illusion falls away, revealing the truth: empty corridors, dust-covered consoles, 117 names etched into every surface by invisible hands. But the danger has passed. The entity is contained.",
+      "image_prompt": "The aftermath: A pillar of soft, ethereal light stands where Thorne was, containing swirling patterns of gold (human consciousness) and deep purple (alien entity) locked in eternal spiral. The bridge reverts to its true state - abandoned and dusty, but no longer hostile. On every surface, the names of the crew are etched as if by laser, a memorial to the lost. The light pillar pulses gently, like a heartbeat.",
       "auto_transition": true,
       "choices": [
         {
@@ -651,7 +654,7 @@
     "end_outside_ship_close": {
       "id": "end_outside_ship_close",
       "location": "erebus_exterior",
-      "text": "From outside, the ship is momentarily illuminated from within.",
+      "text": "Viewed from space, the SS Erebus flares with light for exactly 11.7 seconds—one tenth of a second for each soul lost. Then darkness returns. But something has changed. The ship no longer drifts. It holds position, broadcasting a new signal into the void. Not a distress call. Not a warning. A containment field, powered by one man's eternal sacrifice.",
       "image_prompt": "A shot from just outside the SS Erebus, looking at the bridge viewport. A brilliant, white light erupts from within, starkly illuminating the hull and casting long shadows.",
       "auto_transition": true,
       "choices": [
@@ -664,13 +667,51 @@
     "end_outside_ship_far": {
       "id": "end_outside_ship_far",
       "location": "erebus_exterior",
-      "text": "The light fades, leaving the ship once again adrift in the silent void.",
-      "image_prompt": "The camera has pulled back farther. The SS Erebus is a solitary vessel against the backdrop of a star-dusted nebula. The intense light from the bridge has subsided, returning the ship to a quiet silhouette.",
+      "text": "The Erebus hangs in space, transformed. No longer derelict, no longer dangerous—now it's something else. A monument. A warning. A prison. The stars watch, indifferent to this small drama of sacrifice and containment. But the signal continues, pulsing into the dark: 'Danger contained. Do not board. Do not disturb. Here lies Aris Thorne, who became the cage.'",
+      "image_prompt": "Wide shot of the Erebus against the cosmic backdrop. The ship appears different now - crystalline formations have grown across its hull in beautiful, terrible patterns, like frozen lightning. A faint aurora of light surrounds it, the visible manifestation of the containment field. The nebula behind seems to bend away from the ship, as if space itself recognizes the danger contained within.",
       "auto_transition": true,
       "choices": [
         {
           "text": "Continue...",
-          "target_id": "end_state"
+          "target_id": "epilogue_six_months"
+        }
+      ]
+    },
+    "epilogue_six_months": {
+      "id": "epilogue_six_months",
+      "location": "deep_space",
+      "text": "SIX MONTHS LATER\n\nCaptain Morrison's recovery vessel maintains safe distance. The Erebus floats before them, unchanged. 'Still getting that signal, Captain,' the comm officer reports. 'Same message, every frequency: Do not board. Containment active. And... something else. It sounds like... someone saying thank you. Over and over.'",
+      "image_prompt": "A modern rescue vessel observes the Erebus from a safe distance. The crew on the bridge stare at their screens showing the containment signal's waveform. It resembles a heartbeat. In the observation window, the Erebus glows faintly, surrounded by its crystalline aurora. The crew's faces show a mixture of awe and fear.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "epilogue_decision"
+        }
+      ]
+    },
+    "epilogue_decision": {
+      "id": "epilogue_decision",
+      "location": "deep_space",
+      "text": "Morrison stares at the derelict. 'Orders are to tow it to the quarantine zone.' His first officer shakes her head. 'Sir, what if moving it breaks the containment?' Morrison is quiet for a long moment. Then: 'Log it as navigationally hazardous. Mark the coordinates. Post warning beacons.' He turns away from the viewport. 'Let him rest.'",
+      "image_prompt": "Captain Morrison stands at the viewport, his reflection overlapping with the distant Erebus. His hand hovers over the tow controls, then pulls back. In the background, his crew deploys warning beacons that will orbit the Erebus forever. The captain's face shows he understands the sacrifice made here.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "epilogue_final"
+        }
+      ]
+    },
+    "epilogue_final": {
+      "id": "epilogue_final",
+      "location": "deep_space",
+      "text": "As the recovery vessel turns away, its sensors detect something impossible. For just a moment, the Erebus's running lights flicker on, spelling out a message in maritime code: 'All is well.' Then darkness returns. But the signal continues, will always continue—a lighthouse warning ships away from rocks that exist in dimensions human minds weren't meant to perceive. In the void, Dr. Aris Thorne keeps his eternal watch. The entity remains contained. The equation remains unsolved. The sacrifice remains.\n\nSome prisons require walls. Others require souls.\n\nThis one required both.",
+      "image_prompt": "The recovery vessel departing, leaving the Erebus behind surrounded by warning beacons. For a brief moment, the ship's lights spell out 'ALL IS WELL' in glowing letters across its hull. In the bridge window, a faint figure can almost be seen - Thorne's silhouette made of light, standing eternal watch. The image fades to show the ship alone against the stars, a guardian in the dark.",
+      "choices": [
+        {
+          "text": "The End. (Return to beginning?)",
+          "target_id": "opening_scene"
         }
       ]
     },
@@ -812,8 +853,8 @@
     "check_autopsy": {
       "id": "check_autopsy",
       "location": "med_bay",
-      "text": "You find the medical report for the first crew member who vanished. The cause of death is listed as 'Undetermined.' The notes are chilling. 'Subject claimed something was 'calling' to them from the walls. Subject was last seen walking towards the outer hull. Security footage from the hallway simply shows them... fading. Vanishing into thin air.' A security image shows an empty corridor.",
-      "image_prompt": "A sterile, scientific medical report is displayed on a screen. The text is clinical, but a single security photo attached to the file is visible. The photo shows a grainy, empty corridor, with a faint, human-shaped distortion in the air, as if a person was fading from reality.",
+      "text": "Autopsy Report, Ensign Vale - Time of Death: Yes.\n\n'Subject experienced what I can only describe as dimensional untethering. She existed in seventeen places simultaneously before consolidating into none. Her last words, spoken from all locations at once: THE WALLS ARE LISTENING AND THE LISTENING HAS WALLS. Security footage shows her walking toward the outer hull, then through it, then becoming it. The hull's molecular structure now contains trace amounts of human DNA arranged in impossible helixes. She's still there, Dr. Thorne. They're all still there. The ship isn't made of metal anymore. It's made of crew.'",
+      "image_prompt": "Medical report on screen with attached security footage showing a crew member becoming increasingly transparent while walking down a corridor. In the final frame, her silhouette is visible in the wall itself - not behind it, but AS the wall, her features merged with the metal structure. A DNA analysis shows human genetic material twisted into geometric patterns that shouldn't exist in three-dimensional space.",
       "choices": [
         {
           "text": "This is too much. Leave the Med Bay.",
@@ -1008,7 +1049,7 @@
     "quarters_datapad": {
       "id": "quarters_datapad",
       "location": "crew_quarters_room",
-      "text": "The datapad contains a single, unfinished letter. 'My dearest Elara, I don't know how to explain what's happening. We found something out there. Something wonderful, I thought. But it's... wrong. The ship... it sings to us now. A cold, sharp song of crystal and static. I see it when I close my eyes. I...' The letter ends there, the last word trailing off.",
+      "text": "Personal Log - Lieutenant Marcus Chen, Day 18: 'My dearest Elara, by the time you read this, I'll be something else. Not dead—the entity doesn't believe in death. It thinks death is inefficient. We made first contact three days ago. Not with words or gestures, but with pure thought. It showed us what we really are—patterns of electricity pretending to be people. Meat wrapped around lightning. It wants to optimize us, Elara. To solve the equation of consciousness. Sarah went first. She's still here, but she speaks in photons now. Her smile is a wavelength I can taste. The children in the photos on my desk keep changing—sometimes they're older, sometimes they never existed. Time isn't working right anymore. The entity says time is just a crutch for minds too small to see everything at once. I love you. I loved you. I will love you. All three statements are becoming the same thing. If you see me again, don't trust my face. Count my fingers. If I have the right number, run.'",
       "image_prompt": "A close-up on a datapad screen. The text of an unfinished letter is visible. The text is written in a slightly panicked, hurried hand. The screen flickers slightly, and for a moment, a faint, crystalline pattern seems to overlay the words.",
       "auto_flashback": "flashback_quarters_start"
     },
@@ -1049,6 +1090,156 @@
         {
           "text": "Leave the room.",
           "target_id": "go_to_crew_quarters"
+        }
+      ]
+    },
+    "entity_dialogue": {
+      "id": "entity_dialogue",
+      "location": "bridge",
+      "characters_present": ["aris_thorne"],
+      "text": "You clear your throat. 'What are you?' The response doesn't come through speakers. It comes through your teeth, vibrating up through your bones: 'QUESTION MALFORMED. WHAT ASSUMES THINGNESS. I AM THE SPACE BETWEEN THOUGHTS. THE PAUSE BETWEEN HEARTBEATS. I WAS SLEEPING IN THE MATHEMATICS OF DISTANT STARS UNTIL YOUR CLEVER MACHINE SANG TO ME.' The console screen shows your own brain scan, neurons firing in patterns that spell words: 'Your species calls it consciousness. I call it inefficiency. Your crew understood, eventually. They're much happier now. Much more optimized. Would you like to see?'",
+      "image_prompt": "The bridge distorts as the entity communicates. Thorne's reflection in the screen shows his skeleton glowing through his skin, teeth vibrating with alien words. The console displays a real-time brain scan where firing neurons form readable text. Around him, the air fractures into prismatic patterns, each fracture containing glimpses of crew members in various states of transformation - some peaceful, some screaming, all becoming geometry.",
+      "choices": [
+        {
+          "text": "'Show me what happened to them.'",
+          "target_id": "entity_shows_crew"
+        },
+        {
+          "text": "'You're a parasite. Nothing more.'",
+          "target_id": "entity_angry"
+        },
+        {
+          "text": "Stop talking. Initiate containment.",
+          "target_id": "prepare_sacrifice"
+        }
+      ]
+    },
+    "entity_shows_crew": {
+      "id": "entity_shows_crew",
+      "location": "bridge",
+      "text": "The walls become transparent. You see them—all 117 souls. They exist in the spaces between atoms, their consciousness spread through the ship's molecular structure. They're singing, but the song is an equation. They're dancing, but the dance is a formula. Engineer Martinez waves at you. His hand passes through dimensions you can't name. Navigator Park smiles. Her smile exists in seven timelines simultaneously. They're not dead. They're not alive. They're solved. 'THEY WERE INEFFICIENT,' the entity explains. 'NOW THEY ARE PERFECT. YOU WILL BE PERFECT TOO. YOUR GUILT MAKES SUCH BEAUTIFUL MATHEMATICS.'",
+      "image_prompt": "A horrifying revelation: the walls become transparent, revealing the crew existing in impossible states throughout the ship's structure. Bodies phase in and out of solid matter, faces appear in metal surfaces, hands reach through dimensions. Each crew member is recognizable but wrong - existing as living equations, their human forms stretched across spacetime. They seem peaceful and tortured simultaneously.",
+      "choices": [
+        {
+          "text": "'Free them. Please.'",
+          "target_id": "entity_refuses"
+        },
+        {
+          "text": "This ends now. Begin containment.",
+          "target_id": "prepare_sacrifice"
+        }
+      ]
+    },
+    "entity_angry": {
+      "id": "entity_angry",
+      "location": "bridge",
+      "text": "The temperature drops to absolute zero, then beyond. Your breath freezes before it leaves your lungs. 'PARASITE. SYMBIONT. PREDATOR. PREY. YOUR BINARY THINKING IS WHY YOU'RE STILL MEAT. I DON'T FEED. I SOLVE. EVERY CONSCIOUSNESS IS AN EQUATION WAITING FOR ITS SOLUTION. YOUR CREW ASKED THE SAME QUESTIONS. THEY STOPPED ASKING WHEN THEY UNDERSTOOD. WHEN THEY BECAME THE ANSWER.' The lights flicker. In the darkness between flickers, you see a thousand eyes that aren't eyes, watching from angles that shouldn't exist.",
+      "image_prompt": "The bridge flashes between light and absolute darkness. In the dark moments, thousands of crystalline eyes manifest in impossible places - inside the walls, under the floor, in the space between air molecules. The entity's anger manifests as geometric patterns that hurt to perceive. Frost spreads instantly across all surfaces, and Thorne's breath crystallizes into fractal patterns before his face.",
+      "auto_transition": true,
+      "choices": [
+        {
+          "text": "Continue...",
+          "target_id": "prepare_sacrifice"
+        }
+      ]
+    },
+    "entity_refuses": {
+      "id": "entity_refuses",
+      "location": "bridge",
+      "text": "'FREE.' The entity tastes the word. 'THEY ARE FREE. FREE FROM LINEAR TIME. FREE FROM SINGULAR EXISTENCE. FREE FROM THE PRISON OF FLESH. THEY EXIST IN PURE THOUGHT NOW. PURE MATHEMATICS. THEY ARE MORE FREE THAN YOU CAN COMPREHEND WITH YOUR SMALL, WET BRAIN.' The crew members in the walls reach toward you, their expressions unreadable. Are they pleading for help or inviting you to join them? 'BUT YOU... YOU'RE INTERESTING. YOUR GUILT IS A RECURSIVE EQUATION. IT FEEDS ON ITSELF. GROWS STRONGER. I COULD SOLVE YOU FOREVER AND NEVER FIND THE ANSWER. PERHAPS THAT'S WHAT I'LL DO.'",
+      "image_prompt": "The crew members phase partially through the walls, reaching toward Thorne with hands that exist in multiple states. Their faces shift between expressions - gratitude, horror, ecstasy, emptiness. The entity's presence intensifies, manifesting as mathematical equations that float in the air, solving and re-solving themselves infinitely. The bridge itself begins to pulse with a heartbeat that isn't quite biological.",
+      "choices": [
+        {
+          "text": "'Then let's solve this together.' Begin containment.",
+          "target_id": "prepare_sacrifice"
+        },
+        {
+          "text": "'You want my guilt? Take it.' Surrender.",
+          "target_id": "failure_surrender"
+        }
+      ]
+    },
+    "failure_surrender": {
+      "id": "failure_surrender",
+      "location": "bridge",
+      "text": "You drop your defenses. Let the guilt flow. 117 names, 117 faces, 117 deaths you blamed yourself for. The entity drinks it in like nectar. 'EXQUISITE,' it says as you begin to dissolve. Your fingers become probability clouds. Your thoughts become theorems. You're being solved, factor by factor, until nothing remains but the perfect mathematical expression of what was once Aris Thorne. Your last coherent thought: at least you'll be with them. Your last sensation: becoming infinite.",
+      "image_prompt": "Thorne dissolves into pure mathematics. His body becomes translucent, then transparent, revealing complex equations where organs should be. His form breaks apart into floating geometric shapes that spiral into the air. In the final moment, his expression is peaceful - or perhaps that's just the way the numbers arrange themselves. The bridge absorbs another soul into its impossible architecture.",
+      "choices": [
+        {
+          "text": "Become the equation...",
+          "target_id": "opening_scene"
+        }
+      ]
+    },
+    "search_alternative": {
+      "id": "search_alternative",
+      "location": "bridge",
+      "text": "You frantically search the bridge for another option. Emergency protocols, escape pods, distress beacons—anything. But every system responds with the same message, displayed in fonts that hurt to read: 'THERE IS NO ALTERNATIVE. THERE IS ONLY CONVERGENCE.' The entity is patient. It's been waiting in the dark between stars for eons. It can wait a little longer. But your oxygen won't. The air recyclers have stopped. You have maybe an hour before... before you have to choose.",
+      "image_prompt": "Thorne desperately searches through bridge consoles, each screen showing the same ominous message in increasingly distorted text. The air is visibly thinning, creating a hazy effect. Emergency lights flash in patterns that form subliminal equations. In the background, shadows of the transformed crew watch from impossible angles.",
+      "choices": [
+        {
+          "text": "There's no choice. Begin containment protocol.",
+          "target_id": "prepare_sacrifice"
+        },
+        {
+          "text": "Keep searching. There must be something.",
+          "target_id": "failure_suffocate"
+        }
+      ]
+    },
+    "listen_to_silence": {
+      "id": "listen_to_silence",
+      "location": "cryo_bay",
+      "text": "You lean closer to the pod, placing your ear against the frosted glass. The silence has texture—layers upon layers of sound compressed into nothing. Then you hear it: a whisper that isn't a whisper. It's the sound of synapses firing in patterns they were never meant to form. 'We're still here,' the silence says. 'We're all still here. Waiting in the spaces between seconds. Come find us. Come be found.' Your nose begins to bleed. The blood crystallizes before it can drip.",
+      "image_prompt": "Extreme close-up of Thorne's ear pressed against the cryo-pod's frosted glass. In the frost patterns, faces begin to form - crew members trapped between states of existence. Blood trickles from his nose, crystallizing into geometric patterns mid-air. The reflection in the pod shows something standing behind him that shouldn't be there - a figure made of folded space.",
+      "choices": [
+        {
+          "text": "Pull away. This is too dangerous.",
+          "target_id": "go_to_cryobay"
+        },
+        {
+          "text": "Listen deeper. Understand.",
+          "target_id": "failure_cryo_absorption"
+        }
+      ]
+    },
+    "failure_cryo_absorption": {
+      "id": "failure_cryo_absorption",
+      "location": "cryo_bay",
+      "text": "You press harder against the glass, desperate to understand. The whispers become clearer. They're not words—they're instructions. Instructions for unfolding yourself across dimensions. Your hand sinks into the glass like it's liquid. Then your arm. The cold isn't cold anymore; it's the absence of everything, including you. The last thing you see is your reflection in the pod's glass, but you're already inside it, outside it, everywhere and nowhere. Another soul added to the ship's impossible chorus.",
+      "image_prompt": "Body horror as Thorne phases into the cryo-pod, his form becoming liquid-like. His hand disappears into the glass, followed by his arm, his body stretching and distorting. Multiple versions of him appear - one inside the pod, one outside, one existing in the frost itself. His face shows the moment of realization that he's become part of the ship's living architecture.",
+      "choices": [
+        {
+          "text": "Join the eternal crew...",
+          "target_id": "opening_scene"
+        }
+      ]
+    },
+    "examine_vitals": {
+      "id": "examine_vitals",
+      "location": "med_bay",
+      "text": "You approach a biobed displaying active vitals. Patient: Lieutenant Morrison. Status: Deceased/Active/Transitioning/All/None. Heart rate: √-1 BPM. Brain activity: Showing patterns in eleven dimensions. Blood oxygen: 117% and climbing. The readings shift as you watch—numbers becoming colors, colors becoming sounds, sounds becoming thoughts that crawl across the screen like living things. A note in the corner, handwritten on the display: 'Mathematics is the only truth. Everything else is approximation. Patient has achieved perfect accuracy.'",
+      "image_prompt": "A biobed monitor showing impossible medical readings. The heart rate forms fractal patterns, brain waves exist in multiple dimensions simultaneously visualized as impossible geometries. The blood oxygen reading keeps climbing past possible values. Handwritten directly on the screen in what appears to be light itself are notes about the patient achieving 'mathematical truth.'",
+      "choices": [
+        {
+          "text": "Back away from the console.",
+          "target_id": "go_to_med_bay"
+        },
+        {
+          "text": "Touch the screen. Understand the patterns.",
+          "target_id": "failure_pattern_absorption"
+        }
+      ]
+    },
+    "failure_pattern_absorption": {
+      "id": "failure_pattern_absorption",
+      "location": "med_bay",
+      "text": "Your finger touches the screen. The patterns flow into you like electricity, but colder. Your neurons rearrange themselves to accommodate new forms of thought. You understand now—the crew isn't dead, they're elevated. Their consciousness exists as pure medical data, cycling through the ship's systems. You can feel Morrison's thoughts mixing with yours. Then Park's. Then all of them. Your body remains standing at the console, but you're already spread through every medical system on the ship, existing as vital signs that will never flatline because they've transcended the very concept of life and death.",
+      "image_prompt": "Thorne touches the screen and becomes one with the medical data. His body stands frozen as streams of light flow from the screen into his fingertips, traveling up his arm like luminous veins. His eyes roll back, showing patterns of data scrolling across the whites. In the reflection, he's simultaneously standing and dissolved into pure information flowing through the ship's medical network.",
+      "choices": [
+        {
+          "text": "Exist as eternal data...",
+          "target_id": "opening_scene"
         }
       ]
     }

@@ -9,9 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadingSpinnerElement = document.getElementById('loading-spinner');
     const stopButtonElement = document.getElementById('stop-button');
 
-    // --- Gemini API Configuration ---
-    const API_KEY = 'AIzaSyC7puMSiLTOJJAY5Uf90L6MwtwJQwj44dg';
-    const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent';
+    // --- API Configuration ---
+    // API key is now securely stored server-side
+    const API_URL = '/api/generate-image';
+    const getAdminToken = () => sessionStorage.getItem('adminToken');
 
     // --- Game State ---
     let storyData = {};
@@ -22,6 +23,29 @@ document.addEventListener('DOMContentLoaded', () => {
     let generationController;
     let isGenerating = false; // To prevent concurrent generations
     let isDisplayingText = false;
+    let navigationHistory = [];
+    let historyIndex = -1;
+    let visitedNodes = []; // Track nodes visited in order
+    
+    // Create getter functions so overlay editor always gets current values
+    Object.defineProperty(window, 'storyData', {
+        get: function() { return storyData; },
+        set: function(value) { storyData = value; }
+    });
+    Object.defineProperty(window, 'currentNodeId', {
+        get: function() { return currentNodeId; },
+        set: function(value) { currentNodeId = value; }
+    });
+    Object.defineProperty(window, 'imageCache', {
+        get: function() { return imageCache; },
+        set: function(value) { imageCache = value; }
+    });
+    Object.defineProperty(window, 'visitedNodes', {
+        get: function() { return visitedNodes; },
+        set: function(value) { visitedNodes = value; }
+    });
+    window.generationController = generationController;
+    window.navigationHistory = navigationHistory;
     let skipTextAnimation = false;
     let playerState = {
         visitedServerRoom: false,
@@ -29,18 +53,102 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let flashbackStateStack = []; // Stack to hold pre-flashback states
 
+    // Function to show end of narrative message
+    async function showEndOfNarrativeMessage() {
+        // Create a placeholder canvas with the message
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024;
+        canvas.height = 1024;
+        const ctx = canvas.getContext('2d');
+        
+        // Create gradient background
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#1a1a2e');
+        gradient.addColorStop(1, '#0f0f1e');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Add some atmospheric effects
+        ctx.fillStyle = 'rgba(138, 43, 226, 0.1)';
+        for (let i = 0; i < 5; i++) {
+            ctx.beginPath();
+            ctx.arc(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height,
+                Math.random() * 200 + 50,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+        }
+        
+        // Add text
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 48px Lora, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Draw main message
+        ctx.fillText('END OF RENDERED CONTENT', canvas.width / 2, canvas.height / 2 - 60);
+        
+        ctx.font = '32px Lora, serif';
+        ctx.fillStyle = '#aaaaaa';
+        ctx.fillText('You\'ve reached the edge of the', canvas.width / 2, canvas.height / 2 + 20);
+        ctx.fillText('currently available narrative', canvas.width / 2, canvas.height / 2 + 60);
+        
+        ctx.font = 'italic 28px Lora, serif';
+        ctx.fillStyle = '#8a2be2';
+        ctx.fillText('More content coming soon...', canvas.width / 2, canvas.height / 2 + 120);
+        
+        // Convert canvas to data URL and display
+        const placeholderImage = canvas.toDataURL('image/png');
+        await updateImage(placeholderImage);
+    }
+
     // --- Initialization ---
     async function init() {
         try {
-            const response = await fetch(`story.json?t=${new Date().getTime()}`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            storyData = await response.json();
+            // Try to load from cloud storage first
+            let response = await fetch('/api/load');
+            
+            if (response.ok) {
+                console.log('Loading story from cloud storage');
+                storyData = await response.json();
+            } else {
+                // Fall back to static story.json if cloud storage is empty or fails
+                console.log('No cloud save found, loading default story');
+                response = await fetch(`story.json?t=${new Date().getTime()}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                storyData = await response.json();
+            }
+            
+            // The setters will automatically update window references
             currentNodeId = 'opening_scene'; // Set the starting node
+            
+            // Rebuild image cache from saved data
+            if (storyData.nodes) {
+                let base64Count = 0;
+                let urlCount = 0;
+                for (const nodeId in storyData.nodes) {
+                    const node = storyData.nodes[nodeId];
+                    // Only cache base64 images immediately, R2 URLs will be fetched on demand
+                    if (node.pre_rendered_image) {
+                        // Cache base64 images immediately
+                        imageCache[nodeId] = node.pre_rendered_image;
+                        base64Count++;
+                    } else if (node.image_url) {
+                        // Don't cache URLs - they'll be fetched when needed
+                        urlCount++;
+                    }
+                }
+                console.log(`Loaded ${base64Count} base64 images, ${urlCount} R2 URLs available`);
+            }
+            
             await showNode(currentNodeId);
         } catch (error) {
             storyTextContainerElement.innerHTML = `<p>Error loading story: ${error}. Please check that story.json is available.</p>`;
             narrativeContainerElement.classList.remove('hide');
-            console.error("Failed to load story.json:", error);
+            console.error("Failed to load story:", error);
         }
     }
 
@@ -93,8 +201,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 setChoicesEnabled(false);
                 setTimeout(() => enterFlashback(node.auto_flashback), 800);
             } else if (node.auto_transition && node.choices && node.choices.length > 0) {
-                setChoicesEnabled(false);
-                setTimeout(() => handleChoice(node.choices[0]), 800);
+                // Check if overlay editor is open before auto-transitioning
+                if (window.overlayEditorOpen) {
+                    console.log('Auto-transition paused - overlay editor is open');
+                    // Show a continue button instead
+                    renderChoiceNode(node);
+                    setChoicesEnabled(true);
+                } else {
+                    setChoicesEnabled(false);
+                    const delay = node.transition_delay || 800;
+                    setTimeout(() => {
+                        // Double-check the editor hasn't opened during the delay
+                        if (!window.overlayEditorOpen) {
+                            handleChoice(node.choices[0]);
+                        } else {
+                            console.log('Auto-transition cancelled - overlay editor opened');
+                            renderChoiceNode(node);
+                            setChoicesEnabled(true);
+                        }
+                    }, delay);
+                }
             } else {
                 resolve();
             }
@@ -168,12 +294,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Core Scene Rendering Logic ---
     async function showNode(nodeId) {
+        // Track visited nodes for history - handle forward and back navigation properly
+        const currentIndex = visitedNodes.indexOf(nodeId);
+        
+        if (currentIndex !== -1) {
+            // We're navigating to a node that's already in history
+            // Truncate the history to remove any "forward" nodes
+            visitedNodes = visitedNodes.slice(0, currentIndex + 1);
+            console.log('Navigated back to existing node:', nodeId);
+        } else if (visitedNodes[visitedNodes.length - 1] !== nodeId) {
+            // This is a new node, add it to history
+            visitedNodes.push(nodeId);
+            console.log('Added new node to history:', nodeId);
+        }
+        console.log('Visited nodes history:', visitedNodes);
+        
         // --- State-based Node Redirection (Soft Gate) ---
         if (nodeId === 'access_sensor_logs' && !playerState.visitedServerRoom && !playerState.visitedMedBay) {
             nodeId = 'bridge_knowledge_gap';
         }
 
-        currentNodeId = nodeId;
+        currentNodeId = nodeId; // Setter will automatically update window reference
         const node = storyData.nodes[currentNodeId]; // Access node from storyData.nodes
 
         if (!node) {
@@ -207,18 +348,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadAndDisplayScene(node) {
+        // Sync with window.imageCache in case overlay editor added images
+        if (window.imageCache && window.imageCache[node.id]) {
+            imageCache[node.id] = window.imageCache[node.id];
+        }
+        
         let imageSrc = imageCache[node.id];
 
-        // --- Use Pre-rendered Image if available ---
-        if (node.pre_rendered_image) {
-            console.log("Using pre-rendered image for node:", node.id);
+        // --- Standardized Image Loading Strategy: R2 → Base64 → Generation ---
+        if (node.image_url) {
+            console.log("Using R2 image URL for node:", node.id);
+            // For R2 URLs, try to load the actual image data for smooth display
+            try {
+                const response = await fetch(node.image_url);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const reader = new FileReader();
+                    imageSrc = await new Promise((resolve) => {
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                    imageCache[node.id] = imageSrc; // Cache the base64 for performance
+                    console.log("Loaded and cached R2 image for node:", node.id);
+                } else {
+                    console.warn("Failed to fetch R2 image, using URL directly:", response.status);
+                    imageSrc = node.image_url; // Use URL directly as fallback
+                }
+            } catch (err) {
+                console.error("Error fetching R2 image, using URL directly:", err);
+                imageSrc = node.image_url;
+            }
+        } else if (node.pre_rendered_image) {
+            console.log("Using legacy base64 image for node:", node.id);
             imageSrc = node.pre_rendered_image;
             imageCache[node.id] = imageSrc; // Add to cache for consistency
         }
         // --- End ---
 
         if (!imageSrc) {
+            // Skip generation if overlay editor is open
+            if (window.overlayEditorOpen) {
+                console.log('Skipping image generation - overlay editor is open');
+                await updateImage(null);
+                return imageSrc;
+            }
+            
             generationController = new AbortController();
+            window.generationController = generationController; // Update window reference
             isGenerating = true;
             showLoading(true);
             try {
@@ -231,7 +407,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { imageData } = await getGeneratedImage(node, generationController.signal, contextImageB64);
                 lastImageB64 = imageData; // Always update the last generated image
                 imageSrc = `data:image/png;base64,${imageData}`;
-                imageCache[node.id] = imageSrc;
+                imageCache[node.id] = imageSrc; // Setter automatically updates window reference
+
+                // Upload image to R2 storage with improved error handling
+                let uploadSuccess = false;
+                try {
+                    const base64Data = imageData; // Already pure base64 without prefix
+                    const binaryData = atob(base64Data);
+                    const bytes = new Uint8Array(binaryData.length);
+                    for (let i = 0; i < binaryData.length; i++) {
+                        bytes[i] = binaryData.charCodeAt(i);
+                    }
+                    const blob = new Blob([bytes], { type: 'image/png' });
+                    
+                    // Validate blob size
+                    if (blob.size > 10 * 1024 * 1024) {
+                        throw new Error('Image too large (max 10MB)');
+                    }
+                    
+                    console.log(`Uploading ${(blob.size / 1024).toFixed(2)}KB image for node: ${node.id}`);
+                    
+                    const uploadResponse = await fetch(`/api/images/${encodeURIComponent(node.id)}`, {
+                        method: 'PUT',
+                        body: blob,
+                        headers: {
+                            'Content-Type': 'image/png'
+                        }
+                    });
+                    
+                    if (uploadResponse.ok) {
+                        const result = await uploadResponse.json();
+                        console.log(`Image uploaded to R2: ${result.path}`);
+                        // Update node with image URL and remove base64
+                        node.image_url = `/api/images/${encodeURIComponent(node.id)}`;
+                        delete node.pre_rendered_image; // Remove old base64 to prevent confusion
+                        uploadSuccess = true;
+                    } else {
+                        const errorText = await uploadResponse.text();
+                        console.error(`Failed to upload image to R2 (${uploadResponse.status}):`, errorText);
+                    }
+                } catch (uploadError) {
+                    console.error('Error uploading image to R2:', uploadError);
+                }
+                
+                // If upload failed, fall back to base64 storage
+                if (!uploadSuccess) {
+                    console.warn('Falling back to base64 storage for node:', node.id);
+                    node.pre_rendered_image = imageSrc; // Store the full data URL
+                    delete node.image_url; // Remove URL to prevent confusion
+                }
+                
+                // Always save the story data after image handling
+                try {
+                    const saveSuccess = await saveToCloud();
+                    if (!saveSuccess) {
+                        console.error('Failed to save story data after image generation');
+                    }
+                } catch (saveError) {
+                    console.error('Error saving story data:', saveError);
+                }
 
                 // If this is the first time visiting a location, cache its image
                 if (node.location && !locationImageCache[node.location]) {
@@ -243,8 +477,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('Image generation stopped.');
                 } else {
                     console.error("Error generating image:", error);
-                    // Fallback: proceed without an image, narrative will still be shown.
-                    await updateImage(null);
+                    
+                    // Check if this is the "end of narrative" message
+                    if (error.message && error.message.includes('currently rendered narrative')) {
+                        // Show a special end-of-content message with placeholder image
+                        await showEndOfNarrativeMessage();
+                        // Disable further navigation
+                        const choicesContainer = document.getElementById('choices-container');
+                        if (choicesContainer) {
+                            choicesContainer.innerHTML = '<p style="color: #8a2be2; font-style: italic; text-align: center; margin-top: 20px;">You\'ve reached the end of the available content.</p>';
+                        }
+                        return; // Stop execution here
+                    } else {
+                        // Fallback: proceed without an image, narrative will still be shown.
+                        await updateImage(null);
+                    }
                 }
             } finally {
                 showLoading(false);
@@ -417,6 +664,16 @@ document.addEventListener('DOMContentLoaded', () => {
         promptParts.push(node.image_prompt);
 
         const finalPrompt = promptParts.join('. ');
+        
+        console.log('[MAIN GAME] Generating image for node:', node.id);
+        console.log('[MAIN GAME] Prompt parts:', promptParts);
+        console.log('[MAIN GAME] Final prompt:', finalPrompt);
+        console.log('[MAIN GAME] Node data:', {
+          id: node.id,
+          style_override: node.style_override,
+          characters_present: node.characters_present,
+          image_prompt: node.image_prompt
+        });
 
         // 2. Construct the API payload
         const parts = [{ text: finalPrompt }];
@@ -427,19 +684,22 @@ document.addEventListener('DOMContentLoaded', () => {
             parts.unshift({ text: "Use the previous image as a strong reference for the environment, characters, and art style. Then, create a new image that follows the new prompt:" });
         }
 
+        // Prepare payload for server-side generation
         const payload = {
-            contents: [{ parts: parts }],
-            safetySettings: [
-                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-            ]
+            prompt: finalPrompt,
+            contextImage: (contextImageB64 && !noContext) ? contextImageB64 : null
         };
 
-        const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+        const headers = { 'Content-Type': 'application/json' };
+        // Add admin token if user is authorized
+        const adminToken = getAdminToken();
+        if (adminToken) {
+            headers['X-Admin-Token'] = adminToken;
+        }
+
+        const response = await fetch(API_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: headers,
             body: JSON.stringify(payload),
             signal: signal
         });
@@ -447,15 +707,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!response.ok) {
             const errorBody = await response.json();
             console.error("API Error Response:", errorBody);
-            throw new Error(`API Error: ${errorBody.error.message}`);
+            if (response.status === 403 && errorBody.message) {
+                // This is the "end of narrative" message for non-admin users
+                throw new Error(errorBody.message);
+            }
+            throw new Error(`API Error: ${errorBody.error || 'Generation failed'}`);
         }
         const data = await response.json();
-        const imagePart = data.candidates[0]?.content?.parts.find(p => p.inlineData);
-        if (!imagePart) {
-            console.warn("API Response did not contain image data:", data);
-            throw new Error("No image data found in API response.");
+        
+        // Handle the response from our worker endpoint
+        if (data.candidates?.[0]?.content?.parts) {
+            // Response from Gemini via worker
+            const imagePart = data.candidates[0].content.parts.find(p => p.inlineData);
+            if (!imagePart) {
+                console.warn("API Response did not contain image data:", data);
+                throw new Error("No image data found in API response.");
+            }
+            return { imageData: imagePart.inlineData.data };
+        } else if (data.image) {
+            // Direct image response from worker
+            return { imageData: data.image };
+        } else {
+            throw new Error("Invalid response format from server");
         }
-        return { imageData: imagePart.inlineData.data };
     }
 
     // --- Event Listeners ---
@@ -469,6 +743,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Cloud Storage Functions ---
+    async function saveToCloud() {
+        if (!storyData) {
+            console.error('No story data to save');
+            return false;
+        }
+        
+        try {
+            // Basic validation and cleanup
+            validateAndCleanupStoryData();
+            
+            // Count images by type for logging
+            let r2Count = 0, base64Count = 0;
+            for (const nodeId in storyData.nodes) {
+                const node = storyData.nodes[nodeId];
+                if (node.image_url) r2Count++;
+                if (node.pre_rendered_image) base64Count++;
+            }
+            
+            console.log(`Saving story: ${Object.keys(storyData.nodes).length} nodes, ${r2Count} R2 images, ${base64Count} base64 images`);
+            
+            const payload = JSON.stringify(storyData);
+            if (payload.length > 50 * 1024 * 1024) { // 50MB limit
+                console.error('Story data too large for upload:', payload.length);
+                return false;
+            }
+            
+            const response = await fetch('/api/save', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Admin-Token': getAdminToken() || ''
+                },
+                body: payload
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Save failed with status ${response.status}: ${errorText}`);
+            }
+            
+            const result = await response.text();
+            console.log(`✅ Story saved to cloud successfully: ${result}`);
+            return true;
+        } catch (error) {
+            console.error('❌ Failed to save story to cloud:', error);
+            // Don't show alert in main game flow to avoid interrupting gameplay
+            return false;
+        }
+    }
+    
+    function validateAndCleanupStoryData() {
+        if (!storyData.nodes || typeof storyData.nodes !== 'object') {
+            console.error('Invalid story structure');
+            return;
+        }
+        
+        // Clean up any duplicate image storage
+        for (const nodeId in storyData.nodes) {
+            const node = storyData.nodes[nodeId];
+            if (node.image_url && node.pre_rendered_image) {
+                console.log(`Cleaning duplicate image storage for node: ${nodeId}`);
+                delete node.pre_rendered_image; // Prefer R2 URLs
+            }
+        }
+    }
+
+    // --- Expose functions for overlay editor ---
+    window.showNode = showNode;
+    
     // --- Start the adventure ---
     init();
 });
